@@ -1,11 +1,14 @@
 package broker
 
+// WebhookEvent represents the types of events that trigger a Webhook
 type WebhookEvent struct {
 	Name string `json:"name"`
 }
 
+// RequestBody is the request entity of an HTTP request
 type RequestBody map[string]interface{}
 
+// Request is an HTTP request structure
 type Request struct {
 	Method   string      `json:"method"`
 	URL      string      `json:"url"`
@@ -15,6 +18,7 @@ type Request struct {
 	Body     RequestBody `json:"body"`
 }
 
+// Webhook represents a webhook configured in the broker
 type Webhook struct {
 	ID          string         `json:"-"`
 	Description string         `json:"description"`
@@ -26,7 +30,8 @@ type Webhook struct {
 	Request     Request        `json:"request"`
 }
 
-type WebhookResponseCreate struct {
+// WebhookResponse is the response body for any CRU methods
+type WebhookResponse struct {
 	Webhook
 	HalDoc
 }

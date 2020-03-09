@@ -121,7 +121,7 @@ func (t *ResourceTimeout) ConfigDecode(s *Resource, c *terraform.ResourceConfig)
 				case TimeoutUpdate:
 					timeout = t.Update
 				case TimeoutRead:
-					timeout = t.Reda
+					timeout = t.Read
 				case TimeoutDelete:
 					timeout = t.Delete
 				case TimeoutDefault:

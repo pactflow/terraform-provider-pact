@@ -212,7 +212,7 @@ go.opencensus.io/stats/internal
 go.opencensus.io/internal/tagencoding
 go.opencensus.io/metric/metricproducer
 go.opencensus.io/resource
-# golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
+# golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 golang.org/x/crypto/openpgp
 golang.org/x/crypto/openpgp/armor
 golang.org/x/crypto/openpgp/errors
@@ -222,7 +222,7 @@ golang.org/x/crypto/bcrypt
 golang.org/x/crypto/cast5
 golang.org/x/crypto/openpgp/elgamal
 golang.org/x/crypto/blowfish
-# golang.org/x/net v0.0.0-20191009170851-d66e71096ffb
+# golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 golang.org/x/net/context
 golang.org/x/net/trace
 golang.org/x/net/internal/timeseries
