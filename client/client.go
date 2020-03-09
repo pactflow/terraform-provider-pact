@@ -78,15 +78,15 @@ func (c *Client) ReadWebhook(id string) (*broker.Webhook, error) {
 }
 
 // CreateWebhook creates a new webhook
-func (c *Client) CreateWebhook(w broker.Webhook) (*broker.WebhookResponseCreate, error) {
-	res, err := c.doCrud("POST", webhookCreateTemplate, w, new(broker.WebhookResponseCreate))
-	return res.(*broker.WebhookResponseCreate), err
+func (c *Client) CreateWebhook(w broker.Webhook) (*broker.WebhookResponse, error) {
+	res, err := c.doCrud("POST", webhookCreateTemplate, w, new(broker.WebhookResponse))
+	return res.(*broker.WebhookResponse), err
 }
 
 // UpdateWebhook updates an existing webhook. Not all properties are mutable
-func (c *Client) UpdateWebhook(w broker.Webhook) (*broker.WebhookResponseCreate, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(webhookReadUpdateDeleteTemplate, w.ID), w, new(broker.WebhookResponseCreate))
-	return res.(*broker.WebhookResponseCreate), err
+func (c *Client) UpdateWebhook(w broker.Webhook) (*broker.WebhookResponse, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(webhookReadUpdateDeleteTemplate, w.ID), w, new(broker.WebhookResponse))
+	return res.(*broker.WebhookResponse), err
 }
 
 // DeleteWebhook removes an existing webhook
