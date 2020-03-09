@@ -1,7 +1,6 @@
 language: go
 go:
 - '1.13'
-
 deploy:
   provider: releases
   api_key:
@@ -11,4 +10,6 @@ deploy:
     repo: pactflow/terraform
     tags: true
     branch: master
-
+env:
+  global:
+    secure: lc8RAqAYmuZwuvPtHI5id1aeFsuU6iHYAZO9b1FvDQcb76gbA5fwcaOg9sl8MsEeMctOzD51S5u5L3W7M3rEHEas0siCfVrm9yL7MilJn7+0g22OJic8gXDEp7uRabRJpIbcadXAvt/DaMxIQoBqveL6AhjbttccT6G/5Ekt/mpwc0emC8bHLByIB8q05kV6GkfW9KKLATCCsOfrDsE4zdlBbmXW/PhOWXNugjrFPukpNb+wBdT+9uvVOYn7DSwibHi+HS8sXfepp2w+2APWV09/6/lxEWRBpBCFS04apptWhrwa9hLIcqX4QGlDHhOooXOG+SJJb54Ri92PTYQLqf9aFsrc9KhbpCAzWIG7vYXcW9KdhAZXAC3eRAuKLP/sLpRuJ5kMe4yJ8cG3H7koLNT/wx06p+FOOKOwWgcuNOp/RlvcusJCQwt54yEMNlxalWwXq6q9eHMHgiC4pFDctdKATuX3GiP50jngXS/6U/5SRsqBcKL0i3oqW45odZlDDatEOMPmB1ag66u93acPQlHJTft6/eIaKK/MckrxlclZdn17tmT4BnYLPR89Ckt94JPTZGcXxHbZqB5/kDz/1M55zMEsfVqEiG9Ec1/lIM6M79oQRZWIGieyQKg8lpBPgYtPoeVhT8mBed1GIHRYsvcGlmhUaLVvBle2Folv0xU=
