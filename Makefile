@@ -2,7 +2,7 @@ TEST?=./...
 
 .DEFAULT_GOAL := ci
 
-ci:: deps build test integration-test
+ci:: deps bin test integration-test
 
 # Test local provider
 local: build clean
