@@ -9,3 +9,6 @@ deploy:
   file: bin/terraform-provider-pact
   on:
     repo: pactflow/terraform
+    tags: true
+    branch: master
+
