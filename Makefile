@@ -4,7 +4,6 @@ TEST?=./...
 
 ci:: deps bin test integration-test
 
-# Test local provider
 local: build clean
 	terraform init && \
 	TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply -auto-approve
@@ -59,4 +58,8 @@ integration-test:
 	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/terraform-provider-pact
 	terraform init
 
-.PHONY: build clean local bin deps goveralls
+release:
+	echo "--- 🚀 Releasing it"
+	"$(CURDIR)/scripts/release.sh"
+
+.PHONY: build clean local bin deps goveralls release integration-test docker
