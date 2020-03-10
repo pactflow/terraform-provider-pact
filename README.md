@@ -11,7 +11,7 @@ Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_bro
 ## Introduction
 
 <p align="center">
-  <img width="880" src="https://raw.githubusercontent.com/pactflow/terraform/master/examples/tf.svg?sanitize=true">
+  <img width="880" src="https://raw.githubusercontent.com/pactflow/terraform/master/examples/tf-run.svg?sanitize=true">
 </p>
 
 Example:
