@@ -99,6 +99,10 @@ To instead use a custom-built provider in your Terraform environment (e.g. the p
 
 For either installation method, documentation about the provider specific configuration options can be found on the [provider's website](https://www.terraform.io/docs/providers/aws/index.html).
 
+## Using the plugin
+
+See our [Docs](./docs).
+
 ## Developing
 
 ### Requirements
