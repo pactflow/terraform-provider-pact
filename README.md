@@ -12,7 +12,7 @@ Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_bro
 
 <p align="center">
   <a href="https://asciinema.org/a/180671">
-    <img width="880" src="https://raw.githubusercontent.com/pactflow/terraform/master/examples/tf.svg?sanitize=true">
+    <img width="880" src="https://raw.githubusercontent.com/pactflow/terraform/master/examples/example.svg?sanitize=true">
   </a>
 </p>
 
