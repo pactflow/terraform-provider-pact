@@ -10,6 +10,8 @@ local: build clean
 
 build:
 	go build -o bin/terraform-provider-pact
+	mkdir -p ~/.terraform.d/plugins/
+	cp bin/terraform-provider-pact ~/.terraform.d/plugins/
 
 clean:
 	mkdir -p ./log && \

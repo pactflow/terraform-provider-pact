@@ -193,7 +193,10 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
-		log.Println("[DEBUG] response err?", err)
+		if err != nil {
+			log.Println("[DEBUG] error decoding response for", req.URL.Path, ". Error", err)
+			return resp, err
+		}
 	}
 
 	if resp.StatusCode >= 500 {
@@ -216,6 +219,10 @@ func (c *Client) doCrud(method string, path string, requestEntity interface{}, r
 	if err != nil {
 		return responseEntity, err
 	}
-	_, err = c.do(req, &responseEntity)
+	if responseEntity == nil {
+		_, err = c.do(req, nil)
+	} else {
+		_, err = c.do(req, &responseEntity)
+	}
 	return responseEntity, err
 }

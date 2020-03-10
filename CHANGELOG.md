@@ -7,13 +7,6 @@ Do this to generate your change history
 
 ### v0.0.1 (10 March 2020)
 
-
-### v0.0.1 (10 March 2020)
-
-
-### v0.0.1 (10 March 2020)
-
-
 Initial release of the Terraform Pact Provider. Supports OSS and Pactflow brokers and the following resources:
 
 * Pacticipants
