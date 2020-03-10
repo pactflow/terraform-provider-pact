@@ -19,8 +19,8 @@ Example:
 provider "pact" {
   # For the OSS Broker
   # host = "http://localhost"
-  # basic_auth_username = "pact_workshop"
-  # basic_auth_password = "pact_workshop"
+  # basic_auth_username = "pact_broker"
+  # basic_auth_password = "pact_broker"
 
   # For a Pactflow Broker
   host = "https://mybroker.pact.dius.com.au"

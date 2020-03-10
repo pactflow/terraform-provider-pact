@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -14,6 +15,12 @@ import (
 	"github.com/pact-foundation/terraform/broker"
 	"github.com/pact-foundation/terraform/client"
 )
+
+var allowedEvents = []string{
+	"contract_changed_event",
+	"contract_published",
+	"provider_verification_published",
+}
 
 var pacticipantType = &schema.Schema{
 	Type:     schema.TypeMap,
@@ -37,7 +44,7 @@ var eventsType = &schema.Schema{
 	Optional: true,
 	Elem: &schema.Schema{
 		Type:         schema.TypeString,
-		ValidateFunc: secretType.ValidateFunc,
+		ValidateFunc: validateEvents,
 	},
 }
 
@@ -85,6 +92,19 @@ var requestType = &schema.Schema{
 			},
 		},
 	},
+}
+
+func stringContains(s []string, searchterm string) bool {
+	i := sort.SearchStrings(s, searchterm)
+	return i < len(s) && s[i] == searchterm
+}
+
+func validateEvents(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	if !stringContains(allowedEvents, v) {
+		errs = append(errs, fmt.Errorf("%q must be one of the allowed events %v, got %v", key, allowedEvents, v))
+	}
+	return
 }
 
 func validateURL(val interface{}, key string) (warns []string, errs []error) {
