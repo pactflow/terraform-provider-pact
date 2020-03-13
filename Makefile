@@ -2,7 +2,7 @@ TEST?=./...
 
 .DEFAULT_GOAL := ci
 
-ci:: deps bin test integration-test
+ci:: deps bin test acceptance-test
 
 local: build clean
 	terraform init && \
@@ -58,6 +58,10 @@ test:
 oss-acceptance-test: docker
 	terraform apply -auto-approve -state=acceptance/oss/terraform.tfstate acceptance/oss/
 	terraform destroy -auto-approve -state=acceptance/oss/terraform.tfstate acceptance/oss/
+
+pactflow-acceptance-test: docker
+	terraform apply -auto-approve -state=acceptance/pactflow/terraform.tfstate acceptance/pactflow/
+	terraform destroy -auto-approve -state=acceptance/pactflow/terraform.tfstate acceptance/pactflow/
 
 acceptance-test:
 	mkdir -p ~/.terraform.d/plugins
