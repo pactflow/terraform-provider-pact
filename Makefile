@@ -56,12 +56,16 @@ test:
 	go tool cover -func coverage.txt
 
 oss-acceptance-test: docker
-	terraform apply -auto-approve -state=acceptance/oss/terraform.tfstate acceptance/oss/
-	terraform destroy -auto-approve -state=acceptance/oss/terraform.tfstate acceptance/oss/
+	cd acceptance/oss && \
+		terraform init && \
+		terraform apply -auto-approve && \
+		terraform destroy -auto-approve
 
-pactflow-acceptance-test: docker
-	terraform apply -auto-approve -state=acceptance/pactflow/terraform.tfstate acceptance/pactflow/
-	terraform destroy -auto-approve -state=acceptance/pactflow/terraform.tfstate acceptance/pactflow/
+pactflow-acceptance-test:
+	cd acceptance/pactflow && \
+		terraform init && \
+		terraform apply -auto-approve && \
+		terraform destroy -auto-approve
 
 binary-acceptance-test:
 	mkdir -p ~/.terraform.d/plugins
