@@ -25,7 +25,21 @@ const (
 	pacticipantCreateTemplate           = "/pacticipants"
 	secretReadUpdateDeleteTemplate      = "/secrets/%s"
 	secretCreateTemplate                = "/secrets"
+	listTokensTemplate                  = "/settings/tokens"
+	tokenRegenerateTemplate             = "/settings/tokens/%s/regenerate"
+	metadataTemplate                    = "/"
+	// {"_links":{"self":{"href":"https://dius.pact.dius.com.au","title":"Index","templated":false},"pb:publish-pact":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/consumer/{consumer}/version/{consumerApplicationVersion}","title":"Publish a pact","templated":true},"pb:latest-pact-versions":{"href":"https://dius.pact.dius.com.au/pacts/latest","title":"Latest pact versions","templated":false},"pb:tagged-pact-versions":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/consumer/{consumer}/tag/{tag}","title":"All versions of a pact for a given consumer, provider and consumer version tag","templated":false},"pb:pacticipants":{"href":"https://dius.pact.dius.com.au/pacticipants","title":"Pacticipants","templated":false},"pb:pacticipant":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}","title":"Fetch pacticipant by name","templated":true},"pb:latest-provider-pacts":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/latest","title":"Latest pacts by provider","templated":true},"pb:latest-provider-pacts-with-tag":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/latest/{tag}","title":"Latest pacts for provider with the specified tag","templated":true},"pb:provider-pacts-with-tag":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/tag/{tag}","title":"All pact versions for the provider with the specified consumer version tag","templated":true},"pb:provider-pacts":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}","title":"All pact versions for the specified provider","templated":true},"pb:latest-version":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}/latest-version","title":"Latest pacticipant version","templated":true},"pb:latest-tagged-version":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}/latest-version/{tag}","title":"Latest pacticipant version with the specified tag","templated":true},"pb:webhooks":{"href":"https://dius.pact.dius.com.au/webhooks","title":"Webhooks","templated":false},"pb:webhook":{"href":"https://dius.pact.dius.com.au/webhooks/{uuid}","title":"Webhook","templated":true},"pb:integrations":{"href":"https://dius.pact.dius.com.au/integrations","title":"Integrations","templated":false},"pb:pacticipant-version-tag":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}/versions/{version}/tags/{tag}","title":"Get, create or delete a tag for a pacticipant version","templated":true},"pb:metrics":{"href":"https://dius.pact.dius.com.au/metrics","title":"Get Pact Broker metrics"},"pb:can-i-deploy-pacticipant-version-to-tag":{"href":"https://dius.pact.dius.com.au/can-i-deploy?pacticipant={pacticipant}\u0026version={version}\u0026to={tag}","title":"Determine if an application can be safely deployed to an environment identified by the given tag","templated":true},"curies":[{"name":"pb","href":"https://dius.pact.dius.com.au/doc/{rel}?context=index","templated":true},{"name":"beta","href":"https://dius.pact.dius.com.au/doc/{rel}?context=index","templated":true}],"beta:provider-pacts-for-verification":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/for-verification","title":"Pact versions to be verified for the specified provider","templated":true},"pb:api-tokens":{"href":"https://dius.pact.dius.com.au/settings/tokens","title":"API tokens","templated":false},"pb:audit":{"href":"https://dius.pact.dius.com.au/audit","title":"Audit trail","templated":false},"pb:secrets":{"href":"https://dius.pact.dius.com.au/secrets","title":"Secrets","templated":false}}}
 )
+
+const (
+	readOnlyTokenType  = "read-only"
+	readWriteTokenType = "read-write"
+)
+
+var tokenTypes = map[string]string{
+	readOnlyTokenType:  "Read only token (developer)",
+	readWriteTokenType: "Read/write token (CI)",
+}
 
 var (
 	ErrBadRequest        = errors.New("bad request")
@@ -46,7 +60,7 @@ type Config struct {
 // Use NewClient to get started
 type Client struct {
 	client    http.Client
-	config    Config
+	Config    Config
 	UserAgent string
 }
 
@@ -64,7 +78,7 @@ func NewClient(httpClient *http.Client, config Config) *Client {
 
 	client := Client{
 		client:    *httpClient,
-		config:    config,
+		Config:    config,
 		UserAgent: userAgent,
 	}
 
@@ -144,9 +158,60 @@ func (c *Client) DeleteSecret(s broker.Secret) error {
 	return err
 }
 
+// ListTokens lists all tokens for the given user principal
+func (c *Client) ListTokens() (*broker.APITokensResponse, error) {
+	res, err := c.doCrud("GET", listTokensTemplate, nil, new(broker.APITokensResponse))
+	return res.(*broker.APITokensResponse), err
+}
+
+// FindTokenByUUID finds a token given a UUID
+func (c *Client) FindTokenByUUID(uuid string) (*broker.APIToken, error) {
+	tokens, err := c.ListTokens()
+	log.Println("[DEBUG] have tokens", tokens)
+
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range tokens.Embedded.Items {
+		log.Println("[DEBUG] have token", t)
+		if t.UUID == uuid {
+			return &t, nil
+		}
+	}
+	return nil, fmt.Errorf("token with uuid '%s' not found", uuid)
+}
+
+// FindTokenByType finds a token given it's s
+// NOTE: this API will be deprecated once a full CRUD API is available
+func (c *Client) FindTokenByType(tokenType string) (*broker.APIToken, error) {
+	if _, ok := tokenTypes[tokenType]; !ok {
+		return nil, fmt.Errorf("invalid token type specified, need one of %v, got %s", tokenTypes, tokenType)
+	}
+
+	tokens, err := c.ListTokens()
+	log.Println("[DEBUG] have tokens", tokens)
+
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range tokens.Embedded.Items {
+		log.Println("[DEBUG] have token", t)
+		if t.Description == tokenTypes[tokenType] {
+			return &t, nil
+		}
+	}
+	return nil, fmt.Errorf("token of type %s not found", tokenType)
+}
+
+// RegenerateToken generates a new API Token for the given UUID
+func (c *Client) RegenerateToken(t broker.APIToken) (*broker.APITokenResponse, error) {
+	res, err := c.doCrud("POST", fmt.Sprintf(tokenRegenerateTemplate, t.UUID), nil, new(broker.APITokenResponse))
+	return res.(*broker.APITokenResponse), err
+}
+
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
-	u := c.config.BaseURL.ResolveReference(rel)
+	u := c.Config.BaseURL.ResolveReference(rel)
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
@@ -163,10 +228,10 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	if c.config.AccessToken != "" {
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.config.AccessToken))
-	} else if c.config.BasicAuthUsername != "" {
-		req.SetBasicAuth(c.config.BasicAuthUsername, c.config.BasicAuthPassword)
+	if c.Config.AccessToken != "" {
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.Config.AccessToken))
+	} else if c.Config.BasicAuthUsername != "" {
+		req.SetBasicAuth(c.Config.BasicAuthUsername, c.Config.BasicAuthPassword)
 	}
 
 	req.Header.Set("Accept", "application/hal+json")
@@ -191,24 +256,29 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	}()
 	log.Println("[DEBUG] response for request:", req, "resp:", resp)
 
+	if resp.StatusCode >= 500 {
+		return nil, ErrSystemUnavailable
+	}
+
+	if resp.StatusCode >= 401 {
+		return nil, ErrUnauthorized
+	}
+
+	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+		return nil, ErrBadRequest
+	}
+
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+		// TODO: deal with redirect
+	}
+
 	if v != nil {
 		err = json.NewDecoder(resp.Body).Decode(v)
 		if err != nil {
 			log.Println("[DEBUG] error decoding response for", req.URL.Path, ". Error", err)
 			return resp, err
 		}
-	}
-
-	if resp.StatusCode >= 500 {
-		err = ErrSystemUnavailable
-	}
-
-	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-		err = ErrBadRequest
-	}
-
-	if resp.StatusCode >= 300 && resp.StatusCode < 400 {
-		// TODO: deal with redirect
+		log.Printf("[DEBUG] Response body: %+v \n", v)
 	}
 
 	return resp, err

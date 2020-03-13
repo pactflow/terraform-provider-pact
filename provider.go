@@ -14,6 +14,7 @@ func Provider() *schema.Provider {
 			"pact_pacticipant": pacticipant(),
 			"pact_webhook":     webhook(),
 			"pact_secret":      secret(),
+			"pact_token":       token(),
 		},
 		ConfigureFunc: configureProvider,
 		Schema: map[string]*schema.Schema{

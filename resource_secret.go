@@ -41,6 +41,11 @@ func secret() *schema.Resource {
 				Sensitive:   true,
 				Description: "The actual secret",
 			},
+			"uuid": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The UUID of secret",
+			},
 		},
 	}
 }
@@ -136,6 +141,7 @@ func setSecretState(d *schema.ResourceData, secret broker.Secret) error {
 	log.Printf("[DEBUG] setting secret state: %+v \n", secret)
 
 	d.Set("name", secret.Name)
+	d.Set("uuid", secret.UUID)
 	d.Set("description", secret.Description)
 
 	if secret.Value != "" {

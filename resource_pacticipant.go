@@ -14,7 +14,6 @@ func pacticipant() *schema.Resource {
 		Update: pacticipantUpdate,
 		Read:   pacticipantRead,
 		Delete: pacticipantDelete,
-
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
 				Type:        schema.TypeString,

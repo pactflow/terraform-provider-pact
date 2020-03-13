@@ -16,6 +16,10 @@ Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_bro
 
 Example:
 ```hcl
+variable "token" {
+  type = string
+}
+
 provider "pact" {
   # For the OSS Broker
   # host = "http://localhost"
@@ -24,7 +28,7 @@ provider "pact" {
 
   # For a Pactflow Broker
   host = "https://mybroker.pact.dius.com.au"
-  access_token = "some-api-token"
+  access_token = var.token
 }
 
 # Create a Pacticipant
@@ -101,7 +105,16 @@ For either installation method, documentation about the provider specific config
 
 ## Using the plugin
 
-See our [Docs](./docs).
+
+| Plugin      | Type     | Platform Support       | Description |
+| ----------- | -------- | ---------------------- | ----------- |
+| [Pact](docs/provider_pact.html.markdown)        | Provider | Pact Broker + Pactflow | Configures a target Pact Broker (such as a pactflow.io account) |
+| [Pacticipant](docs/resource_pacticipant.html.markdown)  | Resource | Pact Broker + Pactflow | Create applications (known as Pacticipants) |
+| [Webhook](docs/resource_webhook.html.markdown)     | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events |
+| [Secret](docs/resource_secret.html.markdown)      | Resource | Pactflow               | Create an encrypted secret for use in Webhooks |
+| [API Token](docs/resource_token.html.markdown)   | Resource | Pactflow               | Manage Pactflow API Tokens |
+
+See our [Docs](./docs) folder for all plugins.
 
 ## Developing
 
