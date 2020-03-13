@@ -35,3 +35,9 @@ The following arguments are supported:
 * `uuid` (string) The UUID of the token for use in API calls.
 * `description` (string) The description of the token.
 * `value` (sensitive, string) The actual API token for use in authenticated calls.
+
+## Lifecycle
+
+* `Create`: On an initial create, the plugin simply fetches the remote token (i.e. it imports the value, but does not change it)
+* `Update`: Changing the `name` property will regenerate the token, resulting in a new local and remote value.
+* `Delete`: API tokens (currently) cannot be deleted. This operation simply detaches the local state from the remote broker.
