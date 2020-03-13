@@ -63,10 +63,13 @@ pactflow-acceptance-test: docker
 	terraform apply -auto-approve -state=acceptance/pactflow/terraform.tfstate acceptance/pactflow/
 	terraform destroy -auto-approve -state=acceptance/pactflow/terraform.tfstate acceptance/pactflow/
 
-acceptance-test:
+binary-acceptance-test:
 	mkdir -p ~/.terraform.d/plugins
 	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/terraform-provider-pact
 	terraform init
+
+acceptance-test: binary-acceptance-test oss-acceptance-test pactflow-acceptance-test
+	echo "--- ✅ Acceptance tests complete"
 
 release:
 	echo "--- 🚀 Releasing it"
