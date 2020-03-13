@@ -41,7 +41,8 @@ coverage.txt
 .vscode
 
 # TF
-*.tf*
+terraform.tfstate
+terraform.tfstate.backup
 .terraform
 
 # Local

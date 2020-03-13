@@ -19,7 +19,7 @@ clean:
 	rm terraform.tf* log/tf.log
 
 docker:
-	docker-compose up
+	docker-compose up -d
 
 bin:
 	gox -os="darwin" -arch="amd64" -output="bin/terraform-provider-pact_{{.OS}}_{{.Arch}}"
@@ -55,7 +55,11 @@ test:
 
 	go tool cover -func coverage.txt
 
-integration-test:
+oss-acceptance-test: docker
+	terraform apply -auto-approve -state=acceptance/oss/terraform.tfstate acceptance/oss/
+	terraform destroy -auto-approve -state=acceptance/oss/terraform.tfstate acceptance/oss/
+
+acceptance-test:
 	mkdir -p ~/.terraform.d/plugins
 	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/terraform-provider-pact
 	terraform init
@@ -64,4 +68,4 @@ release:
 	echo "--- 🚀 Releasing it"
 	"$(CURDIR)/scripts/release.sh"
 
-.PHONY: build clean local bin deps goveralls release integration-test docker
+.PHONY: build clean local bin deps goveralls release acceptance-test docker oss-acceptance-test
