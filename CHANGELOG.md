@@ -6,6 +6,9 @@ Do this to generate your change history
 <a name="0.0.1"></a>
 
 ### v0.0.2 (13 March 2020)
+
+
+### v0.0.2 (13 March 2020)
  * [b77f3cf](https://github.com/pactflow/terraform/commit/b77f3cf) - chore: run docker early on in the build so its available by the time acceptance tests run (Matt Fellows, Fri Mar 13 18:06:55 2020 +1100)
  * [7af0856](https://github.com/pactflow/terraform/commit/7af0856) - test: initialise plugins before acceptance tests (Matt Fellows, Fri Mar 13 17:59:10 2020 +1100)
  * [6b3f871](https://github.com/pactflow/terraform/commit/6b3f871) - test: run acceptance tests at the end of CI (Matt Fellows, Fri Mar 13 17:47:02 2020 +1100)
