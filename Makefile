@@ -2,7 +2,7 @@ TEST?=./...
 
 .DEFAULT_GOAL := ci
 
-ci:: deps bin test acceptance-test
+ci:: docker deps bin test acceptance-test
 
 local: build clean
 	terraform init && \
@@ -56,18 +56,21 @@ test:
 	go tool cover -func coverage.txt
 
 oss-acceptance-test: docker
+	echo "--- Running OSS acceptance tests"
 	cd acceptance/oss && \
 		terraform init && \
 		terraform apply -auto-approve && \
 		terraform destroy -auto-approve
 
 pactflow-acceptance-test:
+	echo "--- Running Pactflow acceptance tests"
 	cd acceptance/pactflow && \
 		terraform init && \
 		terraform apply -auto-approve && \
 		terraform destroy -auto-approve
 
 binary-acceptance-test:
+	echo "--- Checking binary acceptance test"
 	mkdir -p ~/.terraform.d/plugins
 	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/terraform-provider-pact
 	terraform init
