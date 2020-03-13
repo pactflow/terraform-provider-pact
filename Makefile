@@ -1,6 +1,8 @@
 TEST?=./...
 
 .DEFAULT_GOAL := ci
+TRAVIS_COMMIT?=1
+export TF_VAR_build_number=$(TRAVIS_COMMIT)
 
 ci:: docker deps bin test acceptance-test
 
