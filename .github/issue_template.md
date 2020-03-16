@@ -1,23 +1,43 @@
-## Software versions
+Hi there,
 
-* **OS**: e.g. Mac OSX 10.11.5
-* **Golang Version**: `go version`
-* **Golang environment**: Provide output of `go env`
+Thank you for opening an issue. Please modify the below as required to help raise an issue or request a feature.
 
-## Expected behaviour
+### Terraform Version
+Run `terraform -v` to show the version. If you are not running the latest version of Terraform, please upgrade because your issue may have already been fixed.
 
-TBC
+### Affected Resource(s)
+Please list the resources as a list, for example:
+- pact_webhook
+- pact (provider)
 
-## Actual behaviour
+If this issue appears to affect multiple resources, it may be an issue with some core library core, so please mention this.
 
-TBC
+### Terraform Configuration Files
+```hcl
+# Copy-paste your Terraform configurations here - for large Terraform configs,
+# please use a service like Dropbox and share a link to the ZIP file. For
+# security, you can also encrypt the files using our GPG public key.
+```
 
-## Steps to reproduce
+### Debug Output
+Please provider a link to a GitHub Gist containing the complete debug output: https://www.terraform.io/docs/internals/debugging.html. Please do NOT paste the debug output in the issue; just paste a link to the Gist.
 
-Provide a repository, gist or reproducable code snippet so that we can test the problem.
+### Panic Output
+If Terraform produced a panic, please provide a link to a GitHub Gist containing the output of the `crash.log`.
 
-Consider forking the project and creating a test that fails.
+### Expected Behavior
+What should have happened?
 
-## Relevent log files
+### Actual Behavior
+What actually happened?
 
-Please ensure you set logging to `TF_LOG=debug` and attach any relevant log files here (or link from a gist).
+### Steps to Reproduce
+Please list the steps required to reproduce the issue, for example:
+1. `terraform apply`
+
+### Important Factoids
+Are there anything atypical about your accounts that we should know? For example: Running in EC2 Classic? Custom version of OpenStack? Tight ACLs?
+
+### References
+Are there any other GitHub issues (open or closed) or Pull Requests that should be linked here? For example:
+- GH-1234
