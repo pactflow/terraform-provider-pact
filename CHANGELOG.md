@@ -5,6 +5,12 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.0.3 (16 June 2020)
+ * [c18adee](https://github.com/pactflow/terraform/commit/c18adee) - docs: make the ALL case clearer for webhooks. #2 (Matt Fellows, Tue Jun 16 20:37:45 2020 +1000)
+ * [f72169c](https://github.com/pactflow/terraform/commit/f72169c) - Correct contract_content_changed event name (#4) (Garry Jeromson, Tue Jun 16 12:29:55 2020 +0200)
+ * [1dfb448](https://github.com/pactflow/terraform/commit/1dfb448) - chore: update issue template (Matt Fellows, Mon Mar 16 13:41:25 2020 +1100)
+ * [8ea5b36](https://github.com/pactflow/terraform/commit/8ea5b36) - docs: add MIT license (Matt Fellows, Mon Mar 16 13:37:08 2020 +1100)
+
 ### v0.0.2 (13 March 2020)
 
 
