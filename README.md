@@ -66,7 +66,7 @@ resource "pact_webhook" "billy_changed" {
 EOF
   }
 
-  events = ["contract_changed_event", "contract_published"]
+  events = ["contract_content_changed", "contract_published"]
   depends_on = [pact_pacticipant.billy, pact_pacticipant.sally]
 }
 

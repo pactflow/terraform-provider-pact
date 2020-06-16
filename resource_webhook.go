@@ -17,7 +17,7 @@ import (
 )
 
 var allowedEvents = []string{
-	"contract_changed_event",
+	"contract_content_changed",
 	"contract_published",
 	"provider_verification_published",
 }
