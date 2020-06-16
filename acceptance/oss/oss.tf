@@ -37,6 +37,6 @@ resource "pact_webhook" "ui_changed" {
 EOF
   }
 
-  events = ["contract_changed_event", "contract_published"]
+  events = ["contract_content_changed", "contract_published"]
   depends_on = [pact_pacticipant.AdminUI, pact_pacticipant.GraphQLAPI]
 }

@@ -50,7 +50,7 @@ resource "pact_webhook" "product_events" {
 EOF
   }
 
-  events = ["contract_changed_event", "contract_published"]
+  events = ["contract_content_changed", "contract_published"]
   depends_on = [pact_pacticipant.AdminService, pact_pacticipant.ProductService]
 }
 ```
@@ -63,7 +63,7 @@ The following arguments are supported:
 * `webhook_provider` - (Optional, block) A provider to scope events to. See [Pacticipant](#pacticipant) below for details.
 * `webhook_consumer` - (Optional, block) A consumer to scope events to. See [Pacticipant](#pacticipant) below for details.
 * `request` - (Required, block) The request to send when a webhook is fired. See [Request](#request) below for details.
-* `events` - (Required, list of strings) one of	`"contract_changed_event"`, `"contract_published"` or `"provider_verification_published"` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
+* `events` - (Required, list of strings) one of	`"contract_content_changed"`, `"contract_published"` or `"provider_verification_published"` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
 
 
 <a id="pacticipant"></a>
