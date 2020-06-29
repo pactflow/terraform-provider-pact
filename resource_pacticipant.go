@@ -10,18 +10,19 @@ import (
 
 func pacticipant() *schema.Resource {
 	return &schema.Resource{
-		Create: pacticipantCreate,
-		Update: pacticipantUpdate,
-		Read:   pacticipantRead,
-		Delete: pacticipantDelete,
+		Create:   pacticipantCreate,
+		Update:   pacticipantUpdate,
+		Read:     pacticipantRead,
+		Delete:   pacticipantDelete,
+		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: "Name of the Pacticipant",
 			},
-			"repository_url": &schema.Schema{
+			"repository_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "URL or location of the VCS repository",
@@ -73,16 +74,14 @@ func pacticipantUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func pacticipantRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
-	name := d.Get("name").(string)
+	log.Println("[DEBUG] reading pacticipant", d.Id())
 
-	log.Println("[DEBUG] reading pacticipant", name)
-
-	pacticipant, err := client.ReadPacticipant(name)
+	pacticipant, err := client.ReadPacticipant(d.Id())
 
 	log.Println("[DEBUG] have pacticipant for READ", pacticipant)
 
 	if err == nil {
-		d.SetId(name)
+		d.SetId(pacticipant.Name)
 		d.Set("repository_url", pacticipant.RepositoryURL)
 	}
 

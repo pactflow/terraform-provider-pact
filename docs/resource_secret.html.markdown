@@ -22,3 +22,7 @@ The following arguments are supported:
 * `name` - (Required, string) The name of the Secret (alphanumeric characters only)
 * `description` - (Required, string) A human readable description of the Secret.
 * `value` - (Required, string) The actual secret to store.
+
+## Outputs
+
+* `uuid` - (string) The unique ID in Pactflow for this secret.

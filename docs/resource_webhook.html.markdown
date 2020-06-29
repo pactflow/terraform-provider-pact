@@ -89,3 +89,7 @@ A pacticipant may be used as the consumer, provider, none or both in the webhook
 * `password` (Optional, string) Basic auth password to send along with the request.
 * `headers` (Required, block) HTTP Headers as key/value pairs to send with the request.
 * `body` (Required, string) A string body to be sent. JSON body validation will be checked and will produce a warning if invalid (it will _not_ fail validation).
+
+## Outputs
+
+* `uuid` - (string) The unique ID in Pactflow for this webhook.

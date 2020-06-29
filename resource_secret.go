@@ -19,10 +19,11 @@ var secretType = &schema.Schema{
 
 func secret() *schema.Resource {
 	return &schema.Resource{
-		Create: secretCreate,
-		Update: secretUpdate,
-		Read:   secretRead,
-		Delete: secretDelete,
+		Create:   secretCreate,
+		Update:   secretUpdate,
+		Read:     secretRead,
+		Delete:   secretDelete,
+		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,

@@ -38,10 +38,11 @@ type apiTokenDefinition struct {
 // and have to be of different types?
 func token() *schema.Resource {
 	return &schema.Resource{
-		Create: tokenCreate,
-		Update: tokenUpdate,
-		Read:   tokenRead,
-		Delete: tokenDelete,
+		Create:   tokenCreate,
+		Update:   tokenUpdate,
+		Read:     tokenRead,
+		Delete:   tokenDelete,
+		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -158,7 +159,7 @@ func tokenUpdate(d *schema.ResourceData, meta interface{}) error {
 func tokenRead(d *schema.ResourceData, meta interface{}) error {
 	token := &broker.APIToken{}
 	httpClient := meta.(*client.Client)
-	uuid := d.Get("uuid").(string)
+	uuid := d.Id()
 
 	token, err := httpClient.FindTokenByUUID(uuid)
 	if err != nil {

@@ -113,6 +113,8 @@ For either installation method, documentation about the provider specific config
 | [Webhook](docs/resource_webhook.html.markdown)     | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events |
 | [Secret](docs/resource_secret.html.markdown)      | Resource | Pactflow               | Create an encrypted secret for use in Webhooks |
 | [API Token](docs/resource_token.html.markdown)   | Resource | Pactflow               | Manage Pactflow API Tokens |
+| [Users](docs/resource_user.html.markdown)   | Resource | Pactflow               | Manage Pactflow Users |
+| [Roles](docs/resource_role.html.markdown)   | Resource | Pactflow               | Manage Pactflow Roles |
 
 See our [Docs](./docs) folder for all plugins.
 
@@ -142,9 +144,10 @@ Plan for the next few months:
 - [x] Pacticipants
 - [x] Webhooks
 - [x] Secrets (Pactflow only)
-- [ ] API Tokens (Pactflow only)
+- [x] API Tokens (Pactflow only)
+- [x] User + Role Management (Pactflow only)
 - [ ] Better error messages for HTTP / runtime failures
-- [ ] Proper acceptance tests
+- [x] Acceptance tests
 - [ ] Better code coverage
 - [ ] Extract `Client` into separate SDK package
 - [ ] Publish 1.0.0

@@ -63,3 +63,13 @@ resource "pact_token" "read_write" {
   type = "read-write"
   name = "CI token"
 }
+resource "pact_user" "somebody" {
+  name = "Matt FellowsTest"
+  email = "mfellows@dius.com.au"
+  active = true
+}
+
+resource "pact_role" "somebody_admin" {
+  role = "administrator"
+  user = pact_user.somebody.uuid
+}

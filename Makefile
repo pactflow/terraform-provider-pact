@@ -6,6 +6,10 @@ export TF_VAR_build_number=$(TRAVIS_COMMIT)
 
 ci:: docker deps bin test acceptance-test
 
+local-no-clean: build
+	terraform init && \
+	TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply -auto-approve
+
 local: build clean
 	terraform init && \
 	TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply -auto-approve
@@ -57,7 +61,7 @@ test:
 
 	go tool cover -func coverage.txt
 
-oss-acceptance-test: docker
+oss-acceptance-test:
 	echo "--- Running OSS acceptance tests"
 	cd acceptance/oss && \
 		terraform init && \
