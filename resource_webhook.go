@@ -308,17 +308,23 @@ func setWebhookState(d *schema.ResourceData, webhook broker.Webhook) error {
 		log.Println("[ERROR] error setting key 'enabled'", err)
 		return err
 	}
-	if err := d.Set("webhook_consumer", map[string]interface{}{
-		"name": webhook.Consumer.Name,
-	}); err != nil {
-		log.Println("[ERROR] error setting key 'webhook_consumer'", err)
-		return err
+
+	if webhook.Consumer != nil {
+		if err := d.Set("webhook_consumer", map[string]interface{}{
+			"name": webhook.Consumer.Name,
+		}); err != nil {
+			log.Println("[ERROR] error setting key 'webhook_consumer'", err)
+			return err
+		}
 	}
-	if err := d.Set("webhook_provider", map[string]interface{}{
-		"name": webhook.Provider.Name,
-	}); err != nil {
-		log.Println("[ERROR] error setting key 'webhook_provider", err)
-		return err
+
+	if webhook.Provider != nil {
+		if err := d.Set("webhook_provider", map[string]interface{}{
+			"name": webhook.Provider.Name,
+		}); err != nil {
+			log.Println("[ERROR] error setting key 'webhook_provider", err)
+			return err
+		}
 	}
 	if err := d.Set("events", flattenEvents(webhook)); err != nil {
 		log.Println("[ERROR] error setting key 'events'", err)

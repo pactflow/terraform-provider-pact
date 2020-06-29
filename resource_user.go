@@ -23,7 +23,7 @@ func user() *schema.Resource {
 			},
 			"email": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				ForceNew:    true,
 				Description: "Email address of the user",
 			},

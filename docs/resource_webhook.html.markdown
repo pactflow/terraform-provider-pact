@@ -93,3 +93,25 @@ A pacticipant may be used as the consumer, provider, none or both in the webhook
 ## Outputs
 
 * `uuid` - (string) The unique ID in Pactflow for this webhook.
+
+## Importing
+
+As per the [docs](https://www.terraform.io/docs/import/usage.html), the ID used for importing is the UUID of the webhook. You can obtain this through the API.
+
+1. Create the shell for the user to be imported into:
+
+```tf
+resource "pact_webhook" "product_events" {
+ ...
+}
+```
+
+2. Import the resource
+```sh
+terraform  import pact_webhook.product_events ZBztO9l5poBdBDyUNewbNw
+```
+
+3. Plan any new changes
+```sh
+teraform plan
+```

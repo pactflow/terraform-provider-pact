@@ -32,3 +32,27 @@ The following arguments are supported:
 * `Create`: On an initial create, a user will be created in the local Pactflow account. If a user is not in any Pactflow organisation, they will receive an email with a temporary token for them to reset their credentials.
 * `Update`: Changes to the user will be applied as expected.
 * `Delete`: Users will not be removed in the system, they will simply be disabled.
+
+## Importing
+
+As per the [docs](https://www.terraform.io/docs/import/usage.html), the ID used for importing is the UUID of the user. You can obtain this through the User API (`GET /admin/users`) and also through the user management screens.
+
+1. Create the shell for the user to be imported into:
+
+```tf
+resource "pact_user" "someuser" {
+  name = "Some User"
+  active = true
+  email = "foo@foo.com
+}
+```
+
+2. Import the resource
+```sh
+terraform import pact_user.someuser e8d4891d-5c96-4dbf-b320-5bb7e3238269
+```
+
+3. Apply any new changes
+```sh
+teraform apply
+```

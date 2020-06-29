@@ -27,3 +27,7 @@ The following arguments are supported:
 
 * `role` - (Required, string) The string name of a role to assign. Currently the only option is `administrator`.
 * `user` - (Required, string) The UUID of a user to apply the role to. Can refer to the `uuid` output of the User resource, or of a known ID in the system.
+
+## Importing
+
+This is not supported for Roles.

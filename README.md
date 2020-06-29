@@ -133,6 +133,10 @@ For either installation method, documentation about the provider specific config
 
 See our [Docs](./docs) folder for all plugins.
 
+## Importing Resources
+
+All resources (except for Roles) support [importing](https://www.terraform.io/docs/import/usage.html).
+
 ## Developing
 
 ### Requirements
