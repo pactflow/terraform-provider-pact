@@ -63,9 +63,10 @@ resource "pact_token" "read_write" {
   type = "read-write"
   name = "CI token"
 }
+
 resource "pact_user" "somebody" {
-  name = "Matt FellowsTest"
-  email = "mfellows@dius.com.au"
+  name = "Tester McPerson"
+  email = "mfellows+test@dius.com.au"
   active = true
 }
 

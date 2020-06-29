@@ -25,6 +25,5 @@ resource "pact_role" "billy_admin" {
 
 The following arguments are supported:
 
-* `name` - (Required, string) The name of the user.
-* `email` - (Required, string) The email address of the user to invite.
-* `active` - (Optional, bool) Whether or not the user should be able to access the platform.
+* `role` - (Required, string) The string name of a role to assign. Currently the only option is `administrator`.
+* `user` - (Required, string) The UUID of a user to apply the role to. Can refer to the `uuid` output of the User resource, or of a known ID in the system.
