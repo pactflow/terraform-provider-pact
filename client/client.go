@@ -143,7 +143,7 @@ func (c *Client) ReadUser(name string) (*broker.User, error) {
 	return res.(*broker.User), err
 }
 
-// CreateUsers creates a user
+// CreateUser creates a user
 func (c *Client) CreateUser(p broker.User) (*broker.User, error) {
 	res, err := c.doCrud("POST", userCreateTemplate, p, new(broker.User))
 	return res.(*broker.User), err
@@ -156,9 +156,8 @@ func (c *Client) UpdateUser(p broker.User) (*broker.User, error) {
 	return res.(*broker.User), err
 }
 
-// DeleteUser removes an existing User
-// TODO: is this even possible?
-// Perhaps we _should_ allow deleting a user so that it's even gone from the UI
+// DeleteUser simply de-activates an existing user. Users are global on the platform,
+// but can be enabled/disabled at the tenant level
 func (c *Client) DeleteUser(p broker.User) error {
 	p.Active = false
 	_, err := c.UpdateUser(p)

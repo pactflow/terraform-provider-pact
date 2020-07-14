@@ -4,7 +4,7 @@ TEST?=./...
 TRAVIS_COMMIT?=1
 export TF_VAR_build_number=$(TRAVIS_COMMIT)
 
-ci:: docker deps bin test acceptance-test
+ci:: docker deps vet bin test acceptance-test
 
 local-no-clean: build
 	terraform init && \
@@ -65,30 +65,34 @@ test:
 	go tool cover -func coverage.txt
 
 oss-acceptance-test:
-	echo "--- Running OSS acceptance tests"
+	@echo "--- Running OSS acceptance tests"
 	cd acceptance/oss && \
 		terraform init && \
 		terraform apply -auto-approve && \
 		terraform destroy -auto-approve
 
 pactflow-acceptance-test:
-	echo "--- Running Pactflow acceptance tests"
+	@echo "--- Running Pactflow acceptance tests"
 	cd acceptance/pactflow && \
 		terraform init && \
 		terraform apply -auto-approve && \
 		terraform destroy -auto-approve
 
 binary-acceptance-test:
-	echo "--- Checking binary acceptance test"
+	@echo "--- Checking binary acceptance test"
 	mkdir -p ~/.terraform.d/plugins
 	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/terraform-provider-pact
 	terraform init
 
 acceptance-test: binary-acceptance-test oss-acceptance-test pactflow-acceptance-test
-	echo "--- ✅ Acceptance tests complete"
+	@echo "--- ✅ Acceptance tests complete"
 
 release:
-	echo "--- 🚀 Releasing it"
+	@echo "--- 🚀 Releasing it"
 	"$(CURDIR)/scripts/release.sh"
+
+vet:
+	@echo "--- ✅ Running go vet"
+	go vet -all ./...
 
 .PHONY: build clean local bin deps goveralls release acceptance-test docker oss-acceptance-test

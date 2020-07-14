@@ -29,9 +29,9 @@ The following arguments are supported:
 
 ## Lifecycle
 
-* `Create`: On an initial create, a user will be created in the local Pactflow account. If a user is not in any Pactflow organisation, they will receive an email with a temporary token for them to reset their credentials.
+* `Create`: On an initial create, a user will be invited to Pactflow, and added to the local Pactflow account. If a user is not already in any Pactflow organisation, they will receive an email with a temporary token for them to reset their credentials.
 * `Update`: Changes to the user will be applied as expected.
-* `Delete`: Users will not be removed in the system, they will simply be disabled.
+* `Delete`: Users will not be removed in the system, they will simply be disabled (Users are global in the Pactflow platform)
 
 ## Importing
 
