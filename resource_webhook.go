@@ -153,12 +153,13 @@ func isBodyTheSame(k, old, new string, _ *schema.ResourceData) bool {
 
 func webhook() *schema.Resource {
 	return &schema.Resource{
-		Create: webhookCreate,
-		Update: webhookUpdate,
-		Read:   webhookRead,
-		Delete: webhookDelete,
+		Create:   webhookCreate,
+		Update:   webhookUpdate,
+		Read:     webhookRead,
+		Delete:   webhookDelete,
+		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -166,7 +167,7 @@ func webhook() *schema.Resource {
 			"webhook_consumer": pacticipantType,
 			"request":          requestType,
 			"events":           eventsType,
-			"enabled": &schema.Schema{
+			"enabled": {
 				Type:     schema.TypeBool,
 				Default:  true,
 				Optional: true,
@@ -307,17 +308,23 @@ func setWebhookState(d *schema.ResourceData, webhook broker.Webhook) error {
 		log.Println("[ERROR] error setting key 'enabled'", err)
 		return err
 	}
-	if err := d.Set("webhook_consumer", map[string]interface{}{
-		"name": webhook.Consumer.Name,
-	}); err != nil {
-		log.Println("[ERROR] error setting key 'webhook_consumer'", err)
-		return err
+
+	if webhook.Consumer != nil {
+		if err := d.Set("webhook_consumer", map[string]interface{}{
+			"name": webhook.Consumer.Name,
+		}); err != nil {
+			log.Println("[ERROR] error setting key 'webhook_consumer'", err)
+			return err
+		}
 	}
-	if err := d.Set("webhook_provider", map[string]interface{}{
-		"name": webhook.Provider.Name,
-	}); err != nil {
-		log.Println("[ERROR] error setting key 'webhook_provider", err)
-		return err
+
+	if webhook.Provider != nil {
+		if err := d.Set("webhook_provider", map[string]interface{}{
+			"name": webhook.Provider.Name,
+		}); err != nil {
+			log.Println("[ERROR] error setting key 'webhook_provider", err)
+			return err
+		}
 	}
 	if err := d.Set("events", flattenEvents(webhook)); err != nil {
 		log.Println("[ERROR] error setting key 'events'", err)
@@ -421,12 +428,7 @@ func webhookUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func webhookRead(d *schema.ResourceData, meta interface{}) error {
 	httpClient := meta.(*client.Client)
-	webhook, err := parseWebhook(d, meta)
-	if err != nil {
-		return err
-	}
-
-	res, err := httpClient.ReadWebhook(webhook.ID)
+	res, err := httpClient.ReadWebhook(d.Id())
 	log.Printf("[DEBUG] response from reading webhook %+v\n", res)
 
 	if err != nil {

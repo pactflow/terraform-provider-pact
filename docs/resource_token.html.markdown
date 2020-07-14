@@ -2,7 +2,11 @@
 
 This resource manages the lifecycle of an _API Token_. A Token can be used to make API calls to the Pactflow platform.
 
+**It is highly recommended that this resource only be used to import existing tokens, and not be used to update existing tokens**
+
 _NOTE_: this is currently only supported for the Pactflow.io platform.
+
+
 
 ## Example Usage
 
@@ -41,3 +45,23 @@ The following arguments are supported:
 * `Create`: On an initial create, the plugin simply fetches the remote token (i.e. it imports the value, but does not change it)
 * `Update`: Changing the `name` property will regenerate the token, resulting in a new local and remote value.
 * `Delete`: API tokens (currently) cannot be deleted. This operation simply detaches the local state from the remote broker.
+
+## Importing
+
+As per the [docs](https://www.terraform.io/docs/import/usage.html), the ID used for importing is the UUID of the token.. You can obtain this through the API.
+
+1. Create the shell for the user to be imported into:
+
+```tf
+resource "pact_token" "read_only_api_token" {
+  type = "read-only"
+  name = "Local dev token"
+}
+```
+
+2. Import the resource
+```sh
+terraform import pact_token.read_only_api_token j3xYRnn9dgkkSWrXB1oaXw
+```
+
+The token value has now been extracted and can now be managed by terraform.

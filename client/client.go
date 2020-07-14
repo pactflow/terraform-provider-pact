@@ -23,6 +23,9 @@ const (
 	webhookCreateTemplate               = "/webhooks"
 	pacticipantReadUpdateDeleteTemplate = "/pacticipants/%s"
 	pacticipantCreateTemplate           = "/pacticipants"
+	userReadUpdateDeleteTemplate        = "/admin/users/%s"
+	userCreateTemplate                  = "/admin/users/invite-user"
+	userAdminUpdateTemplate             = "/admin/users/%s/role/admin"
 	secretReadUpdateDeleteTemplate      = "/secrets/%s"
 	secretCreateTemplate                = "/secrets"
 	listTokensTemplate                  = "/settings/tokens"
@@ -45,6 +48,7 @@ var (
 	ErrBadRequest        = errors.New("bad request")
 	ErrSystemUnavailable = errors.New("system unavailable")
 	ErrUnauthorized      = errors.New("unauthorized")
+	ErrForbidden         = errors.New("access denied, check that you have access to this resource")
 )
 
 // Config is the primary means to modify the Pact Broker http client
@@ -131,6 +135,46 @@ func (c *Client) UpdatePacticipant(p broker.Pacticipant) (*broker.Pacticipant, e
 func (c *Client) DeletePacticipant(p broker.Pacticipant) error {
 	_, err := c.doCrud("DELETE", fmt.Sprintf(pacticipantReadUpdateDeleteTemplate, p.Name), nil, nil)
 	return err
+}
+
+// ReadUser gets a User
+func (c *Client) ReadUser(name string) (*broker.User, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(userReadUpdateDeleteTemplate, name), nil, new(broker.User))
+	return res.(*broker.User), err
+}
+
+// CreateUser creates a user
+func (c *Client) CreateUser(p broker.User) (*broker.User, error) {
+	res, err := c.doCrud("POST", userCreateTemplate, p, new(broker.User))
+	return res.(*broker.User), err
+}
+
+// UpdateUser updates an existing User
+// currently only supports modifying the "active" property
+func (c *Client) UpdateUser(p broker.User) (*broker.User, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(userReadUpdateDeleteTemplate, p.UUID), p, new(broker.User))
+	return res.(*broker.User), err
+}
+
+// DeleteUser simply de-activates an existing user. Users are global on the platform,
+// but can be enabled/disabled at the tenant level
+func (c *Client) DeleteUser(p broker.User) error {
+	p.Active = false
+	_, err := c.UpdateUser(p)
+
+	return err
+}
+
+// AddAdminRoleToUser converts a user to an administrator
+func (c *Client) AddAdminRoleToUser(p broker.User) (*broker.User, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
+	return res.(*broker.User), err
+}
+
+// RemoveAdminRoleToUser removes the administrator role from a user
+func (c *Client) RemoveAdminRoleToUser(p broker.User) (*broker.User, error) {
+	res, err := c.doCrud("DELETE", fmt.Sprintf(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
+	return res.(*broker.User), err
 }
 
 // ReadSecret gets the current Secret information (the actual secret is not returned)
@@ -260,8 +304,12 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, ErrSystemUnavailable
 	}
 
-	if resp.StatusCode >= 401 {
+	if resp.StatusCode == 401 {
 		return nil, ErrUnauthorized
+	}
+
+	if resp.StatusCode == 403 {
+		return nil, ErrForbidden
 	}
 
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {

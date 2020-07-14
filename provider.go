@@ -11,6 +11,8 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
+			"pact_role":        role(),
+			"pact_user":        user(),
 			"pact_pacticipant": pacticipant(),
 			"pact_webhook":     webhook(),
 			"pact_secret":      secret(),

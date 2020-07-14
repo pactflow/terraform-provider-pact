@@ -31,33 +31,41 @@ provider "pact" {
   access_token = var.token
 }
 
-# Create a Pacticipant
-resource "pact_pacticipant" "billy" {
-  name = "billy"
-  repository_url = "github.com/foo/billy"
+# Create a Pacticipant for our Product API
+resource "pact_pacticipant" "product_api" {
+  name = "product_api"
+  repository_url = "github.com/foo/product_api"
 }
 
-# Create a Pacticipant
-resource "pact_pacticipant" "sally" {
-  name = "sally"
-  repository_url = "github.com/foo/sally"
+# Create a Pacticipant for our Ecommerce Website
+resource "pact_pacticipant" "ecommerce_web" {
+  name = "ecommerce_web"
+  repository_url = "github.com/foo/ecommerce_web"
 }
 
-resource "pact_webhook" "billy_changed" {
-  description = "new description"
+# Create a secret
+resource "pact_secret" "ci_token" {
+  name = "CIToken"
+  description = "Jenkins token for Pactflow"
+  value = "my super secret value"
+}
+
+# Create a webhook to trigger a build when a contract changes
+# Uses the Jenkins token from above
+resource "pact_webhook" "product_api_changed" {
+  description = "Trigger build when a contract changes between ecommerce_web and product_api"
   webhook_provider = {
-    name = "billy"
+    name = "product_api"
   }
   webhook_consumer = {
-    name = "sally"
+    name = "ecommerce_web"
   }
   request {
     url = "https://foo.com/some/endpoint"
     method = "POST"
-    username = "test"
-    password = "password"
     headers = {
-      "X-Content-Type" = "application/json"
+      "Content-Type" = "application/json",
+      "Authoriation" = "Bearer $${user.CIToken}"
     }
     body = <<EOF
 {
@@ -67,13 +75,20 @@ EOF
   }
 
   events = ["contract_content_changed", "contract_published"]
-  depends_on = [pact_pacticipant.billy, pact_pacticipant.sally]
+  depends_on = [pact_pacticipant.product_api, pact_pacticipant.ecommerce_web, pact_secret.ci_token]
 }
 
-resource "pact_secret" "some_jenkins_token" {
-  name = "JenkinsPactSecret"
-  description = "Jenkins token for Pactflow"
-  value = "my super secret value"
+# Create a user
+resource "pact_user" "somebody" {
+  name = "Tester McPerson"
+  email = "pact@dius.com.au"
+  active = true
+}
+
+# Assign admin role to user
+resource "pact_role" "somebody_admin" {
+  role = "administrator"
+  user = pact_user.somebody.uuid
 }
 ```
 
@@ -113,8 +128,14 @@ For either installation method, documentation about the provider specific config
 | [Webhook](docs/resource_webhook.html.markdown)     | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events |
 | [Secret](docs/resource_secret.html.markdown)      | Resource | Pactflow               | Create an encrypted secret for use in Webhooks |
 | [API Token](docs/resource_token.html.markdown)   | Resource | Pactflow               | Manage Pactflow API Tokens |
+| [Users](docs/resource_user.html.markdown)   | Resource | Pactflow               | Manage Pactflow Users |
+| [Roles](docs/resource_role.html.markdown)   | Resource | Pactflow               | Manage Pactflow Roles |
 
 See our [Docs](./docs) folder for all plugins.
+
+## Importing Resources
+
+All resources (except for Roles) support [importing](https://www.terraform.io/docs/import/usage.html).
 
 ## Developing
 
@@ -142,9 +163,10 @@ Plan for the next few months:
 - [x] Pacticipants
 - [x] Webhooks
 - [x] Secrets (Pactflow only)
-- [ ] API Tokens (Pactflow only)
+- [x] API Tokens (Pactflow only)
+- [x] User + Role Management (Pactflow only)
 - [ ] Better error messages for HTTP / runtime failures
-- [ ] Proper acceptance tests
+- [x] Acceptance tests
 - [ ] Better code coverage
 - [ ] Extract `Client` into separate SDK package
 - [ ] Publish 1.0.0

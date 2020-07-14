@@ -89,3 +89,29 @@ A pacticipant may be used as the consumer, provider, none or both in the webhook
 * `password` (Optional, string) Basic auth password to send along with the request.
 * `headers` (Required, block) HTTP Headers as key/value pairs to send with the request.
 * `body` (Required, string) A string body to be sent. JSON body validation will be checked and will produce a warning if invalid (it will _not_ fail validation).
+
+## Outputs
+
+* `uuid` - (string) The unique ID in Pactflow for this webhook.
+
+## Importing
+
+As per the [docs](https://www.terraform.io/docs/import/usage.html), the ID used for importing is the UUID of the webhook. You can obtain this through the API.
+
+1. Create the shell for the user to be imported into:
+
+```tf
+resource "pact_webhook" "product_events" {
+ ...
+}
+```
+
+2. Import the resource
+```sh
+terraform  import pact_webhook.product_events ZBztO9l5poBdBDyUNewbNw
+```
+
+3. Plan any new changes
+```sh
+teraform plan
+```
