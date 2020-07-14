@@ -48,6 +48,7 @@ var (
 	ErrBadRequest        = errors.New("bad request")
 	ErrSystemUnavailable = errors.New("system unavailable")
 	ErrUnauthorized      = errors.New("unauthorized")
+	ErrForbidden         = errors.New("access denied, check that you have access to this resource")
 )
 
 // Config is the primary means to modify the Pact Broker http client
@@ -304,8 +305,12 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, ErrSystemUnavailable
 	}
 
-	if resp.StatusCode >= 401 {
+	if resp.StatusCode == 401 {
 		return nil, ErrUnauthorized
+	}
+
+	if resp.StatusCode == 403 {
+		return nil, ErrForbidden
 	}
 
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {

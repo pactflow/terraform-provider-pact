@@ -14,6 +14,9 @@ local: build clean
 	terraform init && \
 	TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply -auto-approve
 
+local-destroy:
+	terraform destroy -auto-approve
+
 build:
 	go build -o bin/terraform-provider-pact
 	mkdir -p ~/.terraform.d/plugins/
