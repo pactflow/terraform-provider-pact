@@ -5,6 +5,13 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.0.3 (14 July 2020)
+  * [700428a](https://github.com/pactflow/terraform/commit/700428a) - docs: update user (Matt Fellows, Tue Jul 14 21:53:08 2020 +1000)
+  * [dd5f834](https://github.com/pactflow/terraform/commit/dd5f834) - chore: differentiate 40x errors (Matt Fellows, Tue Jul 14 21:36:53 2020 +1000)
+  * [59b4e97](https://github.com/pactflow/terraform/commit/59b4e97) - docs: how to import resources (Matt Fellows, Tue Jun 30 00:09:26 2020 +1000)
+  * [6715549](https://github.com/pactflow/terraform/commit/6715549) - chore: update docs (Matt Fellows, Mon Jun 29 23:21:27 2020 +1000)
+  * [9ac3fcc](https://github.com/pactflow/terraform/commit/9ac3fcc) - docs: add note about user resource lifecycle (Matt Fellows, Mon Jun 29 18:42:05 2020 +1000)
+
 ### v0.0.3 (16 June 2020)
  * [c18adee](https://github.com/pactflow/terraform/commit/c18adee) - docs: make the ALL case clearer for webhooks. #2 (Matt Fellows, Tue Jun 16 20:37:45 2020 +1000)
  * [f72169c](https://github.com/pactflow/terraform/commit/f72169c) - Correct contract_content_changed event name (#4) (Garry Jeromson, Tue Jun 16 12:29:55 2020 +0200)
