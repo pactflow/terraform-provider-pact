@@ -5,17 +5,14 @@ type WebhookEvent struct {
 	Name string `json:"name"`
 }
 
-// RequestBody is the request entity of an HTTP request
-type RequestBody map[string]interface{}
-
 // Request is an HTTP request structure
 type Request struct {
-	Method   string      `json:"method"`
-	URL      string      `json:"url"`
-	Username string      `json:"username"`
-	Password string      `json:"password"`
-	Headers  Headers     `json:"headers"`
-	Body     RequestBody `json:"body"`
+	Method   string  `json:"method"`
+	URL      string  `json:"url"`
+	Username string  `json:"username"`
+	Password string  `json:"password"`
+	Headers  Headers `json:"headers"`
+	Body     string  `json:"body"`
 }
 
 // Webhook represents a webhook configured in the broker

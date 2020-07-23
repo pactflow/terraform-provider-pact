@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -84,11 +83,9 @@ var requestType = &schema.Schema{
 				Description: "Request headers to send with the request",
 			},
 			"body": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				DiffSuppressFunc: isBodyTheSame,
-				ValidateFunc:     validateBody,
-				Description:      "A request body to send with the request",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A request body to send with the request",
 			},
 		},
 	},
@@ -123,32 +120,6 @@ func validateMethod(val interface{}, key string) (warns []string, errs []error) 
 		errs = append(errs, fmt.Errorf("%q must one of the following HTTP Verbs 'GET, PUT, PATCH, POST, DELETE', got: %s", key, v))
 	}
 	return
-}
-
-func validateBody(val interface{}, key string) (warns []string, errs []error) {
-	v := val.(string)
-
-	if err := json.Unmarshal([]byte(v), new(map[string]interface{})); err != nil {
-		warns = append(warns, fmt.Sprintf("Body provided is not a valid JSON body. %s", err))
-	}
-	return
-}
-
-func isBodyTheSame(k, old, new string, _ *schema.ResourceData) bool {
-	log.Println("[DEBUG] Old", old, "new", new)
-	oldStruct, newStruct := make(map[string]interface{}), make(map[string]interface{})
-
-	if err := json.Unmarshal([]byte(old), &oldStruct); err != nil {
-		return false
-	}
-
-	if err := json.Unmarshal([]byte(new), &newStruct); err != nil {
-		return false
-	}
-
-	log.Printf("[DEBUG] old %+v, new %+v \n", old, new)
-
-	return reflect.DeepEqual(oldStruct, newStruct)
 }
 
 func webhook() *schema.Resource {
@@ -271,15 +242,9 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 			return *webhook, fmt.Errorf("headers is a mandatory field")
 		}
 
-		// Convert body JSON string into map type
+		// Body
 		if body, ok := requestMap["body"]; ok {
-			bodyStr := body.(string)
-
-			err := json.Unmarshal([]byte(bodyStr), &request.Body)
-			if err != nil {
-				log.Printf("[ERROR] error: unable to deserialise body JSON. Have string '%s', Error: %+v \n", bodyStr, err)
-				return *webhook, err
-			}
+			request.Body = body.(string)
 		}
 
 		log.Printf("[DEBUG] have fully serialised request %+v \n", request)
@@ -366,20 +331,17 @@ func flattenRequest(d *schema.ResourceData, r broker.Request) []interface{} {
 		}
 	}
 	m["headers"] = mapStringStringToMapStringInterface(r.Headers) // TODO
-	m["body"], _ = extractJSONBody(r)
+
+	m["body"] = r.Body
 
 	return []interface{}{m}
 }
 
-func extractJSONBody(r broker.Request) (string, error) {
-	bytes, err := json.Marshal(r.Body)
-	return string(bytes), err
-}
-
+// Lowercases all keys
 func mapStringStringToMapStringInterface(in map[string]string) map[string]interface{} {
 	var out = make(map[string]interface{}, len(in))
 	for k, v := range in {
-		out[k] = v
+		out[strings.ToLower(k)] = v
 	}
 	return out
 }
