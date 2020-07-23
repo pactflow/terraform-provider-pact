@@ -5,6 +5,9 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.0.5 (23 July 2020)
+  * [2b548f6](https://github.com/pactflow/terraform/commit/2b548f6) - fix: temporarily disable user smoke tests (Matt Fellows, Thu Jul 23 22:34:16 2020 +1000)
+
 ### v0.0.4 (23 July 2020)
   * [c9fffe4](https://github.com/pactflow/terraform/commit/c9fffe4) - fix: allow non-JSON bodies in webhooks. Fixes #6 (Matt Fellows, Thu Jul 23 22:01:02 2020 +1000)
 
