@@ -5,6 +5,9 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.0.4 (23 July 2020)
+  * [c9fffe4](https://github.com/pactflow/terraform/commit/c9fffe4) - fix: allow non-JSON bodies in webhooks. Fixes #6 (Matt Fellows, Thu Jul 23 22:01:02 2020 +1000)
+
 ### v0.0.3 (14 July 2020)
   * [700428a](https://github.com/pactflow/terraform/commit/700428a) - docs: update user (Matt Fellows, Tue Jul 14 21:53:08 2020 +1000)
   * [dd5f834](https://github.com/pactflow/terraform/commit/dd5f834) - chore: differentiate 40x errors (Matt Fellows, Tue Jul 14 21:36:53 2020 +1000)
