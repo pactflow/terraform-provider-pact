@@ -8,7 +8,7 @@ type User struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Active    bool   `json:"active"`
-	Roles     []Role `json:"roles"`
+	Roles     []Role `json:"roles,omitempty"`
 }
 
 // Users is a list of User objects to manage
