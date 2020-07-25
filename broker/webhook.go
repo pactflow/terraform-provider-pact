@@ -7,24 +7,24 @@ type WebhookEvent struct {
 
 // Request is an HTTP request structure
 type Request struct {
-	Method   string  `json:"method"`
-	URL      string  `json:"url"`
-	Username string  `json:"username"`
-	Password string  `json:"password"`
-	Headers  Headers `json:"headers"`
-	Body     string  `json:"body"`
+	Method   string  `json:"method,omitempty"`
+	URL      string  `json:"url,omitempty"`
+	Username string  `json:"username,omitempty"`
+	Password string  `json:"password,omitempty"`
+	Headers  Headers `json:"headers,omitempty"`
+	Body     string  `json:"body,omitempty"`
 }
 
 // Webhook represents a webhook configured in the broker
 type Webhook struct {
 	ID          string         `json:"-"`
-	Description string         `json:"description"`
-	Enabled     bool           `json:"enabled"`
+	Description string         `json:"description,omitempty"`
+	Enabled     bool           `json:"enabled,omitempty"`
 	CreatedAt   string         `json:"createdAt,omitempty"`
-	Provider    *Pacticipant   `json:"provider"`
-	Consumer    *Pacticipant   `json:"consumer"`
+	Provider    *Pacticipant   `json:"provider,omitempty"`
+	Consumer    *Pacticipant   `json:"consumer,omitempty"`
 	Events      []WebhookEvent `json:"events,omitempty"`
-	Request     Request        `json:"request"`
+	Request     Request        `json:"request,omitempty"`
 }
 
 // WebhookResponse is the response body for any CRU methods

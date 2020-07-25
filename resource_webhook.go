@@ -148,8 +148,6 @@ func webhook() *schema.Resource {
 }
 
 func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, error) {
-	provider := new(broker.Pacticipant)
-	consumer := new(broker.Pacticipant)
 	request := new(broker.Request)
 	webhook := &broker.Webhook{
 		Enabled: true,
@@ -162,6 +160,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 
 	// Provider
 	if rawProvider, ok := d.GetOkExists("webhook_provider"); ok {
+		provider := new(broker.Pacticipant)
 		log.Printf("[DEBUG] raw provider %+v \n", rawProvider)
 		err := mapstructure.Decode(rawProvider, provider)
 		if err != nil {
@@ -173,6 +172,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 
 	// Consumer
 	if rawConsumer, ok := d.GetOkExists("webhook_consumer"); ok {
+		consumer := new(broker.Pacticipant)
 		log.Printf("[DEBUG] raw consumer %+v \n", rawConsumer)
 		err := mapstructure.Decode(rawConsumer, consumer)
 		if err != nil {
@@ -281,6 +281,8 @@ func setWebhookState(d *schema.ResourceData, webhook broker.Webhook) error {
 			log.Println("[ERROR] error setting key 'webhook_consumer'", err)
 			return err
 		}
+	} else {
+		d.Set("webhook_consumer", nil)
 	}
 
 	if webhook.Provider != nil {
@@ -290,11 +292,15 @@ func setWebhookState(d *schema.ResourceData, webhook broker.Webhook) error {
 			log.Println("[ERROR] error setting key 'webhook_provider", err)
 			return err
 		}
+	} else {
+		d.Set("webhook_provider", nil)
 	}
+
 	if err := d.Set("events", flattenEvents(webhook)); err != nil {
 		log.Println("[ERROR] error setting key 'events'", err)
 		return err
 	}
+
 	if err := d.Set("request", flattenRequest(d, webhook.Request)); err != nil {
 		log.Println("[ERROR] error setting key 'request'", err)
 		return err
@@ -319,7 +325,7 @@ func flattenRequest(d *schema.ResourceData, r broker.Request) []interface{} {
 
 	if r.Password != "" && !strings.HasPrefix(r.Password, "*****") {
 		// First time, set the value
-		log.Println("[DEBUG] SETTING PASSWORD!!")
+		log.Println("[DEBUG] setting webhook password")
 		m["password"] = r.Password
 	} else {
 		// Broker obscures the value to "******", set the value to what it was previously
@@ -341,7 +347,7 @@ func flattenRequest(d *schema.ResourceData, r broker.Request) []interface{} {
 func mapStringStringToMapStringInterface(in map[string]string) map[string]interface{} {
 	var out = make(map[string]interface{}, len(in))
 	for k, v := range in {
-		out[strings.ToLower(k)] = v
+		out[k] = v
 	}
 	return out
 }

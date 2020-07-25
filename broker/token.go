@@ -2,9 +2,9 @@ package broker
 
 // APIToken represents an individual API token
 type APIToken struct {
-	UUID        string `json:"uuid"`
-	Description string `json:"description"`
-	Value       string `json:"value"`
+	UUID        string `json:"uuid,omitempty"`
+	Description string `json:"description,omitempty"`
+	Value       string `json:"value,omitempty"`
 }
 
 // APITokensEmbedded contains the embedded links in the resource
