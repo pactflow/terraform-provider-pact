@@ -5,6 +5,10 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.0.6 (25 July 2020)
+  * [aeccef1](https://github.com/pactflow/terraform/commit/aeccef1) - fix: omitted webhook consumer/provider would always replace resource. Fixes #7 (Matt Fellows, Sat Jul 25 21:39:35 2020 +1000)
+  * [db0789f](https://github.com/pactflow/terraform/commit/db0789f) - fix: don't send null Roles on user update (Matt Fellows, Thu Jul 23 22:46:58 2020 +1000)
+
 ### v0.0.5 (23 July 2020)
   * [2b548f6](https://github.com/pactflow/terraform/commit/2b548f6) - fix: temporarily disable user smoke tests (Matt Fellows, Thu Jul 23 22:34:16 2020 +1000)
 
