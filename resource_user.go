@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -38,52 +39,82 @@ func user() *schema.Resource {
 				Computed:    true,
 				Description: "The UUID of user",
 			},
+			"type": {
+				Type:         schema.TypeString,
+				Default:      allowedUserTypes[userType],
+				Description:  "The type of user (regular/system)",
+				Optional:     true,
+				ValidateFunc: validateUserType,
+			},
+
+			// List of UUIDs
+			"teams": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+					// ValidateFunc: validateEvents,
+				},
+			},
 		},
 	}
 }
 
+const (
+	userType   = "user"
+	systemType = "system"
+)
+
+var allowedUserTypes = map[string]broker.UserType{
+	userType:   broker.RegularUser,
+	systemType: broker.SystemAccount,
+}
+
+func userTypeAsString(t broker.UserType) string {
+	for k, v := range allowedUserTypes {
+		if v == t {
+			return k
+		}
+	}
+
+	return ""
+}
+
+func validateUserType(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+
+	if _, ok := allowedUserTypes[v]; !ok {
+		errs = append(errs, fmt.Errorf("%q must be one of the allowed types %v, got %v", key, allowedUserTypes, v))
+	}
+
+	return
+}
+
 func userCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
-	name := d.Get("name").(string)
-	email := d.Get("email").(string)
-	active := d.Get("active").(bool)
+	user := getUserFromState(d)
 
-	log.Println("[DEBUG] creating user", name)
-
-	user := broker.User{
-		Name:      name,
-		Email:     email,
-		Active:    active,
-		FirstName: "foo",
-		LastName:  "foo",
-	}
+	log.Println("[DEBUG] creating user", user)
 
 	created, err := client.CreateUser(user)
 
 	if err == nil {
 		user.UUID = created.UUID
 		d.SetId(created.UUID)
+
+		// Update user (any other params aren't set on first user creation - e.g. name, active etc.)
+		// This is ineffectual, as these details come from Cognito and will be reset each login :P
+		// _, err = client.UpdateUser(user)
+
 		setUserState(d, *created)
 	}
-
-	// Update user (any other params aren't set on first user creation - e.g. name, active etc.)
-	_, err = client.UpdateUser(user)
 
 	return err
 }
 
 func userUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
-	uuid := d.Id()
-	name := d.Get("name").(string)
-	email := d.Get("email").(string)
-	active := d.Get("active").(bool)
-	user := broker.User{
-		UUID:   uuid,
-		Email:  email,
-		Active: active,
-		Name:   name,
-	}
+	user := getUserFromState(d)
 
 	log.Println("[DEBUG] updating user", user)
 
@@ -92,6 +123,8 @@ func userUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err == nil {
 		setUserState(d, *updated)
 	}
+
+	// TODO: Team assignments
 
 	return err
 }
@@ -118,7 +151,8 @@ func userDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	uuid := d.Id()
 	user := broker.User{
-		UUID: uuid,
+		UUID:   uuid,
+		Active: false,
 	}
 
 	log.Println("[DEBUG] deleting user", user)
@@ -151,6 +185,26 @@ func setUserState(d *schema.ResourceData, user broker.User) error {
 		log.Println("[ERROR] error setting key 'uuid'", err)
 		return err
 	}
+	if err := d.Set("type", userTypeAsString(user.Type)); err != nil {
+		log.Println("[ERROR] error setting key 'type'", err)
+		return err
+	}
 
 	return nil
+}
+
+func getUserFromState(d *schema.ResourceData) broker.User {
+	uuid := d.Id()
+	name := d.Get("name").(string)
+	email := d.Get("email").(string)
+	active := d.Get("active").(bool)
+	userType := d.Get("type").(string)
+
+	return broker.User{
+		UUID:   uuid,
+		Email:  email,
+		Active: active,
+		Name:   name,
+		Type:   allowedUserTypes[userType],
+	}
 }

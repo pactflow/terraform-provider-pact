@@ -8,7 +8,7 @@ type Secret struct {
 }
 
 // curl 'https://dius.pact.dius.com.au/secrets' '{"name":"foo","description":"bar","value":"baz"}' --compressed
-type SecretResponseCreate struct {
+type SecretResponse struct {
 	Secret
 	HalDoc
 }

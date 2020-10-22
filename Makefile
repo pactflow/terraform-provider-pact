@@ -75,8 +75,11 @@ pactflow-acceptance-test:
 	@echo "--- Running Pactflow acceptance tests"
 	cd acceptance/pactflow && \
 		terraform init && \
-		terraform apply -auto-approve && \
-		terraform destroy -auto-approve
+		terraform apply -auto-approve
+
+		# terraform destroy -auto-approve
+		# && \
+		# terraform destroy -auto-approve
 
 binary-acceptance-test:
 	@echo "--- Checking binary acceptance test"

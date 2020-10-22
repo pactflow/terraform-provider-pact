@@ -23,6 +23,10 @@ const (
 	webhookCreateTemplate               = "/webhooks"
 	pacticipantReadUpdateDeleteTemplate = "/pacticipants/%s"
 	pacticipantCreateTemplate           = "/pacticipants"
+	teamReadUpdateDeleteTemplate        = "/admin/teams/%s"
+	teamCreateTemplate                  = "/admin/teams"
+	teamAssignmentTemplate              = "/admin/teams/%s/users"
+	teamUserTemplate                    = "/admin/teams/%s/users/%s"
 	userReadUpdateDeleteTemplate        = "/admin/users/%s"
 	userCreateTemplate                  = "/admin/users/invite-user"
 	userAdminUpdateTemplate             = "/admin/users/%s/role/admin"
@@ -137,6 +141,79 @@ func (c *Client) DeletePacticipant(p broker.Pacticipant) error {
 	return err
 }
 
+// ReadTeam gets a Team
+func (c *Client) ReadTeam(name string) (*broker.Team, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(teamReadUpdateDeleteTemplate, name), nil, new(broker.Team))
+	return res.(*broker.Team), err
+}
+
+// CreateTeam creates a Team
+func (c *Client) CreateTeam(t broker.Team) (*broker.Team, error) {
+	res, err := c.doCrud("POST", teamCreateTemplate, t, new(broker.TeamsResponse))
+	apiResponse := res.(*broker.TeamsResponse)
+
+	// TODO: why is this a collection not a single resource?
+	// check if it's consistent with the other APIs
+	for _, i := range apiResponse.Teams {
+		if i.Name == t.Name {
+			return &i, err
+		}
+	}
+
+	return nil, err
+}
+
+// AssignUsersToTeam assigns one or more users to a team
+func (c *Client) ReadTeamAssignments(r broker.Team) (*broker.TeamsAssignmentResponse, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+	apiResponse := res.(*broker.TeamsAssignmentResponse)
+
+	return apiResponse, err
+}
+
+// UpdateTeamAssignments assigns one or more users to a team
+func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
+	res, err := c.doCrud("POST", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+	if len(r.Users) > 0 {
+		apiResponse := res.(*broker.TeamsAssignmentResponse)
+
+		return apiResponse, err
+	}
+
+	return nil, nil
+}
+
+// DeleteTeamAssignment removes a single user from a team
+func (c *Client) DeleteTeamAssignment(t broker.Team, u broker.User) error {
+	_, err := c.doCrud("DELETE", fmt.Sprintf(teamUserTemplate, t.UUID, u.UUID), nil, nil)
+
+	return err
+}
+
+// DeleteTeamAssignments removes all users from the team
+func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
+	if len(t.Users) > 0 {
+		_, err := c.doCrud("DELETE", fmt.Sprintf(teamAssignmentTemplate, t.UUID), t, nil)
+		return err
+	}
+	return nil
+}
+
+// UpdateTeam updates an existing Team
+// currently only supports modifying the "active" property
+func (c *Client) UpdateTeam(t broker.Team) (*broker.Team, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), t, new(broker.Team))
+	return res.(*broker.Team), err
+}
+
+// DeleteTeam simply de-activates an existing Team. Teams are global on the platform,
+// but can be enabled/disabled at the tenant level
+func (c *Client) DeleteTeam(t broker.Team) error {
+	_, err := c.doCrud("DELETE", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), nil, nil)
+
+	return err
+}
+
 // ReadUser gets a User
 func (c *Client) ReadUser(name string) (*broker.User, error) {
 	res, err := c.doCrud("GET", fmt.Sprintf(userReadUpdateDeleteTemplate, name), nil, new(broker.User))
@@ -178,22 +255,22 @@ func (c *Client) RemoveAdminRoleToUser(p broker.User) (*broker.User, error) {
 }
 
 // ReadSecret gets the current Secret information (the actual secret is not returned)
-func (c *Client) ReadSecret(uuid string) (*broker.SecretResponseCreate, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(secretReadUpdateDeleteTemplate, uuid), nil, new(broker.SecretResponseCreate))
-	return res.(*broker.SecretResponseCreate), err
+func (c *Client) ReadSecret(uuid string) (*broker.SecretResponse, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(secretReadUpdateDeleteTemplate, uuid), nil, new(broker.SecretResponse))
+	return res.(*broker.SecretResponse), err
 }
 
 // CreateSecret creates a new secret
 // TODO: better response message for OSS broker vs Pactflow
-func (c *Client) CreateSecret(s broker.Secret) (*broker.SecretResponseCreate, error) {
-	res, err := c.doCrud("POST", secretCreateTemplate, s, new(broker.SecretResponseCreate))
-	return res.(*broker.SecretResponseCreate), err
+func (c *Client) CreateSecret(s broker.Secret) (*broker.SecretResponse, error) {
+	res, err := c.doCrud("POST", secretCreateTemplate, s, new(broker.SecretResponse))
+	return res.(*broker.SecretResponse), err
 }
 
 // UpdateSecret updates an existing secret. All values may be changed
-func (c *Client) UpdateSecret(s broker.Secret) (*broker.SecretResponseCreate, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(secretReadUpdateDeleteTemplate, s.UUID), s, new(broker.SecretResponseCreate))
-	return res.(*broker.SecretResponseCreate), err
+func (c *Client) UpdateSecret(s broker.Secret) (*broker.SecretResponse, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(secretReadUpdateDeleteTemplate, s.UUID), s, new(broker.SecretResponse))
+	return res.(*broker.SecretResponse), err
 }
 
 // DeleteSecret removes an existing secret

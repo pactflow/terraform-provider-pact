@@ -164,7 +164,12 @@ Plan for the next few months:
 - [x] Webhooks
 - [x] Secrets (Pactflow only)
 - [x] API Tokens (Pactflow only)
-- [x] User + Role Management (Pactflow only)
+- [x] User + Basic Role Management (Pactflow only)
+- [ ] Teams
+- [ ] Assign users+teams
+- [ ] System Users
+- [ ] Role-based access ()
+- [ ] Role creation
 - [ ] Better error messages for HTTP / runtime failures
 - [x] Acceptance tests
 - [ ] Better code coverage
