@@ -87,6 +87,7 @@ resource "pact_team_assignment" "TeamFuturama" {
   team = pact_team.Futurama.uuid
   users = [
     pact_user.bender_system_user.uuid,
+    pact_user.homer.uuid
   ]
 }
 

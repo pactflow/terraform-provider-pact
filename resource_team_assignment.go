@@ -32,6 +32,16 @@ func teamAssignment() *schema.Resource {
 	}
 }
 
+func interfaceToStringArray(o interface{}) []string {
+	items := o.([]interface{})
+	res := make([]string, len(items))
+	for i, item := range items {
+		res[i] = item.(string)
+	}
+
+	return res
+}
+
 func teamAssignmentCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	uuid := d.Get("team").(string)
@@ -43,30 +53,34 @@ func teamAssignmentCreate(d *schema.ResourceData, meta interface{}) error {
 		old, new := d.GetChange("users")
 		log.Println("[DEBUG] teamAssignmentCreate - change. old:", old, "new:", new)
 
-		current, err := client.ReadTeamAssignments(broker.Team{
-			UUID: uuid,
-		})
-		if err != nil {
-			return err
-		}
-
-		req := broker.TeamsAssignmentRequest{
-			UUID:  uuid,
-			Users: usersToAdd(d, *current),
-		}
-
-		res, err := client.UpdateTeamAssignments(req)
-
-		if err != nil {
-			return err
-		}
-
-		log.Println("[DEBUG] teamAssignmentCreate() users that shouldn't be here:", usersToAdd(d, *current))
+		usersToAdd := diff(interfaceToStringArray(old), interfaceToStringArray(new))
+		usersToDelete := diff(interfaceToStringArray(new), interfaceToStringArray(old))
+		log.Println("[DEBUG] teamAssignmentCreate - deleting:", usersToDelete, "adding:", usersToAdd)
 
 		// // TODO: fix https://dius.slack.com/archives/GENCG4LAU/p1603334036004100
-		err = client.DeleteTeamAssignments(broker.TeamsAssignmentRequest{
+		err := client.DeleteTeamAssignments(broker.TeamsAssignmentRequest{
 			UUID:  uuid,
-			Users: usersToDelete(d, *current),
+			Users: usersToDelete,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		// TODO: partial
+		req := broker.TeamsAssignmentRequest{
+			UUID:  uuid,
+			Users: usersToAdd,
+		}
+
+		_, err = client.UpdateTeamAssignments(req)
+
+		if err != nil {
+			return err
+		}
+
+		res, err := client.ReadTeamAssignments(broker.Team{
+			UUID: uuid,
 		})
 
 		if err != nil {
@@ -158,22 +172,23 @@ func extractUsersFromApiResponse(response *broker.TeamsAssignmentResponse) []str
 	return users
 }
 
-// Use this to find the delta, and delete them from the team
-func usersToDelete(d *schema.ResourceData, response broker.TeamsAssignmentResponse) []string {
-	wantUsers := extractUsersFromState(d)
-	actualUsers := extractUsersFromApiResponse(&response)
+// // Use this to find the delta, and delete them from the team
+// func usersToDelete(d *schema.ResourceData, response broker.TeamsAssignmentResponse) []string {
+// 	wantUsers := extractUsersFromState(d)
+// 	actualUsers := extractUsersFromApiResponse(&response)
 
-	return diff(wantUsers, actualUsers)
-}
+// 	return diff(wantUsers, actualUsers)
+// }
 
-// Use this to find the delta, and delete them from the team
-func usersToAdd(d *schema.ResourceData, response broker.TeamsAssignmentResponse) []string {
-	wantUsers := extractUsersFromState(d)
-	actualUsers := extractUsersFromApiResponse(&response)
+// // Use this to find the delta, and delete them from the team
+// func usersToAdd(d *schema.ResourceData, response broker.TeamsAssignmentResponse) []string {
+// 	wantUsers := extractUsersFromState(d)
+// 	actualUsers := extractUsersFromApiResponse(&response)
 
-	return diff(actualUsers, wantUsers)
-}
+// 	return diff(actualUsers, wantUsers)
+// }
 
+// Finds the items in b that don't exist in a
 func diff(a, b []string) []string {
 	diff := make([]string, 0)
 	m := make(map[string]bool)
