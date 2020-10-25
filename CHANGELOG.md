@@ -5,6 +5,9 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.1.0 (26 October 2020)
+  * [9125d49](https://github.com/pactflow/terraform/commit/9125d49) - fix: issue with validateEvents where input array was not sorted (Matt Fellows, Mon Oct 26 08:14:20 2020 +1100)
+
 ### v0.0.7 (25 October 2020)
   * [76cac46](https://github.com/pactflow/terraform/commit/76cac46) - feat: add new provider verification webhook events. Fixes #9 (Matt Fellows, Sun Oct 25 15:24:10 2020 +1100)
 
