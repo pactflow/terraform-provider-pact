@@ -19,6 +19,8 @@ var allowedEvents = []string{
 	"contract_content_changed",
 	"contract_published",
 	"provider_verification_published",
+	"provider_verification_succeeded",
+	"provider_verification_failed",
 }
 
 var pacticipantType = &schema.Schema{
