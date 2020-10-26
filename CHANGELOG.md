@@ -5,6 +5,9 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.1.1 (26 October 2020)
+  * [da0b265](https://github.com/pactflow/terraform/commit/da0b265) - chore: use GH actions to publish to Terraform registry (Matt Fellows, Mon Oct 26 17:00:15 2020 +1100)
+
 ### v0.1.0 (26 October 2020)
   * [9125d49](https://github.com/pactflow/terraform/commit/9125d49) - fix: issue with validateEvents where input array was not sorted (Matt Fellows, Mon Oct 26 08:14:20 2020 +1100)
 
