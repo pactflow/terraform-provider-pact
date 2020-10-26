@@ -6,6 +6,10 @@ Do this to generate your change history
 <a name="0.0.1"></a>
 
 ### v0.1.1 (26 October 2020)
+  * [0d28e51](https://github.com/pactflow/terraform/commit/0d28e51) - chore: remove travis release step in favour of GH Actions (Matt Fellows, Mon Oct 26 17:23:29 2020 +1100)
+  * [da0b265](https://github.com/pactflow/terraform/commit/da0b265) - chore: use GH actions to publish to Terraform registry (Matt Fellows, Mon Oct 26 17:00:15 2020 +1100)
+
+### v0.1.1 (26 October 2020)
   * [da0b265](https://github.com/pactflow/terraform/commit/da0b265) - chore: use GH actions to publish to Terraform registry (Matt Fellows, Mon Oct 26 17:00:15 2020 +1100)
 
 ### v0.1.0 (26 October 2020)
