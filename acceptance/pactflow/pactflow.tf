@@ -1,3 +1,19 @@
+# Required as of Terraform version 0.0.13
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    pact = {
+      source  = "github.com/pactflow/pact"
+      versions = ["0.0.1"]
+    }
+  }
+}
+
+provider "pact" {
+  host = "https://tf-acceptance.pact.dius.com.au"
+  access_token = var.api_token
+}
+
 variable "api_token" {
   type = string
 }
@@ -6,10 +22,6 @@ variable "build_number" {
   type = string
 }
 
-provider "pact" {
-  host = "https://tf-acceptance.pact.dius.com.au"
-  access_token = var.api_token
-}
 
 resource "pact_pacticipant" "AdminUI" {
   name = "AdminUI${var.build_number}"
