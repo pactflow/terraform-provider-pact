@@ -16,6 +16,15 @@ Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_bro
 
 Example:
 ```hcl
+terraform {
+  required_providers {
+    pact = {
+      source = "pactflow/pact"
+      version = "0.1.2"
+    }
+  }
+}
+
 variable "token" {
   type = string
 }
@@ -123,13 +132,13 @@ For either installation method, documentation about the provider specific config
 
 | Plugin      | Type     | Platform Support       | Description |
 | ----------- | -------- | ---------------------- | ----------- |
-| [Pact](docs/provider_pact.html.markdown)        | Provider | Pact Broker + Pactflow | Configures a target Pact Broker (such as a pactflow.io account) |
-| [Pacticipant](docs/resource_pacticipant.html.markdown)  | Resource | Pact Broker + Pactflow | Create applications (known as Pacticipants) |
-| [Webhook](docs/resource_webhook.html.markdown)     | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events |
-| [Secret](docs/resource_secret.html.markdown)      | Resource | Pactflow               | Create an encrypted secret for use in Webhooks |
-| [API Token](docs/resource_token.html.markdown)   | Resource | Pactflow               | Manage Pactflow API Tokens |
-| [Users](docs/resource_user.html.markdown)   | Resource | Pactflow               | Manage Pactflow Users |
-| [Roles](docs/resource_role.html.markdown)   | Resource | Pactflow               | Manage Pactflow Roles |
+| [Pact](docs/index.md)        | Provider | Pact Broker + Pactflow | Configures a target Pact Broker (such as a pactflow.io account) |
+| [Pacticipant](docs/resources/pacticipant.md)  | Resource | Pact Broker + Pactflow | Create applications (known as Pacticipants) |
+| [Webhook](docs/resources/webhook.md)     | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events |
+| [Secret](docs/resources/secret.md)      | Resource | Pactflow               | Create an encrypted secret for use in Webhooks |
+| [API Token](docs/resources/token.md)   | Resource | Pactflow               | Manage Pactflow API Tokens |
+| [Users](docs/resources/user.md)   | Resource | Pactflow               | Manage Pactflow Users |
+| [Roles](docs/resources/role.md)   | Resource | Pactflow               | Manage Pactflow Roles |
 
 See our [Docs](./docs) folder for all plugins.
 

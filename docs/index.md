@@ -2,7 +2,7 @@
 
 Pact Broker Provider sets up a connection to a hosted Broker.
 
-_NOTE_: We currently support both the Open Source Pact Broker and our Pactflow.io platform.
+-> We currently support both the Open Source Pact Broker and our Pactflow.io platform.
 
 ## Example Usage
 The following examples show the basic usage of the resouproviderrce.
