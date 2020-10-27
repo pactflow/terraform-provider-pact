@@ -161,7 +161,7 @@ func tokenRead(d *schema.ResourceData, meta interface{}) error {
 	httpClient := meta.(*client.Client)
 	uuid := d.Id()
 
-	token, err := httpClient.FindTokenByUUID(uuid)
+	token, err := httpClient.ReadToken(uuid)
 	if err != nil {
 		return err
 	}

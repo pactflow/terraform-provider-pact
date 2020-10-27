@@ -8,17 +8,6 @@ before_install:
 - mkdir -p ${HOME}/bin
 - "(cd ${HOME}/bin && unzip /tmp/terraform.zip)"
 - export PATH="~/bin:$PATH"
-deploy:
-  provider: releases
-  file_glob: true
-  file: bin/*
-  skip_cleanup: true
-  api_key:
-    secure: vdBQReWvcS6D77uuq3CBHUEN8LfUU1u0Au1sKAWpAcnY67lSKMwNFusKDk51JAQWLMUz5u2jEXWt/yjeuHMQJHZTDUj6lOAJeNIU1cMTSsES0xPhIN3CwuHjHWOJ3aL0i31Kg889/VKo/cEBpSHFgzkribtIi1yf8cuZiG2wNG8KR+V/PqOBDgCyZ3SWuG9dXwnfJIqiYt4x1BrurTfdSBrOdspRb8rPz0WJNQSOBH3FG/3X1l2O/c5RxzjYfdtFLEM10Ey3VmJBqj0aFh+nwirHKZUgD88bpgeWSZ21zk8yUvZcUPh3YoJKF7eN1ZkCjChQ8IgYs3WIirOebV3//N/AICQ7aPbFsjrZW7z6Z6MELzzNz3r395yzlTzqMUp1heFiWYey2zjgYSSZ7zIiZO+aV6cgyvsJHBnfO6SOn/kOMK385EzSkpuXa/MHOvntgdt7W+Ii/m8F3BHsaGMXIROiVPRKxSTYgthjlsSgiYiSsMXID0bhW6pRxRsDJROkfuudmRfmEneXNH1Gc/DWO/PXrINQTo4TIBfLSgSoEYynfaumOdXp4s1j3h9xF5EtfEAvZi5ylFdQKUyDeiEfp3E+O2sk8dfTgkUdOctZbhCMvA/4BThm89JzJiVLkdHbEx7jr4X47mcc5/yUxiPolwswfTZhzNbi4wc+gWMEAGA=
-  on:
-    repo: pactflow/terraform
-    tags: true
-    branch: master
 env:
   global:
   - secure: RlyUWXm94Rv8v+W6moEqygMkpuvAs72qH6P3nc4l48ZAqz4+fvIL+DMtNnw9Kkih4N0kyX3vI7SUG0ShCRvX7w5iz9lsgdUQYIpdE1wkpAkwsCXEoH4R/2nFYLCftueSq8ikNlWPRkxwsnn9RpBNVUuV0NmBNS2zfB4yksXFwIyNHZHzhFoK5WODn6IqtQh8sJONqPse0xFpZQQgY0/N9KsGsbXxTtlaB1RBx3YADJ55rIvl3Bt4iiPO9Pb1keNxyZ8OcqpCd/F1QzBPhSdgLPpmW3r6R8Wq6npHXjd/HD9OvHeFDdkYFUBpkFny0jTRFq2UhSCR9TYmTR53Mxre/oUaZj4BC+wnu2PQTcott1XJulooNs5N4qvb2x4ROYcJpofLD88prWPrczcJGwOAlrUM804/WISDWo4zV8qC6I0dVhkuura9f7BaJZLDMj2ihpqL3Ji6G5EhqbL1gCwTZrx/RMSCB+5dDCNDf98LGAfcWBeFzSpvLgriGWfgw8r38teKVKDG/HnmsdwTP1kwYhUn7wUNRWLWUQ1v5RsVojQ6wTQja03FUmQl7AuGKTMXVywm5FOqyxpCrtaE3Vv3wjLAvX2pKQi+mHRfD817g22gvurLVydiU5+Jf54VLHRZlXwNJ6H6Zmiqr6dwqIFd0hNs8Z7vT+Ew2gVnQ4AaoQI=

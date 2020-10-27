@@ -27,6 +27,8 @@ const (
 	teamCreateTemplate                  = "/admin/teams"
 	teamAssignmentTemplate              = "/admin/teams/%s/users"
 	teamUserTemplate                    = "/admin/teams/%s/users/%s"
+	roleCreateTemplate                  = "/admin/roles"
+	roleReadUpdateDeleteTemplate        = "/admin/roles/%s"
 	userReadUpdateDeleteTemplate        = "/admin/users/%s"
 	userCreateTemplate                  = "/admin/users/invite-user"
 	userAdminUpdateTemplate             = "/admin/users/%s/role/admin"
@@ -35,7 +37,6 @@ const (
 	listTokensTemplate                  = "/settings/tokens"
 	tokenRegenerateTemplate             = "/settings/tokens/%s/regenerate"
 	metadataTemplate                    = "/"
-	// {"_links":{"self":{"href":"https://dius.pact.dius.com.au","title":"Index","templated":false},"pb:publish-pact":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/consumer/{consumer}/version/{consumerApplicationVersion}","title":"Publish a pact","templated":true},"pb:latest-pact-versions":{"href":"https://dius.pact.dius.com.au/pacts/latest","title":"Latest pact versions","templated":false},"pb:tagged-pact-versions":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/consumer/{consumer}/tag/{tag}","title":"All versions of a pact for a given consumer, provider and consumer version tag","templated":false},"pb:pacticipants":{"href":"https://dius.pact.dius.com.au/pacticipants","title":"Pacticipants","templated":false},"pb:pacticipant":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}","title":"Fetch pacticipant by name","templated":true},"pb:latest-provider-pacts":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/latest","title":"Latest pacts by provider","templated":true},"pb:latest-provider-pacts-with-tag":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/latest/{tag}","title":"Latest pacts for provider with the specified tag","templated":true},"pb:provider-pacts-with-tag":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/tag/{tag}","title":"All pact versions for the provider with the specified consumer version tag","templated":true},"pb:provider-pacts":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}","title":"All pact versions for the specified provider","templated":true},"pb:latest-version":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}/latest-version","title":"Latest pacticipant version","templated":true},"pb:latest-tagged-version":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}/latest-version/{tag}","title":"Latest pacticipant version with the specified tag","templated":true},"pb:webhooks":{"href":"https://dius.pact.dius.com.au/webhooks","title":"Webhooks","templated":false},"pb:webhook":{"href":"https://dius.pact.dius.com.au/webhooks/{uuid}","title":"Webhook","templated":true},"pb:integrations":{"href":"https://dius.pact.dius.com.au/integrations","title":"Integrations","templated":false},"pb:pacticipant-version-tag":{"href":"https://dius.pact.dius.com.au/pacticipants/{pacticipant}/versions/{version}/tags/{tag}","title":"Get, create or delete a tag for a pacticipant version","templated":true},"pb:metrics":{"href":"https://dius.pact.dius.com.au/metrics","title":"Get Pact Broker metrics"},"pb:can-i-deploy-pacticipant-version-to-tag":{"href":"https://dius.pact.dius.com.au/can-i-deploy?pacticipant={pacticipant}\u0026version={version}\u0026to={tag}","title":"Determine if an application can be safely deployed to an environment identified by the given tag","templated":true},"curies":[{"name":"pb","href":"https://dius.pact.dius.com.au/doc/{rel}?context=index","templated":true},{"name":"beta","href":"https://dius.pact.dius.com.au/doc/{rel}?context=index","templated":true}],"beta:provider-pacts-for-verification":{"href":"https://dius.pact.dius.com.au/pacts/provider/{provider}/for-verification","title":"Pact versions to be verified for the specified provider","templated":true},"pb:api-tokens":{"href":"https://dius.pact.dius.com.au/settings/tokens","title":"API tokens","templated":false},"pb:audit":{"href":"https://dius.pact.dius.com.au/audit","title":"Audit trail","templated":false},"pb:secrets":{"href":"https://dius.pact.dius.com.au/secrets","title":"Secrets","templated":false}}}
 )
 
 const (
@@ -163,7 +164,7 @@ func (c *Client) CreateTeam(t broker.Team) (*broker.Team, error) {
 	return nil, err
 }
 
-// AssignUsersToTeam assigns one or more users to a team
+// ReadTeamAssignments finds all users currently in a team
 func (c *Client) ReadTeamAssignments(r broker.Team) (*broker.TeamsAssignmentResponse, error) {
 	res, err := c.doCrud("GET", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
 	apiResponse := res.(*broker.TeamsAssignmentResponse)
@@ -190,7 +191,7 @@ func (c *Client) DeleteTeamAssignment(t broker.Team, u broker.User) error {
 	return err
 }
 
-// DeleteTeamAssignments removes all users from the team
+// DeleteTeamAssignments removes specified users from the team
 func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
 	if len(t.Users) > 0 {
 		_, err := c.doCrud("DELETE", fmt.Sprintf(teamAssignmentTemplate, t.UUID), t, nil)
@@ -199,17 +200,42 @@ func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
 	return nil
 }
 
-// UpdateTeam updates an existing Team
-// currently only supports modifying the "active" property
+// UpdateTeam adds users to an existing Team (does not remove absent ones)
 func (c *Client) UpdateTeam(t broker.Team) (*broker.Team, error) {
 	res, err := c.doCrud("PUT", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), t, new(broker.Team))
 	return res.(*broker.Team), err
 }
 
-// DeleteTeam simply de-activates an existing Team. Teams are global on the platform,
-// but can be enabled/disabled at the tenant level
+// DeleteTeam deletes the Team
 func (c *Client) DeleteTeam(t broker.Team) error {
 	_, err := c.doCrud("DELETE", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), nil, nil)
+
+	return err
+}
+
+// ReadRole gets a Role
+func (c *Client) ReadRole(name string) (*broker.Role, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(roleReadUpdateDeleteTemplate, name), nil, new(broker.Role))
+	return res.(*broker.Role), err
+}
+
+// CreateRole creates a Role
+func (c *Client) CreateRole(p broker.Role) (*broker.Role, error) {
+	res, err := c.doCrud("POST", roleCreateTemplate, p, new(broker.Role))
+	return res.(*broker.Role), err
+}
+
+// UpdateRole updates an existing Role
+// currently only supports modifying the "active" property
+func (c *Client) UpdateRole(p broker.Role) (*broker.Role, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(roleReadUpdateDeleteTemplate, p.UUID), p, new(broker.Role))
+	return res.(*broker.Role), err
+}
+
+// DeleteRole simply de-activates an existing Role. Roles are global on the platform,
+// but can be enabled/disabled at the tenant level
+func (c *Client) DeleteRole(p broker.Role) error {
+	_, err := c.doCrud("DELETE", fmt.Sprintf(roleReadUpdateDeleteTemplate, p.UUID), nil, nil)
 
 	return err
 }
@@ -285,8 +311,8 @@ func (c *Client) ListTokens() (*broker.APITokensResponse, error) {
 	return res.(*broker.APITokensResponse), err
 }
 
-// FindTokenByUUID finds a token given a UUID
-func (c *Client) FindTokenByUUID(uuid string) (*broker.APIToken, error) {
+// ReadToken finds an API token given a UUID
+func (c *Client) ReadToken(uuid string) (*broker.APIToken, error) {
 	tokens, err := c.ListTokens()
 	log.Println("[DEBUG] have tokens", tokens)
 

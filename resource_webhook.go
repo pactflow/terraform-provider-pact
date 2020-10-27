@@ -18,7 +18,9 @@ import (
 var allowedEvents = []string{
 	"contract_content_changed",
 	"contract_published",
+	"provider_verification_failed",
 	"provider_verification_published",
+	"provider_verification_succeeded",
 }
 
 var pacticipantType = &schema.Schema{
@@ -92,6 +94,7 @@ var requestType = &schema.Schema{
 }
 
 func stringContains(s []string, searchterm string) bool {
+	sort.Strings(s)
 	i := sort.SearchStrings(s, searchterm)
 	return i < len(s) && s[i] == searchterm
 }

@@ -67,7 +67,7 @@ From https://docs.pact.io/pact_broker/advanced_topics/api_docs/webhooks#creating
 > Both provider and consumer are optional - omitting either indicates that any pacticipant in that role will be matched.
 * `webhook_consumer` - (Optional, block) A consumer to scope events to. See [Pacticipant](#pacticipant) below for details. Omitting the consumer indicates the webhook should fire for all consumers.
 * `request` - (Required, block) The request to send when a webhook is fired. See [Request](#request) below for details.
-* `events` - (Required, list of strings) one of	`	"contract_changed_event", "contract_published", "provider_verification_published",` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
+* `events` - (Required, list of strings) one of	`contract_content_changed`, `contract_published`, `provider_verification_published`, `provider_verification_succeeded` or `provider_verification_failed` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
 
 
 <a id="pacticipant"></a>

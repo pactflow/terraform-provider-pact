@@ -8,12 +8,12 @@ import (
 	"github.com/pact-foundation/terraform/client"
 )
 
-func pacticipant() *schema.Resource {
+func application() *schema.Resource {
 	return &schema.Resource{
-		Create:   pacticipantCreate,
-		Update:   pacticipantUpdate,
-		Read:     pacticipantRead,
-		Delete:   pacticipantDelete,
+		Create:   applicationCreate,
+		Update:   applicationUpdate,
+		Read:     applicationRead,
+		Delete:   applicationDelete,
 		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -31,7 +31,7 @@ func pacticipant() *schema.Resource {
 	}
 }
 
-func pacticipantCreate(d *schema.ResourceData, meta interface{}) error {
+func applicationCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
@@ -51,7 +51,7 @@ func pacticipantCreate(d *schema.ResourceData, meta interface{}) error {
 
 	return err
 }
-func pacticipantUpdate(d *schema.ResourceData, meta interface{}) error {
+func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
@@ -72,7 +72,7 @@ func pacticipantUpdate(d *schema.ResourceData, meta interface{}) error {
 	return err
 }
 
-func pacticipantRead(d *schema.ResourceData, meta interface{}) error {
+func applicationRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	log.Println("[DEBUG] reading pacticipant", d.Id())
 
@@ -88,7 +88,7 @@ func pacticipantRead(d *schema.ResourceData, meta interface{}) error {
 	return err
 }
 
-func pacticipantDelete(d *schema.ResourceData, meta interface{}) error {
+func applicationDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)

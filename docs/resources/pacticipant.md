@@ -2,6 +2,8 @@
 
 This resource manages the lifecycle of a _Pacticipant_. A Pacticipant is an application that may perform the role of a consumer or a provider in the Pact ecosystem.
 
+!> This resource is deprecated in favour of the `pact_application` resource.
+
 ## Example Usage
 The following examples show the basic usage of the resource.
 

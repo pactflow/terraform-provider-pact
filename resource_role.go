@@ -9,88 +9,95 @@ import (
 	"github.com/pact-foundation/terraform/client"
 )
 
-const (
-	administratorRole = "administrator"
-	userRole          = "user"
-)
-
-var allowedRoles = map[string]string{
-	administratorRole: "cf75d7c2-416b-11ea-af5e-53c3b1a4efd8",
-	// userRole:          "e9282e22-416b-11ea-a16e-57ee1bb61d18",
-}
-
-func validateRoles(val interface{}, key string) (warns []string, errs []error) {
-	v := val.(string)
-	if _, ok := allowedRoles[v]; !ok {
-		errs = append(errs, fmt.Errorf("%q must be one of the allowed pre-existing roles %v, got %v", key, allowedRoles, v))
-	}
-
-	return
-}
-
 func role() *schema.Resource {
 	return &schema.Resource{
 		Create: roleCreate,
 		Read:   roleRead,
+		Update: roleUpdate,
 		Delete: roleDelete,
 		Schema: map[string]*schema.Schema{
-			"role": {
-				Type:         schema.TypeString,
-				Description:  "Role to apply to the user",
-				ValidateFunc: validateRoles,
-				Required:     true,
-				ForceNew:     true,
-			},
-			"user": {
-				Type:        schema.TypeString,
-				Description: "UUID of the user of which to apply the role",
-				Required:    true,
-				ForceNew:    true,
-			},
 			"name": {
 				Type:        schema.TypeString,
-				Computed:    true,
+				Required:    true,
 				Description: "Name of the Role",
+			},
+			"scopes": {
+				Type: schema.TypeList,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Required:    true,
+				Description: "The pre-defined scope to add to the role",
 			},
 			"uuid": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The UUID of API token",
+				Description: "Name of the Role",
 			},
 		},
 	}
 }
 
+func validateScopes(val interface{}, key string) (warns []string, errs []error) {
+	v := val.(string)
+	for _, scope := range broker.AllowedScopes {
+		if scope == v {
+			return
+		}
+	}
+	errs = append(errs, fmt.Errorf("%q must be one of the allowed scopes %v, got %v", key, broker.AllowedScopes, v))
+
+	return
+}
+
 func roleCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
-	userUUID := d.Get("user").(string)
+	name := d.Get("name").(string)
+	raw, ok := d.Get("scopes").([]interface{})
 
-	// NOTE: we only support the admin role at this time
-	log.Println("[DEBUG] creating role for user with UUID:", userUUID)
-	_, err := client.AddAdminRoleToUser(broker.User{
-		UUID: userUUID,
-	})
+	permissions := make([]broker.Permission, len(raw))
+	if ok && len(raw) > 0 {
+		for i, s := range raw {
+			permissions[i] = broker.Permission{
+				Scope: s.(string),
+			}
+		}
+	}
+
+	role := broker.Role{
+		Name:        name,
+		Permissions: permissions,
+	}
+
+	created, err := client.CreateRole(role)
 
 	if err == nil {
-		d.SetId(allowedRoles["administrator"])
-		d.Set("name", "Administrator")
+		d.SetId(created.UUID)
+		d.Set("name", created.Name)
+		d.Set("uuid", created.UUID)
 	}
 
 	return err
 }
 
 func roleRead(d *schema.ResourceData, meta interface{}) error {
+	// TODO:
+	return nil
+}
+
+func roleUpdate(d *schema.ResourceData, meta interface{}) error {
+	// TODO:
 	return nil
 }
 
 func roleDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
-	userUUID := d.Get("user").(string)
+	uuid := d.Get("uuid").(string)
 
-	log.Println("[DEBUG] deleting role for user with UUID:", userUUID)
+	log.Println("[DEBUG] deleting role for user with UUID:", uuid)
 
-	_, err := client.RemoveAdminRoleToUser(broker.User{
-		UUID: userUUID,
+	err := client.DeleteRole(broker.Role{
+		UUID: uuid,
 	})
 
 	if err != nil {
@@ -99,3 +106,5 @@ func roleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	return err
 }
+
+// curl -X POST -H"content-type: application/json" $PACT_BROKER_BASE_URL/admin/roles -d '{ "name": "FooRole", "permissions": [ { "name": "Manage users", "scope": "user:manage:*" } ] }' -H"Authorization: bearer $PACT_BROKER_TOKEN" -v  | jq .

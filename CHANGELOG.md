@@ -5,6 +5,23 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.1.2 (26 October 2020)
+  * [14ce27e](https://github.com/pactflow/terraform/commit/14ce27e) - docs: reformat to hashicorp directory structure requirements (Matt Fellows, Mon Oct 26 22:10:55 2020 +1100)
+  * [e4e4a16](https://github.com/pactflow/terraform/commit/e4e4a16) - chore: update pactflow.tf acceptance config for 0.0.13 (Matt Fellows, Mon Oct 26 21:44:14 2020 +1100)
+
+### v0.1.1 (26 October 2020)
+  * [0d28e51](https://github.com/pactflow/terraform/commit/0d28e51) - chore: remove travis release step in favour of GH Actions (Matt Fellows, Mon Oct 26 17:23:29 2020 +1100)
+  * [da0b265](https://github.com/pactflow/terraform/commit/da0b265) - chore: use GH actions to publish to Terraform registry (Matt Fellows, Mon Oct 26 17:00:15 2020 +1100)
+
+### v0.1.1 (26 October 2020)
+  * [da0b265](https://github.com/pactflow/terraform/commit/da0b265) - chore: use GH actions to publish to Terraform registry (Matt Fellows, Mon Oct 26 17:00:15 2020 +1100)
+
+### v0.1.0 (26 October 2020)
+  * [9125d49](https://github.com/pactflow/terraform/commit/9125d49) - fix: issue with validateEvents where input array was not sorted (Matt Fellows, Mon Oct 26 08:14:20 2020 +1100)
+
+### v0.0.7 (25 October 2020)
+  * [76cac46](https://github.com/pactflow/terraform/commit/76cac46) - feat: add new provider verification webhook events. Fixes #9 (Matt Fellows, Sun Oct 25 15:24:10 2020 +1100)
+
 ### v0.0.6 (25 July 2020)
   * [aeccef1](https://github.com/pactflow/terraform/commit/aeccef1) - fix: omitted webhook consumer/provider would always replace resource. Fixes #7 (Matt Fellows, Sat Jul 25 21:39:35 2020 +1000)
   * [db0789f](https://github.com/pactflow/terraform/commit/db0789f) - fix: don't send null Roles on user update (Matt Fellows, Thu Jul 23 22:46:58 2020 +1000)

@@ -15,7 +15,7 @@ resource "pact_user" "billy" {
 }
 
 # Assignt to the billy the user by referencing its uuid
-resource "pact_role" "billy_admin" {
+resource "pact_role_v1" "billy_admin" {
   role = "administrator"
   user = pact_user.billy.uuid
 }
@@ -28,6 +28,14 @@ The following arguments are supported:
 * `role` - (Required, string) The string name of a role to assign. Currently the only option is `administrator`.
 * `user` - (Required, string) The UUID of a user to apply the role to. Can refer to the `uuid` output of the User resource, or of a known ID in the system.
 
+## Default Roles
+
+The following roles are available by default:
+* Administrator: `cf75d7c2-416b-11ea-af5e-53c3b1a4efd8`
+* test maintainer: `e9282e22-416b-11ea-a16e-57ee1bb61d18`
+* CI/CD: `c1878b8e-d09e-11ea-8fde-af02c4677eb7`
+* Viewer: `9fa50562-a42b-4771-aa8e-4bb3d623ae60`
+
 ## Importing
 
-This is not supported for Roles.
+TBC

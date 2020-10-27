@@ -1,3 +1,22 @@
+# Required as of Terraform version 0.0.13
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    pact = {
+      source  = "github.com/pactflow/pact"
+      versions = ["0.0.1"]
+    }
+  }
+}
+
+### Provider configuration
+
+provider "pact" {
+  # host = "https://tf-acceptance.pact.dius.com.au"
+  host = "https://tf-acceptance.test.pactflow.io"
+  access_token = var.api_token
+}
+
 variable "api_token" {
   type = string
 }
@@ -6,15 +25,10 @@ variable "build_number" {
   type = string
 }
 
-provider "pact" {
-  # host = "https://tf-acceptance.pact.dius.com.au"
-  host = "https://tf-acceptance.test.pactflow.io"
-  access_token = var.api_token
-}
 
 ### API Tokens / Credentials
 
-# NOTE: you probably don't want to use TF for managing these
+# NOTE: you probably don't want to use TF for managing these.
 resource "pact_token" "read_only" {
   type = "read-only"
   name = "Local dev token"
@@ -38,6 +52,7 @@ resource "pact_secret" "jenkins_token" {
 resource "pact_pacticipant" "example" {
   name = "pactflow-example-consumer"
 }
+
 resource "pact_pacticipant" "AdminUI" {
   name = "AdminUI${var.build_number}"
   repository_url = "github.com/foo/admin"
@@ -135,10 +150,32 @@ EOF
   depends_on = [pact_pacticipant.AdminUI, pact_pacticipant.GraphQLAPI]
 }
 
-
 ### Roles and Permissions
 
-resource "pact_role" "homer_admin" {
+resource "pact_role" "special_role" {
+  name = "specialrole"
+  scopes = [
+    "user:manage:*",
+    "team:manage:*",
+    "user:invite",
+    "system_account:manage:*",
+    "system_account:read:*",
+    "user:read:*",
+    "team:read:*",
+    "contract_data:manage:*",
+    "contract_data:read:*",
+    "contract_data:bulk_delete:*",
+    "webhook:manage:*",
+    "secret:manage:*",
+    "role:manage:*",
+    "role:read:*",
+    "token:manage:own",
+    "read_token:manage:own"
+  ]
+}
+
+# NOTE: legacy resource has changed name from previous versions
+resource "pact_role_v1" "homer_admin" {
   role = "administrator"
   user = pact_user.homer.uuid
 }

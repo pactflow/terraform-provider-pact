@@ -19,8 +19,8 @@ local-destroy:
 
 build:
 	go build -o bin/terraform-provider-pact
-	mkdir -p ~/.terraform.d/plugins/
-	cp bin/terraform-provider-pact ~/.terraform.d/plugins/
+	mkdir -p ~/.terraform.d/plugins/github.com/pactflow/pact/0.0.1/darwin_amd64
+	cp bin/terraform-provider-pact ~/.terraform.d/plugins/github.com/pactflow/pact/0.0.1/darwin_amd64/
 
 clean:
 	mkdir -p ./log && \
@@ -75,16 +75,16 @@ pactflow-acceptance-test:
 	@echo "--- Running Pactflow acceptance tests"
 	cd acceptance/pactflow && \
 		terraform init && \
-		terraform apply -auto-approve
+		terraform destroy -auto-approve
 
-		# terraform destroy -auto-approve
+		# terraform apply -auto-approve
 		# && \
 		# terraform destroy -auto-approve
 
 binary-acceptance-test:
 	@echo "--- Checking binary acceptance test"
-	mkdir -p ~/.terraform.d/plugins
-	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/terraform-provider-pact
+	mkdir -p ~/.terraform.d/plugins/github.com/pactflow/pact/0.0.1/linux_amd64
+	cp bin/terraform-provider-pact_linux_amd64 ~/.terraform.d/plugins/github.com/pactflow/pact/0.0.1/linux_amd64/terraform-provider-pact
 	terraform init
 
 acceptance-test: binary-acceptance-test oss-acceptance-test pactflow-acceptance-test

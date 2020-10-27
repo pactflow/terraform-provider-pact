@@ -12,10 +12,12 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
 			"pact_role":            role(),
+			"pact_role_v1":         roleV1(),
 			"pact_team":            team(),
 			"pact_team_assignment": teamAssignment(),
 			"pact_user":            user(),
-			"pact_pacticipant":     pacticipant(),
+			"pact_application":     application(),
+			"pact_pacticipant":     application(),
 			"pact_webhook":         webhook(),
 			"pact_secret":          secret(),
 			"pact_token":           token(),

@@ -1,3 +1,14 @@
+# Required as of Terraform version 0.0.13
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    pact = {
+      source  = "github.com/pactflow/pact"
+      versions = ["0.0.1"]
+    }
+  }
+}
+
 provider "pact" {
   host = "http://localhost"
   basic_auth_username = "pact_broker"
