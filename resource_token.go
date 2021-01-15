@@ -34,15 +34,14 @@ type apiTokenDefinition struct {
 	Value       string
 }
 
-// TODO: How to deal with the fact that (currently) exactly 2 tokens can ever be present
-// and have to be of different types?
 func token() *schema.Resource {
 	return &schema.Resource{
-		Create:   tokenCreate,
-		Update:   tokenUpdate,
-		Read:     tokenRead,
-		Delete:   tokenDelete,
-		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		DeprecationMessage: "This resource is deprecated and will soon be removed",
+		Create:             tokenCreate,
+		Update:             tokenUpdate,
+		Read:               tokenRead,
+		Delete:             tokenDelete,
+		Importer:           &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,

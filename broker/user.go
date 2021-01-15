@@ -36,6 +36,11 @@ type Users struct {
 	Users []User `json:"users"`
 }
 
+// SetUserRolesRequest is used to set roles to a given user
+type SetUserRolesRequest struct {
+	Roles []string `json:"roles"`
+}
+
 // User:
 //
 // {

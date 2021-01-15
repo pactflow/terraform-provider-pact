@@ -27,6 +27,12 @@ clean:
 	touch terraform.tfstate terraform.tfstate.backup log/tf.log && \
 	rm terraform.tf* log/tf.log
 
+clean-acceptance:
+	mkdir -p ./acceptance/pactflow/.terraform && \
+	cd ./acceptance/pactflow/ && \
+	touch terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl log/tf.log && \
+	rm -rf terraform.tf* log/tf.log .terraform*
+
 docker:
 	docker-compose up -d
 

@@ -172,13 +172,12 @@ Plan for the next few months:
 - [x] Pacticipants
 - [x] Webhooks
 - [x] Secrets (Pactflow only)
-- [x] API Tokens (Pactflow only)
-- [x] User + Basic Role Management (Pactflow only)
-- [ ] Teams
-- [ ] Assign users+teams
-- [ ] System Users
-- [ ] Role-based access ()
-- [ ] Role creation
+- [x] Users (Pactflow only)
+- [x] Teams (Pactflow only)
+- [x] Assign users to teams (Pactflow only)
+- [x] System Users (Pactflow only)
+- [x] Custom role creation (Pactflow only)
+- [x] Role assignment (Pactflow only)
 - [ ] Better error messages for HTTP / runtime failures
 - [x] Acceptance tests
 - [ ] Better code coverage

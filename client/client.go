@@ -30,6 +30,8 @@ const (
 	roleCreateTemplate                  = "/admin/roles"
 	roleReadUpdateDeleteTemplate        = "/admin/roles/%s"
 	userReadUpdateDeleteTemplate        = "/admin/users/%s"
+	userRolesUpdateTemplate             = "/admin/users/%s/roles"
+	userRolesDeleteAppendTemplate       = "/admin/users/%s/roles/%s"
 	userCreateTemplate                  = "/admin/users/invite-user"
 	userAdminUpdateTemplate             = "/admin/users/%s/role/admin"
 	secretReadUpdateDeleteTemplate      = "/secrets/%s"
@@ -165,8 +167,8 @@ func (c *Client) CreateTeam(t broker.Team) (*broker.Team, error) {
 }
 
 // ReadTeamAssignments finds all users currently in a team
-func (c *Client) ReadTeamAssignments(r broker.Team) (*broker.TeamsAssignmentResponse, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+func (c *Client) ReadTeamAssignments(t broker.Team) (*broker.TeamsAssignmentResponse, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(teamAssignmentTemplate, t.UUID), t, new(broker.TeamsAssignmentResponse))
 	apiResponse := res.(*broker.TeamsAssignmentResponse)
 
 	return apiResponse, err
@@ -274,8 +276,8 @@ func (c *Client) AddAdminRoleToUser(p broker.User) (*broker.User, error) {
 	return res.(*broker.User), err
 }
 
-// RemoveAdminRoleToUser removes the administrator role from a user
-func (c *Client) RemoveAdminRoleToUser(p broker.User) (*broker.User, error) {
+// RemoveAdminRoleFromUser removes the administrator role from a user
+func (c *Client) RemoveAdminRoleFromUser(p broker.User) (*broker.User, error) {
 	res, err := c.doCrud("DELETE", fmt.Sprintf(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
 	return res.(*broker.User), err
 }
@@ -305,15 +307,15 @@ func (c *Client) DeleteSecret(s broker.Secret) error {
 	return err
 }
 
-// ListTokens lists all tokens for the given user principal
-func (c *Client) ListTokens() (*broker.APITokensResponse, error) {
+// ReadTokens lists all tokens for the given user principal
+func (c *Client) ReadTokens() (*broker.APITokensResponse, error) {
 	res, err := c.doCrud("GET", listTokensTemplate, nil, new(broker.APITokensResponse))
 	return res.(*broker.APITokensResponse), err
 }
 
 // ReadToken finds an API token given a UUID
 func (c *Client) ReadToken(uuid string) (*broker.APIToken, error) {
-	tokens, err := c.ListTokens()
+	tokens, err := c.ReadTokens()
 	log.Println("[DEBUG] have tokens", tokens)
 
 	if err != nil {
@@ -335,7 +337,7 @@ func (c *Client) FindTokenByType(tokenType string) (*broker.APIToken, error) {
 		return nil, fmt.Errorf("invalid token type specified, need one of %v, got %s", tokenTypes, tokenType)
 	}
 
-	tokens, err := c.ListTokens()
+	tokens, err := c.ReadTokens()
 	log.Println("[DEBUG] have tokens", tokens)
 
 	if err != nil {
@@ -355,6 +357,24 @@ func (c *Client) RegenerateToken(t broker.APIToken) (*broker.APITokenResponse, e
 	res, err := c.doCrud("POST", fmt.Sprintf(tokenRegenerateTemplate, t.UUID), nil, new(broker.APITokenResponse))
 	return res.(*broker.APITokenResponse), err
 }
+
+// SetUserRoles sets the roles for a given user, removing any not given and adding those that were provided
+func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
+	_, err := c.doCrud("PUT", fmt.Sprintf(userRolesUpdateTemplate, uuid), r, nil)
+	return err
+}
+
+// // AddUserRole adds a single role to a given user, without modifying existing roles
+// func (c *Client) AddUserRole(w broker.UserRole) (*broker.UserRoleResponse, error) {
+// 	res, err := c.doCrud("PUT", fmt.Sprintf(UserRoleReadUpdateDeleteTemplate, w.ID), w, new(broker.UserRoleResponse))
+// 	return res.(*broker.UserRoleResponse), err
+// }
+
+// // DeleteUserRole removes a role from a user
+// func (c *Client) DeleteUserRole(w broker.UserRole) error {
+// 	_, err := c.doCrud("DELETE", fmt.Sprintf(UserRoleReadUpdateDeleteTemplate, w.ID), nil, nil)
+// 	return err
+// }
 
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
@@ -417,10 +437,6 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
 		return nil, ErrBadRequest
-	}
-
-	if resp.StatusCode >= 300 && resp.StatusCode < 400 {
-		// TODO: deal with redirect
 	}
 
 	if v != nil {

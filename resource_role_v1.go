@@ -27,11 +27,13 @@ func validateRoles(val interface{}, key string) (warns []string, errs []error) {
 	return
 }
 
+// TODO: update to use new API? Or just remove this entirely in favour of the new role assignment resource?
 func roleV1() *schema.Resource {
 	return &schema.Resource{
-		Create: roleV1Create,
-		Read:   roleV1Read,
-		Delete: roleV1Delete,
+		DeprecationMessage: "This resource is deprecated. Please update to the newer 'pact_role' resource",
+		Create:             roleV1Create,
+		Read:               roleV1Read,
+		Delete:             roleV1Delete,
 		Schema: map[string]*schema.Schema{
 			"role": {
 				Type:         schema.TypeString,
@@ -88,7 +90,7 @@ func roleV1Delete(d *schema.ResourceData, meta interface{}) error {
 
 	log.Println("[DEBUG] deleting role for user with UUID:", userUUID)
 
-	_, err := client.RemoveAdminRoleToUser(broker.User{
+	_, err := client.RemoveAdminRoleFromUser(broker.User{
 		UUID: userUUID,
 	})
 

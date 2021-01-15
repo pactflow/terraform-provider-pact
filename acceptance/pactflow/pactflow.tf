@@ -4,7 +4,7 @@ terraform {
   required_providers {
     pact = {
       source  = "github.com/pactflow/pact"
-      versions = ["0.0.1"]
+      version = "0.0.1"
     }
   }
 }
@@ -12,8 +12,7 @@ terraform {
 ### Provider configuration
 
 provider "pact" {
-  # host = "https://tf-acceptance.pact.dius.com.au"
-  host = "https://tf-acceptance.test.pactflow.io"
+  host = "http://localhost:9292"
   access_token = var.api_token
 }
 
@@ -28,16 +27,16 @@ variable "build_number" {
 
 ### API Tokens / Credentials
 
-# NOTE: you probably don't want to use TF for managing these.
-resource "pact_token" "read_only" {
-  type = "read-only"
-  name = "Local dev token"
-}
+# NOTE: you probably don't want to use TF for managing these
+# resource "pact_token" "read_only" {
+#   type = "read-only"
+#   name = "Local dev token"
+# }
 
-resource "pact_token" "read_write" {
-  type = "read-write"
-  name = "CI token"
-}
+# resource "pact_token" "read_write" {
+#   type = "read-write"
+#   name = "CI token"
+# }
 
 ### Secrets
 
@@ -87,6 +86,12 @@ resource "pact_user" "homer" {
   name = "Homer Simpson"
   email = "rholshausen@dius.com.au"
   active = true
+  roles = [
+    "c1878b8e-d09e-11ea-8fde-af02c4677eb7",
+    "9fa50562-a42b-4771-aa8e-4bb3d623ae60",
+    "e9282e22-416b-11ea-a16e-57ee1bb61d18",
+    "cf75d7c2-416b-11ea-af5e-53c3b1a4efd8" # Admin
+  ]
 }
 
 resource "pact_user" "bender_system_user" {
@@ -175,7 +180,7 @@ resource "pact_role" "special_role" {
 }
 
 # NOTE: legacy resource has changed name from previous versions
-resource "pact_role_v1" "homer_admin" {
-  role = "administrator"
-  user = pact_user.homer.uuid
-}
+# resource "pact_role_v1" "homer_admin" {
+#   role = "administrator"
+#   user = pact_user.homer.uuid
+# }

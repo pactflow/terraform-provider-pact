@@ -126,7 +126,7 @@ func teamAssignmentDelete(d *schema.ResourceData, meta interface{}) error {
 		Users: extractUsersFromState(d),
 	}
 
-	log.Println("[DEBUG] deleting team assignments", team)
+	log.Println("[DEBUG] deleting team assignments", req)
 
 	err := client.DeleteTeamAssignments(req)
 

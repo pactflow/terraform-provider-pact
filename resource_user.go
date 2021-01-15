@@ -46,14 +46,12 @@ func user() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validateUserType,
 			},
-
-			// List of UUIDs
-			"teams": {
-				Type:     schema.TypeList,
-				Optional: true,
+			"roles": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "A list of roles (as uuids) to apply to the user",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
-					// ValidateFunc: validateEvents,
 				},
 			},
 		},
@@ -94,22 +92,41 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	user := getUserFromState(d)
 
-	log.Println("[DEBUG] creating user", user)
+	// Creating a user is a non-atomic transaction, because roles is a separate API call
+	d.Partial(true)
+
+	_roles := d.Get("roles").([]interface{})
+	log.Println("[DEBUG] creating user", user, _roles)
 
 	created, err := client.CreateUser(user)
-
-	if err == nil {
-		user.UUID = created.UUID
-		d.SetId(created.UUID)
-
-		// Update user (any other params aren't set on first user creation - e.g. name, active etc.)
-		// This is ineffectual, as these details come from Cognito and will be reset each login :P
-		// _, err = client.UpdateUser(user)
-
-		setUserState(d, *created)
+	if err != nil {
+		return err
 	}
 
-	return err
+	d.SetId(created.UUID)
+
+	setUserState(d, *created)
+	setUserPartials(d)
+
+	roles := rolesFromStateChange(d)
+	log.Println("[DEBUG] updating user roles", d.Id(), roles)
+
+	client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
+		Roles: roles,
+	})
+
+	if err != nil {
+		log.Println("[ERROR] error updating user roles", err)
+		return err
+	}
+
+	d.Set("roles", roles)
+	d.SetPartial("roles")
+
+	// All went well!
+	d.Partial(false)
+
+	return nil
 }
 
 func userUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -118,13 +135,37 @@ func userUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Println("[DEBUG] updating user", user)
 
+	// Creating a user is a non-atomic transaction, because roles is a separate API call
+	d.Partial(true)
+
 	updated, err := client.UpdateUser(user)
 
-	if err == nil {
-		setUserState(d, *updated)
+	if err != nil {
+		return err
 	}
 
-	// TODO: Team assignments
+	setUserPartials(d)
+	setUserState(d, *updated)
+
+	if d.HasChange("roles") {
+		roles := rolesFromStateChange(d)
+		log.Println("[DEBUG] updating user roles", roles)
+
+		client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
+			Roles: roles,
+		})
+
+		if err != nil {
+			log.Println("[ERROR] error updating user roles", err)
+			return err
+		}
+
+		d.SetPartial("roles")
+		d.Set("roles", roles)
+	}
+
+	// We made it!
+	d.Partial(false)
 
 	return err
 }
@@ -136,8 +177,6 @@ func userRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("[DEBUG] reading user", uuid)
 
 	user, err := client.ReadUser(uuid)
-
-	log.Println("[DEBUG] have user for READ", user)
 
 	if err == nil {
 		d.SetId(user.UUID)
@@ -166,6 +205,14 @@ func userDelete(d *schema.ResourceData, meta interface{}) error {
 	return err
 }
 
+func setUserPartials(d *schema.ResourceData) {
+	props := []string{"name", "email", "active", "uuid", "type"}
+
+	for _, p := range props {
+		d.SetPartial(p)
+	}
+}
+
 func setUserState(d *schema.ResourceData, user broker.User) error {
 	log.Printf("[DEBUG] setting user state: %+v \n", user)
 
@@ -189,8 +236,42 @@ func setUserState(d *schema.ResourceData, user broker.User) error {
 		log.Println("[ERROR] error setting key 'type'", err)
 		return err
 	}
+	if err := d.Set("roles", rolesFromUser(user)); err != nil {
+		log.Println("[ERROR] error setting key 'roles'", err)
+		return err
+	}
 
 	return nil
+}
+
+func rolesFromUser(u broker.User) []string {
+	roles := make([]string, len(u.Embedded.Roles))
+
+	for i, r := range u.Embedded.Roles {
+		roles[i] = r.UUID
+	}
+
+	return roles
+}
+
+func rolesFromStateChange(d *schema.ResourceData) []string {
+	_, after := d.GetChange("roles")
+	roles, ok := after.([]interface{})
+	if !ok {
+		return []string{}
+	}
+	return arrayInterfaceToArrayString(roles)
+}
+
+func arrayInterfaceToArrayString(raw []interface{}) []string {
+	items := make([]string, len(raw))
+	if len(raw) > 0 {
+		for i, s := range raw {
+			items[i] = s.(string)
+		}
+	}
+
+	return items
 }
 
 func getUserFromState(d *schema.ResourceData) broker.User {
