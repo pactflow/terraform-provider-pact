@@ -111,13 +111,13 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 	roles := rolesFromStateChange(d)
 	log.Println("[DEBUG] updating user roles", d.Id(), roles)
 
-	client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
+	err = client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
 		Roles: roles,
 	})
 
 	if err != nil {
 		log.Println("[ERROR] error updating user roles", err)
-		return err
+		return fmt.Errorf("Error updating roles for user (%s): %s", d.Id(), err)
 	}
 
 	d.Set("roles", roles)
@@ -151,13 +151,13 @@ func userUpdate(d *schema.ResourceData, meta interface{}) error {
 		roles := rolesFromStateChange(d)
 		log.Println("[DEBUG] updating user roles", roles)
 
-		client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
+		err = client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
 			Roles: roles,
 		})
 
 		if err != nil {
 			log.Println("[ERROR] error updating user roles", err)
-			return err
+			return fmt.Errorf("Error updating roles for user (%s): %s", d.Id(), err)
 		}
 
 		d.SetPartial("roles")

@@ -364,18 +364,6 @@ func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
 	return err
 }
 
-// // AddUserRole adds a single role to a given user, without modifying existing roles
-// func (c *Client) AddUserRole(w broker.UserRole) (*broker.UserRoleResponse, error) {
-// 	res, err := c.doCrud("PUT", fmt.Sprintf(UserRoleReadUpdateDeleteTemplate, w.ID), w, new(broker.UserRoleResponse))
-// 	return res.(*broker.UserRoleResponse), err
-// }
-
-// // DeleteUserRole removes a role from a user
-// func (c *Client) DeleteUserRole(w broker.UserRole) error {
-// 	_, err := c.doCrud("DELETE", fmt.Sprintf(UserRoleReadUpdateDeleteTemplate, w.ID), nil, nil)
-// 	return err
-// }
-
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.Config.BaseURL.ResolveReference(rel)
