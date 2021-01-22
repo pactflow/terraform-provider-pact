@@ -6,33 +6,33 @@ import (
 	"strings"
 )
 
-type APIErrorKey string
-type APIErrorDescriptions []string
+type apiErrorKey string
+type apiErrorDescriptions []string
 
-type APIKeyedError map[APIErrorKey]APIErrorDescriptions
+type APIKeyedError map[apiErrorKey]apiErrorDescriptions
 
-// APIErrorResponse represents a body of the shape: {"errors":{"parameter": ["parameter is invaled"]}}
-type APIErrorResponse struct {
+// apiErrorResponse represents a body of the shape: {"errors":{"parameter": ["parameter is invaled"]}}
+type apiErrorResponse struct {
 	Errors       APIKeyedError   `json:"errors"`
 	Reference    string          `json:"reference"`
-	ErrorDetails APIErrorMessage `json:"error"`
+	ErrorDetails apiErrorMessage `json:"error"`
 	err          error
 }
 
-// APIErrorMessage represents are higher-level error such as for the cause of a 5xx
-type APIErrorMessage struct {
+// apiErrorMessage represents are higher-level error such as for the cause of a 5xx
+type apiErrorMessage struct {
 	Message string `json:"message"`
 }
 
-// APIArrayErrorResponse represents a body of the shape: {"errors":["Missing required attribute 'name'"]}
-type APIArrayErrorResponse struct {
-	Errors       APIErrorDescriptions `json:"errors"`
+// apiArrayErrorResponse represents a body of the shape: {"errors":["Missing required attribute 'name'"]}
+type apiArrayErrorResponse struct {
+	Errors       apiErrorDescriptions `json:"errors"`
 	Reference    string               `json:"reference"`
-	ErrorDetails APIErrorMessage      `json:"error"`
+	ErrorDetails apiErrorMessage      `json:"error"`
 	err          error
 }
 
-type APIError interface {
+type apiError interface {
 	Error() string
 	GetError() error
 	GetReference() string
@@ -45,7 +45,7 @@ type APIError interface {
 // 500 error message
 // {"error":{"message":
 
-func (e *APIErrorResponse) Error() string {
+func (e *apiErrorResponse) Error() string {
 	errors := new(strings.Builder)
 	errors.WriteString("\terror details: \n")
 
@@ -71,7 +71,7 @@ func (e *APIErrorResponse) Error() string {
 	return errors.String()
 }
 
-func (e *APIArrayErrorResponse) Error() string {
+func (e *apiArrayErrorResponse) Error() string {
 	errors := new(strings.Builder)
 	errors.WriteString("\n\terror details: \n")
 

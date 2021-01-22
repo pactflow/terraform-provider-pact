@@ -1,8 +1,9 @@
 TEST?=./...
 
 .DEFAULT_GOAL := ci
-TRAVIS_COMMIT?=1
-export TF_VAR_build_number=$(TRAVIS_COMMIT)
+GITHUB_RUN_ID?=1
+export TF_VAR_build_number=$(GITHUB_RUN_ID)
+export TF_VAR_api_token=$(PACT_BROKER_TOKEN)
 
 ci:: docker deps vet bin test acceptance-test
 

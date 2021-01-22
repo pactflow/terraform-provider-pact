@@ -409,14 +409,14 @@ func handleError(err error, req *http.Request, resp *http.Response) (*http.Respo
 	// TODO: decode the multiple concrete error types here
 	var e error
 
-	e = &APIErrorResponse{
+	e = &apiErrorResponse{
 		err: err,
 	}
 	decodingErr := json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(e)
 	if decodingErr != nil {
 		log.Println("[DEBUG] error decoding APIErrorResponse from response for", req.Method, req.URL.Path, ". Error", decodingErr)
 
-		e = &APIArrayErrorResponse{
+		e = &apiArrayErrorResponse{
 			err: err,
 		}
 		decodingErr = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(e)
