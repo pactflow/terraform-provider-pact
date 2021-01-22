@@ -12,12 +12,9 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.go-version }}
-    - name: Install terraform
-      run: |
-        curl -sLo /tmp/terraform.zip $(curl -sL https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url' | egrep 'terraform_[0-9]\.[0-9]{1,2}\.[0-9]{1,2}_linux.*amd64' | sort -V | tail -1)
-        mkdir -p ${HOME}/bin
-        "(cd ${HOME}/bin && unzip /tmp/terraform.zip)"
-        export PATH="~/bin:$PATH"
+    - uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.14.5
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Test
