@@ -1,0 +1,24 @@
+on: [push, pull_request]
+name: Test
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.14.x, 1.15.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: Install terraform
+      run: |
+        curl -sLo /tmp/terraform.zip $(curl -sL https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url' | egrep 'terraform_[0-9]\.[0-9]{1,2}\.[0-9]{1,2}_linux.*amd64' | sort -V | tail -1)
+        mkdir -p ${HOME}/bin
+        "(cd ${HOME}/bin && unzip /tmp/terraform.zip)"
+        export PATH="~/bin:$PATH"
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Test
+      run: make
