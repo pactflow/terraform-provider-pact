@@ -39,29 +39,26 @@ type apiError interface {
 	GetMessage() string
 }
 
-// 400 bad request message
-// {"errors":["Missing required attribute 'name'"]}
-
-// 500 error message
-// {"error":{"message":
-
 func (e *apiErrorResponse) Error() string {
 	errors := new(strings.Builder)
-	errors.WriteString("\terror details: \n")
+	if e.ErrorDetails.Message != "" || len(e.Errors) > 0 || e.Reference != "" {
+		errors.WriteString("\terror details: \n")
 
-	if e.ErrorDetails.Message != "" {
-		errors.WriteString(fmt.Sprintf("\t\tsummary: %s\n", e.ErrorDetails.Message))
-	}
-
-	if len(e.Errors) > 0 {
-		for _, v := range e.Errors {
-			// errors.WriteString(fmt.Sprintf("\t\t%s - %s\n", k, strings.Join(v, ",")))
-			errors.WriteString(fmt.Sprintf("\t\t%s\n", strings.Join(v, "\n")))
+		if e.ErrorDetails.Message != "" {
+			errors.WriteString(fmt.Sprintf("\t\tsummary: %s\n", e.ErrorDetails.Message))
 		}
-	}
 
-	if e.Reference != "" {
-		errors.WriteString(fmt.Sprintf("\t\treference: %s\n", e.Reference))
+		if len(e.Errors) > 0 {
+			for _, v := range e.Errors {
+				errors.WriteString(fmt.Sprintf("\t\t%s\n", strings.Join(v, "\n")))
+			}
+		}
+
+		if e.Reference != "" {
+			errors.WriteString(fmt.Sprintf("\t\treference: %s\n", e.Reference))
+		}
+	} else {
+		errors.WriteString("\n\tplease see the log for error details\n")
 	}
 
 	if e.err != nil {
@@ -73,18 +70,22 @@ func (e *apiErrorResponse) Error() string {
 
 func (e *apiArrayErrorResponse) Error() string {
 	errors := new(strings.Builder)
-	errors.WriteString("\n\terror details: \n")
+	if e.ErrorDetails.Message != "" || len(e.Errors) > 0 || e.Reference != "" {
+		errors.WriteString("\n\terror details: \n")
 
-	if e.ErrorDetails.Message != "" {
-		errors.WriteString(fmt.Sprintf("\t\tsummary: %s\n", e.ErrorDetails.Message))
-	}
+		if e.ErrorDetails.Message != "" {
+			errors.WriteString(fmt.Sprintf("\t\tsummary: %s\n", e.ErrorDetails.Message))
+		}
 
-	if len(e.Errors) > 0 {
-		errors.WriteString(fmt.Sprintf("\t\t%s\n", strings.Join(e.Errors, "\n")))
-	}
+		if len(e.Errors) > 0 {
+			errors.WriteString(fmt.Sprintf("\t\t%s\n", strings.Join(e.Errors, "\n")))
+		}
 
-	if e.Reference != "" {
-		errors.WriteString(fmt.Sprintf("\t\treference: %s\n", e.Reference))
+		if e.Reference != "" {
+			errors.WriteString(fmt.Sprintf("\t\treference: %s\n", e.Reference))
+		}
+	} else {
+		errors.WriteString("\n\tplease see the log for error details\n")
 	}
 
 	if e.err != nil {
@@ -95,8 +96,12 @@ func (e *apiArrayErrorResponse) Error() string {
 }
 
 var (
-	ErrBadRequest        = errors.New("bad request")
+	// ErrBadRequest represents an HTTP 400 error
+	ErrBadRequest = errors.New("bad request")
+	// ErrSystemUnavailable represents an hTTP 5xx error
 	ErrSystemUnavailable = errors.New("system unavailable")
-	ErrUnauthorized      = errors.New("unauthorized")
-	ErrForbidden         = errors.New("access denied, check that you have access to this resource")
+	// ErrUnauthorized represents an HTTP 401 error
+	ErrUnauthorized = errors.New("unauthorized")
+	// ErrForbidden represents an HTTP 403 permissions issue
+	ErrForbidden = errors.New("access denied, check that you have access to this resource")
 )
