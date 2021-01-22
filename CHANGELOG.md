@@ -6,6 +6,9 @@ Do this to generate your change history
 <a name="0.0.1"></a>
 
 ### v0.1.3 (22 January 2021)
+
+  Add support for Team, Role and Permissions. Deprecates v1 role and token resource. Other commits include:
+
   * [c17b759](https://github.com/pactflow/terraform/commit/c17b759) - chore: tidy up error exports (Matt Fellows, Fri Jan 22 18:05:54 2021 +1100)
   * [7c6774f](https://github.com/pactflow/terraform/commit/7c6774f) - chore: remove travis (Matt Fellows, Fri Jan 22 17:56:15 2021 +1100)
   * [27a367b](https://github.com/pactflow/terraform/commit/27a367b) - chore: add github secret to build (Matt Fellows, Fri Jan 22 17:51:38 2021 +1100)
