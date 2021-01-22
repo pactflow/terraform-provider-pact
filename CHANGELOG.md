@@ -5,7 +5,7 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
-### v0.1.3 (22 January 2021)
+### v0.1.4 (22 January 2021)
 
   Add support for Team, Role and Permissions. Deprecates v1 role and token resource. Other commits include:
 

@@ -88,7 +88,7 @@ version=$(increment_version "${current_version/v/}" "${inc}")
 log "increment '${inc}' version from ${current_version} to ${version}"
 
 step "Generating changelog"
-generate_changelog "${current_version}"
+generate_changelog "${version}"
 log "changelog updated"
 
 step "Committing changes"
