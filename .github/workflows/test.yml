@@ -11,8 +11,8 @@ jobs:
     steps:
     - name: Install Go
       uses: actions/setup-go@v2
-      # with:
-      #   go-version: ${{ matrix.go-version }}
+      with:
+        go-version: 1.15.x
     - uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 0.14.5
