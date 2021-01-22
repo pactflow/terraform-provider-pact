@@ -5,6 +5,18 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.1.3 (22 January 2021)
+  * [c17b759](https://github.com/pactflow/terraform/commit/c17b759) - chore: tidy up error exports (Matt Fellows, Fri Jan 22 18:05:54 2021 +1100)
+  * [7c6774f](https://github.com/pactflow/terraform/commit/7c6774f) - chore: remove travis (Matt Fellows, Fri Jan 22 17:56:15 2021 +1100)
+  * [27a367b](https://github.com/pactflow/terraform/commit/27a367b) - chore: add github secret to build (Matt Fellows, Fri Jan 22 17:51:38 2021 +1100)
+  * [41ce4cd](https://github.com/pactflow/terraform/commit/41ce4cd) - chore: make log dir prior to build running (Matt Fellows, Fri Jan 22 15:23:54 2021 +1100)
+  * [c14353b](https://github.com/pactflow/terraform/commit/c14353b) - chore: pin version of terraform for build (Matt Fellows, Fri Jan 22 14:26:41 2021 +1100)
+  * [2b464b6](https://github.com/pactflow/terraform/commit/2b464b6) - chore: add GH build for testing (Matt Fellows, Fri Jan 22 14:22:08 2021 +1100)
+  * [f102a8f](https://github.com/pactflow/terraform/commit/f102a8f) - fix: oss acceptance test (Matt Fellows, Fri Jan 22 14:15:30 2021 +1100)
+  * [62ce5e5](https://github.com/pactflow/terraform/commit/62ce5e5) - chore: add docs and cleanup for teams (Matt Fellows, Fri Jan 22 12:56:59 2021 +1100)
+  * [34ee2fc](https://github.com/pactflow/terraform/commit/34ee2fc) - fix: import re-creating pacticipant. Fixes #11 (Matt Fellows, Fri Jan 22 12:00:58 2021 +1100)
+  * [6728fd4](https://github.com/pactflow/terraform/commit/6728fd4) - chore: fix oss acceptance build provider config (Matt Fellows, Mon Oct 26 22:12:37 2020 +1100)
+
 ### v0.1.2 (26 October 2020)
   * [14ce27e](https://github.com/pactflow/terraform/commit/14ce27e) - docs: reformat to hashicorp directory structure requirements (Matt Fellows, Mon Oct 26 22:10:55 2020 +1100)
   * [e4e4a16](https://github.com/pactflow/terraform/commit/e4e4a16) - chore: update pactflow.tf acceptance config for 0.0.13 (Matt Fellows, Mon Oct 26 21:44:14 2020 +1100)
