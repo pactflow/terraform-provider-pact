@@ -80,6 +80,7 @@ oss-acceptance-test:
 pactflow-acceptance-test:
 	@echo "--- Running Pactflow acceptance tests"
 	cd acceptance/pactflow && \
+		mkdir -p ./log && \
 		terraform init && \
 		TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply -auto-approve && \
 		TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform destroy -auto-approve
