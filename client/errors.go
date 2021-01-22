@@ -62,7 +62,7 @@ func (e *apiErrorResponse) Error() string {
 	}
 
 	if e.err != nil {
-		return fmt.Sprintf("\t%s \n\n%s", e.err, errors.String())
+		return fmt.Sprintf("%s \n\n%s", e.err, errors.String())
 	}
 
 	return errors.String()
@@ -89,7 +89,7 @@ func (e *apiArrayErrorResponse) Error() string {
 	}
 
 	if e.err != nil {
-		return fmt.Sprintf("\t%s\n\n%s", e.err, errors.String())
+		return fmt.Sprintf("%s\n\n%s", e.err, errors.String())
 	}
 
 	return errors.String()
