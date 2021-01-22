@@ -50,8 +50,7 @@ func validateScopes(val interface{}, key string) (warns []string, errs []error) 
 	return
 }
 
-func roleCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.Client)
+func getRoleFromState(d *schema.ResourceData) broker.Role {
 	name := d.Get("name").(string)
 	raw, ok := d.Get("scopes").([]interface{})
 
@@ -64,29 +63,86 @@ func roleCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	role := broker.Role{
+	return broker.Role{
+		UUID:        d.Id(),
 		Name:        name,
 		Permissions: permissions,
 	}
+}
+
+func scopesFromUser(u broker.Role) []string {
+	scopes := make([]string, len(u.Permissions))
+
+	for i, p := range u.Permissions {
+		scopes[i] = p.Scope
+	}
+
+	return scopes
+}
+
+func setRoleState(d *schema.ResourceData, r *broker.Role) error {
+	log.Printf("[DEBUG] setting role state: %v \n", r)
+
+	if err := d.Set("uuid", r.UUID); err != nil {
+		return fmt.Errorf("error creating key 'uuid': %w", err)
+	}
+	if err := d.Set("name", r.Name); err != nil {
+		return fmt.Errorf("error creating key 'name': %w", err)
+	}
+	if err := d.Set("scopes", scopesFromUser(*r)); err != nil {
+		return fmt.Errorf("error creating key 'scopes': %w", err)
+	}
+
+	return nil
+}
+
+func roleCreate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*client.Client)
+	role := getRoleFromState(d)
 
 	created, err := client.CreateRole(role)
 
-	if err == nil {
-		d.SetId(created.UUID)
-		d.Set("name", created.Name)
-		d.Set("uuid", created.UUID)
+	if err != nil {
+		return fmt.Errorf("error creating role: %w", err)
 	}
 
-	return err
+	d.SetId(created.UUID)
+
+	if err = setRoleState(d, created); err != nil {
+		return fmt.Errorf("error setting role state: %w", err)
+	}
+
+	return nil
 }
 
 func roleRead(d *schema.ResourceData, meta interface{}) error {
-	// TODO:
+	client := meta.(*client.Client)
+	role, err := client.ReadRole(d.Id())
+
+	if err != nil {
+		return fmt.Errorf("error reading role: %w", err)
+	}
+
+	if err = setRoleState(d, role); err != nil {
+		return fmt.Errorf("error setting role state: %w", err)
+	}
+
 	return nil
 }
 
 func roleUpdate(d *schema.ResourceData, meta interface{}) error {
-	// TODO:
+	client := meta.(*client.Client)
+	role := getRoleFromState(d)
+	updated, err := client.UpdateRole(role)
+
+	if err != nil {
+		return fmt.Errorf("error updating role: %w", err)
+	}
+
+	if err = setRoleState(d, updated); err != nil {
+		return fmt.Errorf("error setting role state: %w", err)
+	}
+
 	return nil
 }
 
@@ -96,15 +152,20 @@ func roleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	log.Println("[DEBUG] deleting role for user with UUID:", uuid)
 
+	// TODO: this can fail if ever assigned to a user due to a foreign constraint.
+	// I think maybe a pactflow_team_roles FK?
+	// cascade?
 	err := client.DeleteRole(broker.Role{
 		UUID: uuid,
 	})
 
 	if err != nil {
-		d.SetId("")
+		return fmt.Errorf("error deleting role: %w", err)
 	}
 
-	return err
+	d.SetId("")
+
+	return nil
 }
 
 // curl -X POST -H"content-type: application/json" $PACT_BROKER_BASE_URL/admin/roles -d '{ "name": "FooRole", "permissions": [ { "name": "Manage users", "scope": "user:manage:*" } ] }' -H"Authorization: bearer $PACT_BROKER_TOKEN" -v  | jq .

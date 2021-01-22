@@ -92,9 +92,6 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	user := getUserFromState(d)
 
-	// Creating a user is a non-atomic transaction, because roles is a separate API call
-	d.Partial(true)
-
 	_roles := d.Get("roles").([]interface{})
 	log.Println("[DEBUG] creating user", user, _roles)
 
@@ -106,7 +103,6 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(created.UUID)
 
 	setUserState(d, *created)
-	setUserPartials(d)
 
 	roles := rolesFromStateChange(d)
 	log.Println("[DEBUG] updating user roles", d.Id(), roles)
@@ -116,15 +112,13 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 	})
 
 	if err != nil {
+		// Creating a user is a non-atomic transaction, because roles is a separate API call
+		d.Partial(true)
 		log.Println("[ERROR] error updating user roles", err)
-		return fmt.Errorf("Error updating roles for user (%s): %s", d.Id(), err)
+		return fmt.Errorf("Error updating roles for user (%s / %s): %w", d.Id(), created.Email, err)
 	}
 
 	d.Set("roles", roles)
-	d.SetPartial("roles")
-
-	// All went well!
-	d.Partial(false)
 
 	return nil
 }
@@ -135,16 +129,12 @@ func userUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Println("[DEBUG] updating user", user)
 
-	// Creating a user is a non-atomic transaction, because roles is a separate API call
-	d.Partial(true)
-
 	updated, err := client.UpdateUser(user)
 
 	if err != nil {
 		return err
 	}
 
-	setUserPartials(d)
 	setUserState(d, *updated)
 
 	if d.HasChange("roles") {
@@ -156,16 +146,13 @@ func userUpdate(d *schema.ResourceData, meta interface{}) error {
 		})
 
 		if err != nil {
+			d.Partial(true) // updating users is non-atomic, let the diff applier know this
 			log.Println("[ERROR] error updating user roles", err)
 			return fmt.Errorf("Error updating roles for user (%s): %s", d.Id(), err)
 		}
 
-		d.SetPartial("roles")
 		d.Set("roles", roles)
 	}
-
-	// We made it!
-	d.Partial(false)
 
 	return err
 }
@@ -189,28 +176,47 @@ func userRead(d *schema.ResourceData, meta interface{}) error {
 func userDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	uuid := d.Id()
-	user := broker.User{
-		UUID:   uuid,
-		Active: false,
+
+	log.Println("[DEBUG] deleting user", d.Id())
+
+	// TODO: Delete attached resources Roles and Teams, because a Users aren't deleted, but simply disabled
+	user, err := client.ReadUser(uuid)
+	if err != nil {
+		log.Println("[ERROR] unable to fetch user for delete", user)
+		return fmt.Errorf("unable to fetch user for delete: %w", err)
+	}
+	log.Println("[DEBUG] have user for delete", user)
+
+	rolesToRemove := make([]string, len(user.Embedded.Roles))
+	for i, r := range user.Embedded.Roles {
+		rolesToRemove[i] = r.UUID
 	}
 
-	log.Println("[DEBUG] deleting user", user)
+	err = client.SetUserRoles(uuid, broker.SetUserRolesRequest{
+		Roles: []string{},
+	})
 
-	err := client.DeleteUser(user)
+	if err != nil {
+		return fmt.Errorf("unable to remove roles from user when deleting (disabling) user %s: %w", d.Id(), err)
+	}
+
+	for _, t := range user.Embedded.Teams {
+		err = client.DeleteTeamAssignment(t, *user)
+		if err != nil {
+			return fmt.Errorf("unable to remove user %s (%s) from team %s (%s): %w", d.Id(), user.Email, t.UUID, t.Name, err)
+		}
+	}
+	user.Embedded.Roles = nil
+	user.Embedded.Teams = nil
+
+	err = client.DeleteUser(*user)
 
 	if err != nil {
 		d.SetId("")
+		return fmt.Errorf("unable to delete (disable) user %s: %w", d.Id(), err)
 	}
 
-	return err
-}
-
-func setUserPartials(d *schema.ResourceData) {
-	props := []string{"name", "email", "active", "uuid", "type"}
-
-	for _, p := range props {
-		d.SetPartial(p)
-	}
+	return nil
 }
 
 func setUserState(d *schema.ResourceData, user broker.User) error {
@@ -261,17 +267,6 @@ func rolesFromStateChange(d *schema.ResourceData) []string {
 		return []string{}
 	}
 	return arrayInterfaceToArrayString(roles)
-}
-
-func arrayInterfaceToArrayString(raw []interface{}) []string {
-	items := make([]string, len(raw))
-	if len(raw) > 0 {
-		for i, s := range raw {
-			items[i] = s.(string)
-		}
-	}
-
-	return items
 }
 
 func getUserFromState(d *schema.ResourceData) broker.User {

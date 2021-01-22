@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/pact-foundation/terraform/broker"
 )
@@ -49,6 +50,18 @@ const (
 var tokenTypes = map[string]string{
 	readOnlyTokenType:  "Read only token (developer)",
 	readWriteTokenType: "Read/write token (CI)",
+}
+
+type APIError struct {
+	Errors []string `json:"errors"`
+	err    error
+}
+
+func (e *APIError) Error() string {
+	if len(e.Errors) > 0 {
+		return fmt.Sprintf("%s: %s", e.err, strings.Join(e.Errors, ","))
+	}
+	return fmt.Sprintf("%s", e.err)
 }
 
 var (
@@ -174,8 +187,20 @@ func (c *Client) ReadTeamAssignments(t broker.Team) (*broker.TeamsAssignmentResp
 	return apiResponse, err
 }
 
-// UpdateTeamAssignments assigns one or more users to a team
+// UpdateTeamAssignments sets the users for a given team, removing any existing users not in the specified request
 func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
+	res, err := c.doCrud("PUT", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+	if len(r.Users) > 0 {
+		apiResponse := res.(*broker.TeamsAssignmentResponse)
+
+		return apiResponse, err
+	}
+
+	return nil, err
+}
+
+// AppendTeamAssignments adds users to an existing Team (does not remove absent ones)
+func (c *Client) AppendTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
 	res, err := c.doCrud("POST", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
 	if len(r.Users) > 0 {
 		apiResponse := res.(*broker.TeamsAssignmentResponse)
@@ -183,7 +208,7 @@ func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker
 		return apiResponse, err
 	}
 
-	return nil, nil
+	return nil, err
 }
 
 // DeleteTeamAssignment removes a single user from a team
@@ -202,7 +227,7 @@ func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
 	return nil
 }
 
-// UpdateTeam adds users to an existing Team (does not remove absent ones)
+// UpdateTeam updates the team
 func (c *Client) UpdateTeam(t broker.Team) (*broker.Team, error) {
 	res, err := c.doCrud("PUT", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), t, new(broker.Team))
 	return res.(*broker.Team), err
@@ -216,8 +241,8 @@ func (c *Client) DeleteTeam(t broker.Team) error {
 }
 
 // ReadRole gets a Role
-func (c *Client) ReadRole(name string) (*broker.Role, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(roleReadUpdateDeleteTemplate, name), nil, new(broker.Role))
+func (c *Client) ReadRole(uuid string) (*broker.Role, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(roleReadUpdateDeleteTemplate, uuid), nil, new(broker.Role))
 	return res.(*broker.Role), err
 }
 
@@ -243,8 +268,8 @@ func (c *Client) DeleteRole(p broker.Role) error {
 }
 
 // ReadUser gets a User
-func (c *Client) ReadUser(name string) (*broker.User, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(userReadUpdateDeleteTemplate, name), nil, new(broker.User))
+func (c *Client) ReadUser(uuid string) (*broker.User, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(userReadUpdateDeleteTemplate, uuid), nil, new(broker.User))
 	return res.(*broker.User), err
 }
 
@@ -367,13 +392,14 @@ func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.Config.BaseURL.ResolveReference(rel)
-	var buf io.ReadWriter
+	var buf = new(bytes.Buffer)
 	if body != nil {
-		buf = new(bytes.Buffer)
 		err := json.NewEncoder(buf).Encode(body)
 		if err != nil {
 			return nil, err
 		}
+
+		log.Printf("[INFO] raw body to be sent over wire: '%s'", buf.String())
 	}
 	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
@@ -396,6 +422,18 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 	return req, nil
 }
 
+func handleError(err error, req *http.Request, resp *http.Response) (*http.Response, error) {
+	e := &APIError{
+		err: err,
+	}
+	decodingErr := json.NewDecoder(resp.Body).Decode(e)
+	if decodingErr != nil {
+		log.Println("[DEBUG] error decoding response for", req.Method, req.URL.Path, ". Error", decodingErr)
+	}
+
+	return resp, e
+}
+
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	log.Println("[DEBUG] sending body for request", req)
 	resp, err := c.client.Do(req)
@@ -412,19 +450,19 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	log.Println("[DEBUG] response for request:", req, "resp:", resp)
 
 	if resp.StatusCode >= 500 {
-		return nil, ErrSystemUnavailable
+		return handleError(ErrSystemUnavailable, req, resp)
 	}
 
 	if resp.StatusCode == 401 {
-		return nil, ErrUnauthorized
+		return handleError(ErrUnauthorized, req, resp)
 	}
 
 	if resp.StatusCode == 403 {
-		return nil, ErrForbidden
+		return handleError(ErrForbidden, req, resp)
 	}
 
 	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
-		return nil, ErrBadRequest
+		return handleError(ErrBadRequest, req, resp)
 	}
 
 	if v != nil {

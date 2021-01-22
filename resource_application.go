@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -44,13 +45,17 @@ func applicationCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err := client.CreatePacticipant(pacticipant)
 
-	if err == nil {
-		d.SetId(name)
-		d.Set("repository_url", pacticipant.RepositoryURL)
+	if err != nil {
+		return fmt.Errorf("error creating application: %w", err)
 	}
 
-	return err
+	d.SetId(name)
+	d.Set("name", pacticipant.Name)
+	d.Set("repository_url", pacticipant.RepositoryURL)
+
+	return nil
 }
+
 func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
@@ -64,12 +69,14 @@ func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 	_, err := client.UpdatePacticipant(pacticipant)
 
-	if err == nil {
-		d.SetId(name)
-		d.Set("repository_url", pacticipant.RepositoryURL)
+	if err != nil {
+		return fmt.Errorf("error updating application: %w", err)
 	}
 
-	return err
+	d.SetId(name)
+	d.Set("repository_url", pacticipant.RepositoryURL)
+
+	return nil
 }
 
 func applicationRead(d *schema.ResourceData, meta interface{}) error {
@@ -80,12 +87,15 @@ func applicationRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Println("[DEBUG] have pacticipant for READ", pacticipant)
 
-	if err == nil {
-		d.SetId(pacticipant.Name)
-		d.Set("repository_url", pacticipant.RepositoryURL)
+	if err != nil {
+		return fmt.Errorf("error reading application: %w", err)
 	}
 
-	return err
+	d.SetId(pacticipant.Name)
+	d.Set("name", pacticipant.Name)
+	d.Set("repository_url", pacticipant.RepositoryURL)
+
+	return nil
 }
 
 func applicationDelete(d *schema.ResourceData, meta interface{}) error {
@@ -102,7 +112,9 @@ func applicationDelete(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		d.SetId("")
+		return fmt.Errorf("error deleting application: %w", err)
 	}
 
-	return err
+	return nil
+
 }

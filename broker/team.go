@@ -11,6 +11,7 @@ type Team struct {
 
 type TeamEmbeddedItems struct {
 	Pacticipants []Pacticipant `json:"pacticipants,omitempty"`
+	Members      []User        `json:"members,omitempty"`
 }
 
 type TeamsResponse struct {
