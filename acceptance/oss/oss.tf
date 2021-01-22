@@ -4,7 +4,7 @@ terraform {
   required_providers {
     pact = {
       source  = "github.com/pactflow/pact"
-      versions = ["0.0.1"]
+      version = "0.0.1"
     }
   }
 }
