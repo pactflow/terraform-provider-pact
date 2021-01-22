@@ -12,8 +12,8 @@ terraform {
 ### Provider configuration
 
 provider "pact" {
-  # host = "https://tf-acceptance.pactflow.io"
-  host = "http://localhost:9292"
+  host = "https://tf-acceptance.pactflow.io"
+  # host = "http://localhost:9292"
   access_token = var.api_token
 }
 

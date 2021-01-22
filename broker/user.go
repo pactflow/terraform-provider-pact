@@ -291,3 +291,5 @@ type SetUserRolesRequest struct {
 //     }
 //   ]
 // }
+
+// curl -X PUT localhost:9292/admin/users/04c60c21-4b0b-45ea-b38f-ca1d8211323a/roles -H"Authorization: Bearer localhost" -d '{ "roles": [ "8bff8a01-0993-41b5-97c5-14dc9ce23268" ] }' | jq .

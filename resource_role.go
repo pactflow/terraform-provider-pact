@@ -11,10 +11,11 @@ import (
 
 func role() *schema.Resource {
 	return &schema.Resource{
-		Create: roleCreate,
-		Read:   roleRead,
-		Update: roleUpdate,
-		Delete: roleDelete,
+		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		Create:   roleCreate,
+		Read:     roleRead,
+		Update:   roleUpdate,
+		Delete:   roleDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -152,9 +153,6 @@ func roleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	log.Println("[DEBUG] deleting role for user with UUID:", uuid)
 
-	// TODO: this can fail if ever assigned to a user due to a foreign constraint.
-	// I think maybe a pactflow_team_roles FK?
-	// cascade?
 	err := client.DeleteRole(broker.Role{
 		UUID: uuid,
 	})
@@ -167,5 +165,3 @@ func roleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	return nil
 }
-
-// curl -X POST -H"content-type: application/json" $PACT_BROKER_BASE_URL/admin/roles -d '{ "name": "FooRole", "permissions": [ { "name": "Manage users", "scope": "user:manage:*" } ] }' -H"Authorization: bearer $PACT_BROKER_TOKEN" -v  | jq .

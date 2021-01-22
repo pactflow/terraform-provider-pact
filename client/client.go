@@ -4,14 +4,12 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/pact-foundation/terraform/broker"
 )
@@ -51,25 +49,6 @@ var tokenTypes = map[string]string{
 	readOnlyTokenType:  "Read only token (developer)",
 	readWriteTokenType: "Read/write token (CI)",
 }
-
-type APIError struct {
-	Errors []string `json:"errors"`
-	err    error
-}
-
-func (e *APIError) Error() string {
-	if len(e.Errors) > 0 {
-		return fmt.Sprintf("%s: %s", e.err, strings.Join(e.Errors, ","))
-	}
-	return fmt.Sprintf("%s", e.err)
-}
-
-var (
-	ErrBadRequest        = errors.New("bad request")
-	ErrSystemUnavailable = errors.New("system unavailable")
-	ErrUnauthorized      = errors.New("unauthorized")
-	ErrForbidden         = errors.New("access denied, check that you have access to this resource")
-)
 
 // Config is the primary means to modify the Pact Broker http client
 type Config struct {
@@ -423,12 +402,27 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 }
 
 func handleError(err error, req *http.Request, resp *http.Response) (*http.Response, error) {
-	e := &APIError{
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close() //  must close
+	log.Println("[DEBUG] handling error response:", string(bodyBytes))
+
+	// TODO: decode the multiple concrete error types here
+	var e error
+
+	e = &APIErrorResponse{
 		err: err,
 	}
-	decodingErr := json.NewDecoder(resp.Body).Decode(e)
+	decodingErr := json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(e)
 	if decodingErr != nil {
-		log.Println("[DEBUG] error decoding response for", req.Method, req.URL.Path, ". Error", decodingErr)
+		log.Println("[DEBUG] error decoding APIErrorResponse from response for", req.Method, req.URL.Path, ". Error", decodingErr)
+
+		e = &APIArrayErrorResponse{
+			err: err,
+		}
+		decodingErr = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(e)
+		if decodingErr != nil {
+			log.Println("[DEBUG] error decoding APIArrayErrorResponse from response for", req.Method, req.URL.Path, ". Error", decodingErr)
+		}
 	}
 
 	return resp, e

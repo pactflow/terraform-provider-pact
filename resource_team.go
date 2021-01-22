@@ -209,24 +209,25 @@ func setTeamState(d *schema.ResourceData, team broker.Team) error {
 		return err
 	}
 
-	pacticipants := make([]string, len(team.Embedded.Pacticipants))
-	for _, p := range team.Embedded.Pacticipants {
-		pacticipants = append(pacticipants, p.Name)
-	}
+	if len(team.Embedded.Pacticipants) > 0 {
+		pacticipants := make([]string, len(team.Embedded.Pacticipants))
+		for i, p := range team.Embedded.Pacticipants {
+			pacticipants[i] = p.Name
+		}
 
-	if len(pacticipants) > 0 {
 		if err := d.Set("pacticipants", pacticipants); err != nil {
 			log.Println("[ERROR] error setting key 'pacticipants'", err)
 			return err
 		}
 	}
 
-	members := make([]string, len(team.Embedded.Members))
-	for _, m := range team.Embedded.Members {
-		members = append(members, m.UUID)
-	}
+	if len(team.Embedded.Members) > 0 {
+		members := make([]string, len(team.Embedded.Members))
+		for i, m := range team.Embedded.Members {
+			log.Println("[DEBUG] adding team member with UUID", m.UUID)
+			members[i] = m.UUID
+		}
 
-	if len(members) > 0 {
 		if err := d.Set("users", members); err != nil {
 			log.Println("[ERROR] error setting key 'users'", err)
 			return err

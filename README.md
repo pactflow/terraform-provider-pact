@@ -139,6 +139,7 @@ For either installation method, documentation about the provider specific config
 | [API Token](docs/resources/token.md)   | Resource | Pactflow               | Manage Pactflow API Tokens |
 | [Users](docs/resources/user.md)   | Resource | Pactflow               | Manage Pactflow Users |
 | [Roles](docs/resources/role.md)   | Resource | Pactflow               | Manage Pactflow Roles |
+| [Teams](docs/resources/team.md)   | Resource | Pactflow               | Manage Pactflow Teams |
 
 See our [Docs](./docs) folder for all plugins.
 
@@ -178,7 +179,7 @@ Plan for the next few months:
 - [x] System Users (Pactflow only)
 - [x] Custom role creation (Pactflow only)
 - [x] Role assignment (Pactflow only)
-- [ ] Better error messages for HTTP / runtime failures
+- [x] Better error messages for HTTP / runtime failures
 - [x] Acceptance tests
 - [ ] Better code coverage
 - [ ] Extract `Client` into separate SDK package
