@@ -51,3 +51,13 @@ EOF
   events = ["contract_content_changed", "contract_published"]
   depends_on = [pact_pacticipant.AdminUI, pact_pacticipant.GraphQLAPI]
 }
+
+resource "pact_webhook" "nonjson" {
+  description = "POST non-JSON"
+  request {
+    url = "https://foo.com/some/endpoint"
+    method = "POST"
+    body = "json={\"parameter\": [{\"ame\": \"TAG_AND_PUSH\", \"value\": \"false\"}]}"
+  }
+  events = ["contract_content_changed"]
+}

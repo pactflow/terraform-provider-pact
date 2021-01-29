@@ -7,12 +7,12 @@ type WebhookEvent struct {
 
 // Request is an HTTP request structure
 type Request struct {
-	Method   string  `json:"method,omitempty"`
-	URL      string  `json:"url,omitempty"`
-	Username string  `json:"username,omitempty"`
-	Password string  `json:"password,omitempty"`
-	Headers  Headers `json:"headers,omitempty"`
-	Body     string  `json:"body,omitempty"`
+	Method   string      `json:"method,omitempty"`
+	URL      string      `json:"url,omitempty"`
+	Username string      `json:"username,omitempty"`
+	Password string      `json:"password,omitempty"`
+	Headers  Headers     `json:"headers,omitempty"`
+	Body     interface{} `json:"body,omitempty"`
 }
 
 // Webhook represents a webhook configured in the broker

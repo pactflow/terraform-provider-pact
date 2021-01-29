@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -80,14 +81,15 @@ var requestType = &schema.Schema{
 			},
 			"headers": {
 				Type:        schema.TypeMap,
-				Required:    true,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Request headers to send with the request",
 			},
 			"body": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "A request body to send with the request",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      "A request body to send with the request",
+				DiffSuppressFunc: ignoreJSONFormatting,
 			},
 		},
 	},
@@ -170,7 +172,10 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 			log.Println("[ERROR] error decoding webhook config: webhook_provider", err)
 			return *webhook, err
 		}
-		webhook.Provider = provider
+
+		if provider.Name != "" {
+			webhook.Provider = provider
+		}
 	}
 
 	// Consumer
@@ -182,7 +187,10 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 			log.Println("[ERROR] error decoding webhook config: webhook_consumer", err)
 			return *webhook, err
 		}
-		webhook.Consumer = consumer
+
+		if consumer.Name != "" {
+			webhook.Consumer = consumer
+		}
 	}
 
 	// Events
@@ -247,7 +255,16 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 
 		// Body
 		if body, ok := requestMap["body"]; ok {
-			request.Body = body.(string)
+			// parse JSON into an intermediate object if possible, as this will avoid double escaping of the
+			// JSON (e.g. quotes) when it's sent over the wire
+			var i interface{}
+			err := json.Unmarshal([]byte(body.(string)), &i)
+			if err != nil {
+				log.Println("[DEBUG] unable to parse JSON, default to string")
+				request.Body = body.(string)
+			} else {
+				request.Body = i
+			}
 		}
 
 		log.Printf("[DEBUG] have fully serialised request %+v \n", request)
@@ -341,7 +358,17 @@ func flattenRequest(d *schema.ResourceData, r broker.Request) []interface{} {
 	}
 	m["headers"] = mapStringStringToMapStringInterface(r.Headers) // TODO
 
-	m["body"] = r.Body
+	// We want to store the body as a string in the state file
+	// Try to parse body into JSON, fallback to a string if not
+	if bodyAsStr, ok := r.Body.(string); ok {
+		log.Println("[DEBUG] parsed webhook body as string", bodyAsStr)
+		m["body"] = bodyAsStr
+	} else if bytes, err := json.Marshal(r.Body); err == nil {
+		log.Println("[DEBUG] parsed webhook body as JSON", string(bytes))
+		m["body"] = string(bytes)
+	} else {
+		log.Println("[DEBUG] unable to parse the body as a JSON string or a plain string!")
+	}
 
 	return []interface{}{m}
 }
@@ -426,4 +453,34 @@ func webhookDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return err
+}
+
+func tryParseJSONObject(s string) interface{} {
+	log.Println("[DEBUG] checking if", s, "is a JSON string")
+	var i interface{}
+	err := json.Unmarshal([]byte(s), &i)
+
+	if err != nil {
+		log.Println("[DEBUG] input body is not JSON")
+		return nil
+	}
+
+	return i
+}
+
+func ignoreJSONFormatting(k, old, new string, d *schema.ResourceData) bool {
+	// old = strings.TrimSpace(tryParseJSONString(old))
+	// new = strings.TrimSpace(tryParseJSONString(new))
+	log.Println("[DEBUG] checking if we should ignore white space and JSON formatting", old, new)
+
+	if tryParseJSONObject(old) != nil && reflect.DeepEqual(tryParseJSONObject(old), tryParseJSONObject(new)) {
+		log.Println("[DEBUG] JSON bodies are identical")
+		return true
+	}
+
+	if strings.TrimSpace(old) == strings.TrimSpace(new) {
+		return true
+	}
+
+	return false
 }
