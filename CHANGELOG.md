@@ -5,6 +5,11 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.1.5 (30 January 2021)
+  * [099d745](https://github.com/pactflow/terraform/commit/099d745) - fix: support strings and JSON webhook bodies. Fixes 12 (Matt Fellows, Fri Jan 29 23:59:30 2021 +1100)
+  * [c6288d6](https://github.com/pactflow/terraform/commit/c6288d6) - fix: release notes generated incorrect version (Matt Fellows, Fri Jan 22 18:28:40 2021 +1100)
+  * [21d68f8](https://github.com/pactflow/terraform/commit/21d68f8) - chore: update changelog for teams/roles/permissions (Matt Fellows, Fri Jan 22 18:27:06 2021 +1100)
+
 ### v0.1.4 (22 January 2021)
 
   Add support for Team, Role and Permissions. Deprecates v1 role and token resource. Other commits include:
