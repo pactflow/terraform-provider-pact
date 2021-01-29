@@ -59,8 +59,9 @@ function determine_increment() {
 }
 
 function generate_changelog() {
-  release_version=$1
-  log=$(git log --pretty=format:'  * [%h](https://github.com/pactflow/terraform/commit/%h) - %s (%an, %ad)' ${release_version}..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test(")
+  current_version=$1
+  release_version=$2
+  log=$(git log --pretty=format:'  * [%h](https://github.com/pactflow/terraform/commit/%h) - %s (%an, %ad)' ${current_version}..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test(")
 
   log "Updating CHANGELOG.md"
   ed CHANGELOG.md << END
@@ -88,7 +89,7 @@ version=$(increment_version "${current_version/v/}" "${inc}")
 log "increment '${inc}' version from ${current_version} to ${version}"
 
 step "Generating changelog"
-generate_changelog "${version}"
+generate_changelog "${current_version}" "${version}"
 log "changelog updated"
 
 step "Committing changes"
