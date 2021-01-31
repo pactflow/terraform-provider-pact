@@ -36,7 +36,7 @@ resource "pact_secret" "jenkins_token" {
 ### Applications
 
 resource "pact_pacticipant" "example" {
-  name = "pactflow-example-consumer"
+  name = "pactflow-example-consumer${var.build_number}"
 }
 
 resource "pact_pacticipant" "AdminUI" {
@@ -52,14 +52,14 @@ resource "pact_pacticipant" "GraphQLAPI" {
 ### Teams
 
 resource "pact_team" "Simpsons" {
-  name = "Simpsons"
+  name = "Simpsons${var.build_number}"
   users = [
     pact_user.homer.uuid
   ]
 }
 
 resource "pact_team" "Futurama" {
-  name = "Futurama"
+  name = "Futurama${var.build_number}"
   pacticipants = [
     pact_pacticipant.GraphQLAPI.name,
     pact_pacticipant.example.name
@@ -71,7 +71,7 @@ resource "pact_team" "Futurama" {
 }
 
 resource "pact_team" "Cartoons" {
-  name = "Cartoons"
+  name = "Cartoons${var.build_number}"
   users = [
     pact_user.bender_system_user.uuid,
     pact_user.homer.uuid
@@ -103,7 +103,7 @@ resource "pact_user" "bender_system_user" {
 ### Webhooks
 
 resource "pact_webhook" "ui_changed" {
-  description = "Trigger an API build when the UI changes"
+  description = "Trigger an API build when the UI changes ${var.build_number}"
   webhook_provider = {
     name = "GraphQLAPI${var.build_number}"
   }
@@ -132,7 +132,7 @@ EOF
 ### Roles and Permissions
 
 resource "pact_role" "special_role" {
-  name = "specialrole"
+  name = "specialrole${var.build_number}"
   scopes = [
     "user:manage:*",
     "team:manage:*",
