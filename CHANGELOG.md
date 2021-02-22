@@ -5,6 +5,14 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.2.0 (22 February 2021)
+  * [fa89fed](https://github.com/pactflow/terraform/commit/fa89fed) - fix: correct accept headers (Matt Fellows, Mon Feb 22 15:43:13 2021 +1100)
+  * [9ae38c7](https://github.com/pactflow/terraform/commit/9ae38c7) - docs: add gh action badge (Matt Fellows, Mon Feb 22 14:45:42 2021 +1100)
+  * [f840eb2](https://github.com/pactflow/terraform/commit/f840eb2) - feat: add support for authentication settings (Matt Fellows, Mon Feb 22 14:39:22 2021 +1100)
+  * [7645bb2](https://github.com/pactflow/terraform/commit/7645bb2) - docs: fix errant _ in webhook docs (Matt Fellows, Sun Jan 31 12:38:03 2021 +1100)
+  * [9796d6d](https://github.com/pactflow/terraform/commit/9796d6d) - chore: add suffixes to all resources in terraform config to avoid conflicts (Matt Fellows, Sun Jan 31 12:32:18 2021 +1100)
+  * [7f4ebde](https://github.com/pactflow/terraform/commit/7f4ebde) - chore: update release script to fix changelog (Matt Fellows, Sat Jan 30 08:49:25 2021 +1100)
+
 ### v0.1.5 (30 January 2021)
   * [099d745](https://github.com/pactflow/terraform/commit/099d745) - fix: support strings and JSON webhook bodies. Fixes 12 (Matt Fellows, Fri Jan 29 23:59:30 2021 +1100)
   * [c6288d6](https://github.com/pactflow/terraform/commit/c6288d6) - fix: release notes generated incorrect version (Matt Fellows, Fri Jan 22 18:28:40 2021 +1100)
