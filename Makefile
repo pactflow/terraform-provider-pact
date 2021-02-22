@@ -5,7 +5,7 @@ GITHUB_RUN_ID?=1
 export TF_VAR_build_number=$(GITHUB_RUN_ID)
 export TF_VAR_api_token=$(PACT_BROKER_TOKEN)
 
-ci:: docker deps vet bin test acceptance-test
+ci:: clean docker deps vet bin test acceptance-test
 
 local-no-clean: build
 	terraform init && \
@@ -24,7 +24,7 @@ build:
 	cp bin/terraform-provider-pact ~/.terraform.d/plugins/github.com/pactflow/pact/0.0.1/darwin_amd64/
 
 clean:
-	mkdir -p ./log && \
+	mkdir -p ./log acceptance/oss/log acceptance/pactflow/log && \
 	touch terraform.tfstate terraform.tfstate.backup log/tf.log && \
 	rm terraform.tf* log/tf.log
 

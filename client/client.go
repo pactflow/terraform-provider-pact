@@ -409,8 +409,7 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 		req.SetBasicAuth(c.Config.BasicAuthUsername, c.Config.BasicAuthPassword)
 	}
 
-	req.Header.Set("Accept", "application/hal+json")
-	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Accept", "application/hal+json, application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 
 	log.Println("[DEBUG] creating new request", req)
