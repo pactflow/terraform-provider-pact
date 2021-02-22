@@ -20,7 +20,7 @@ terraform {
   required_providers {
     pact = {
       source = "pactflow/pact"
-      version = "0.1.2"
+      version = "0.1.2" # check the version
     }
   }
 }
@@ -99,6 +99,12 @@ resource "pact_role" "somebody_admin" {
   role = "administrator"
   user = pact_user.somebody.uuid
 }
+
+# Enable authentication via Github and Googl
+resource "pact_authentication" "authentication" {
+  github_organizations = ["pactflow"]
+  google_domains = ["pactflow.io"]
+}
 ```
 
 
@@ -121,14 +127,11 @@ Dowload the plugin to `%APPDATA%\terraform.d\plugins`.
 
 ### Installation notes
 
-To use a released provider in your Terraform environment, run [`terraform init`](https://www.terraform.io/docs/commands/init.html) and Terraform will automatically install the provider. To specify a particular provider version when installing released providers, see the [Terraform documentation on provider versioning](https://www.terraform.io/docs/configuration/providers.html#version-provider-versions).
-
-To instead use a custom-built provider in your Terraform environment (e.g. the provider binary from the build instructions above), follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-plugins) After placing the custom-built provider into your plugins directory,  run `terraform init` to initialize it.
-
-For either installation method, documentation about the provider specific configuration options can be found on the [provider's website](https://www.terraform.io/docs/providers/aws/index.html).
+The pact provider is published to the Terraform module registry and may be installed via the standard mechanisms. See the documentation at https://registry.terraform.io/providers/pactflow/pact/latest.
 
 ## Using the plugin
 
+https://registry.terraform.io/providers/pactflow/pact/latest
 
 | Plugin      | Type     | Platform Support       | Description |
 | ----------- | -------- | ---------------------- | ----------- |
@@ -140,7 +143,7 @@ For either installation method, documentation about the provider specific config
 | [Users](docs/resources/user.md)   | Resource | Pactflow               | Manage Pactflow Users |
 | [Roles](docs/resources/role.md)   | Resource | Pactflow               | Manage Pactflow Roles |
 | [Teams](docs/resources/team.md)   | Resource | Pactflow               | Manage Pactflow Teams |
-| [Authentication Settingns](docs/resources/authentication.md)   | Resource | Pactflow               | Manage Pactflow Authentication (Github, Google etc.) |
+| [Authentication Settings](docs/resources/authentication.md)   | Resource | Pactflow               | Manage Pactflow Authentication (Github, Google etc.) |
 
 See our [Docs](./docs) folder for all plugins.
 
