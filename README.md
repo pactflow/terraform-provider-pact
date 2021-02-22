@@ -2,7 +2,7 @@
 
 Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_broker) and [Pactflow](https://pactflow.io).
 
-[![Build Status](https://travis-ci.org/pactflow/terraform.svg?branch=master)](https://travis-ci.org/pactflow/terraform)
+[![Build Status](https://github.com/pactflow/terraform-provider-pact/actions/workflows/test.yml/badge.svg)](https://github.com/pactflow/terraform-provider-pact/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pactflow/terraform/badge.svg?branch=master)](https://coveralls.io/github/pactflow/terraform?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pactflow/terraform)](https://goreportcard.com/report/github.com/pactflow/terraform)
 [![GoDoc](https://godoc.org/github.com/pactflow/terraform?status.svg)](https://godoc.org/github.com/pactflow/terraform)
