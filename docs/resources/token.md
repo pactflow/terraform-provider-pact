@@ -4,7 +4,7 @@ This resource manages the lifecycle of an _API Token_. A Token can be used to ma
 
 !> **It is highly recommended that this resource only be used to import existing tokens, and not be used to update existing tokens - you are likely to end up locking yourself out this way**
 
--> Thisis currently only supported for the Pactflow.io platform.
+-> This is currently only supported for the Pactflow.io platform.
 
 ## Example Usage
 

@@ -26,6 +26,7 @@ const (
 	teamCreateTemplate                  = "/admin/teams"
 	teamAssignmentTemplate              = "/admin/teams/%s/users"
 	teamUserTemplate                    = "/admin/teams/%s/users/%s"
+	tenantAuthenticationTemplate        = "/admin/tenant/authentication-settings"
 	roleCreateTemplate                  = "/admin/roles"
 	roleReadUpdateDeleteTemplate        = "/admin/roles/%s"
 	userReadUpdateDeleteTemplate        = "/admin/users/%s"
@@ -368,6 +369,20 @@ func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
 	return err
 }
 
+// ReadTenantAuthenticationSettings configures the authentication settings on a given Pactflow account
+func (c *Client) ReadTenantAuthenticationSettings() (*broker.AuthenticationSettingsResponse, error) {
+	res, err := c.doCrud("GET", tenantAuthenticationTemplate, nil, new(broker.AuthenticationSettingsResponse))
+
+	return res.(*broker.AuthenticationSettingsResponse), err
+}
+
+// SetTenantAuthenticationSettings configures the authentication settings on a given Pactflow account
+func (c *Client) SetTenantAuthenticationSettings(r broker.AuthenticationSettings) (*broker.AuthenticationSettingsResponse, error) {
+	res, err := c.doCrud("PUT", tenantAuthenticationTemplate, r, new(broker.AuthenticationSettingsResponse))
+
+	return res.(*broker.AuthenticationSettingsResponse), err
+}
+
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.Config.BaseURL.ResolveReference(rel)
@@ -395,6 +410,7 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 	}
 
 	req.Header.Set("Accept", "application/hal+json")
+	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 
 	log.Println("[DEBUG] creating new request", req)

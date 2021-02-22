@@ -152,3 +152,10 @@ resource "pact_role" "special_role" {
     "read_token:manage:own"
   ]
 }
+
+### Authentication
+
+resource "pact_authentication" "authentication" {
+  github_organizations = ["DiUS", "pactflow"]
+  google_domains = ["dius.com.au", "onegeek.com.au"]
+}
