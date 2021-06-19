@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pact-foundation/terraform/broker"
+	"github.com/pactflow/terraform/broker"
 )
 
 const (
@@ -74,7 +74,7 @@ func NewClient(httpClient *http.Client, config Config) *Client {
 		httpClient = http.DefaultClient
 	}
 
-	if config.CustomTLSConfig.InsecureSkipVerify {
+	if config.CustomTLSConfig != nil && config.CustomTLSConfig.InsecureSkipVerify {
 		httpClient.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
@@ -127,7 +127,7 @@ func (c *Client) CreatePacticipant(p broker.Pacticipant) (*broker.Pacticipant, e
 
 // UpdatePacticipant updates an existing Pacticipant
 func (c *Client) UpdatePacticipant(p broker.Pacticipant) (*broker.Pacticipant, error) {
-	res, err := c.doCrud("PATCH", pacticipantReadUpdateDeleteTemplate, p, new(broker.Pacticipant))
+	res, err := c.doCrud("PATCH", fmt.Sprintf(pacticipantReadUpdateDeleteTemplate, p.Name), p, new(broker.Pacticipant))
 	return res.(*broker.Pacticipant), err
 }
 

@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/pact-foundation/terraform/broker"
-	"github.com/pact-foundation/terraform/client"
+	"github.com/pactflow/terraform/broker"
+	"github.com/pactflow/terraform/client"
 )
 
 const (
@@ -156,7 +156,6 @@ func tokenUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func tokenRead(d *schema.ResourceData, meta interface{}) error {
-	token := &broker.APIToken{}
 	httpClient := meta.(*client.Client)
 	uuid := d.Id()
 

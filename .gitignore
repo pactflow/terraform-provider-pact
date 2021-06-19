@@ -32,8 +32,8 @@ output
 *.bak
 _*
 *.log
-logs
-log
+./logs
+./log
 tmp
 coverage.txt
 
@@ -47,3 +47,6 @@ terraform.tfstate.backup
 
 # Local
 .env
+
+# Pact
+client/pacts

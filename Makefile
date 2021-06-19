@@ -2,10 +2,12 @@ TEST?=./...
 
 .DEFAULT_GOAL := ci
 GITHUB_RUN_ID?=1
-export TF_VAR_build_number=$(GITHUB_RUN_ID)
-export TF_VAR_api_token=$(PACT_BROKER_TOKEN)
+PACT_CLI="docker run --rm -v ${PWD}:${PWD} -e PACT_BROKER_BASE_URL -e PACT_BROKER_TOKEN pactfoundation/pact-cli:latest"
 
-ci:: clean docker deps vet bin test acceptance-test
+export TF_VAR_build_number=$(GITHUB_RUN_ID)
+export TF_VAR_api_token=$(ACCEPTANCE_PACT_BROKER_TOKEN)
+
+ci:: clean docker deps pact-go vet bin test pact publish acceptance-test
 
 local-no-clean: build
 	terraform init && \
@@ -47,11 +49,14 @@ bin:
 
 deps:
 	@echo "--- 🐿  Fetching build dependencies "
-	go get github.com/axw/gocov/gocov
-	go get github.com/mattn/goveralls
-	go get golang.org/x/tools/cmd/cover
-	go get github.com/modocache/gover
-	go get github.com/mitchellh/gox
+	cd /tmp; \
+	go get github.com/axw/gocov/gocov; \
+	go get github.com/mattn/goveralls; \
+	go get golang.org/x/tools/cmd/cover; \
+	go get github.com/modocache/gover; \
+	go get github.com/mitchellh/gox; \
+	cd -
+	go get github.com/pact-foundation/pact-go/v2@2.x.x;
 
 goveralls:
 	goveralls -service="travis-ci" -coverprofile=coverage.txt -repotoken $(COVERALLS_TOKEN)
@@ -70,6 +75,25 @@ test:
 	done; \
 
 	go tool cover -func coverage.txt
+
+pact-go:
+	echo "--- 🐿 Installing Pact FFI dependencies"
+	~/go/bin/pact-go -l DEBUG install --libDir /tmp
+
+pact: pact-go
+	@echo "--- 🤝 Running Pact tests"
+	go test -tags=consumer -count=1 -v github.com/pactflow/terraform/client/...
+
+publish:
+	@echo "--- 🤝 Publishing Pact"
+	"${PACT_CLI}" publish ${PWD}/client/pacts --consumer-app-version ${GITHUB_SHA} --tag ${GITHUB_BRANCH}
+
+can-i-deploy:
+	@echo "--- 🤝 Can I Deploy?"
+	# @"${PACT_CLI}" broker can-i-deploy \
+	#   --pacticipant "terraform-client" \
+	#   --version ${GITHUB_SHA} \
+	#   --to prod
 
 oss-acceptance-test:
 	@echo "--- Running OSS acceptance tests"
