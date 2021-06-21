@@ -370,17 +370,17 @@ func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
 }
 
 // ReadTenantAuthenticationSettings configures the authentication settings on a given Pactflow account
-func (c *Client) ReadTenantAuthenticationSettings() (*broker.AuthenticationSettingsResponse, error) {
-	res, err := c.doCrud("GET", tenantAuthenticationTemplate, nil, new(broker.AuthenticationSettingsResponse))
+func (c *Client) ReadTenantAuthenticationSettings() (*broker.AuthenticationSettings, error) {
+	res, err := c.doCrud("GET", tenantAuthenticationTemplate, nil, new(broker.AuthenticationSettings))
 
-	return res.(*broker.AuthenticationSettingsResponse), err
+	return res.(*broker.AuthenticationSettings), err
 }
 
 // SetTenantAuthenticationSettings configures the authentication settings on a given Pactflow account
-func (c *Client) SetTenantAuthenticationSettings(r broker.AuthenticationSettings) (*broker.AuthenticationSettingsResponse, error) {
-	res, err := c.doCrud("PUT", tenantAuthenticationTemplate, r, new(broker.AuthenticationSettingsResponse))
+func (c *Client) SetTenantAuthenticationSettings(r broker.AuthenticationSettings) (*broker.AuthenticationSettings, error) {
+	res, err := c.doCrud("PUT", tenantAuthenticationTemplate, r, new(broker.AuthenticationSettings))
 
-	return res.(*broker.AuthenticationSettingsResponse), err
+	return res.(*broker.AuthenticationSettings), err
 }
 
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
