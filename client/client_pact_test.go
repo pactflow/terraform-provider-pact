@@ -3,6 +3,7 @@
 package client
 
 import (
+	"strings"
 	"testing"
 
 	"fmt"
@@ -791,7 +792,16 @@ func TestTerraformClientPact(t *testing.T) {
 				WithJSONBody(Like(webhook)).
 				WillRespondWith(200).
 				WithHeader("Content-Type", S("application/hal+json")).
-				WithJSONBody(Like(created))
+				WithJSONBody(Like(broker.WebhookResponse{
+					Webhook: webhook,
+					HalDoc: broker.HalDoc{
+						Links: broker.HalLinks{
+							"self": broker.Link{
+								Href: "http://some-broker/webhooks/2e4bf0e6-b0cf-451f-b05b-69048955f019",
+							},
+						},
+					},
+				}))
 
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
@@ -799,7 +809,9 @@ func TestTerraformClientPact(t *testing.T) {
 				res, e := client.CreateWebhook(webhook)
 				assert.NoError(t, e)
 				assert.Equal(t, "terraform webhook", res.Description)
-				assert.Equal(t, "2e4bf0e6-b0cf-451f-b05b-69048955f019", res.ID)
+
+				items := strings.Split(res.Links["self"].Href, "/")
+				assert.Equal(t, "2e4bf0e6-b0cf-451f-b05b-69048955f019", items[len(items)-1])
 
 				return e
 			})
@@ -822,7 +834,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.ReadWebhook("2e4bf0e6-b0cf-451f-b05b-69048955f019")
 				assert.NoError(t, e)
-				assert.Equal(t, "2e4bf0e6-b0cf-451f-b05b-69048955f019", res.ID)
+				assert.Equal(t, "terraform webhook", res.Description)
 
 				return e
 			})
@@ -847,7 +859,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.UpdateWebhook(*created)
 				assert.NoError(t, e)
-				assert.Equal(t, "2e4bf0e6-b0cf-451f-b05b-69048955f019", res.ID)
+				assert.Equal(t, "terraform webhook", res.Description)
 
 				return e
 			})
@@ -869,6 +881,66 @@ func TestTerraformClientPact(t *testing.T) {
 				return client.DeleteWebhook(*created)
 			})
 			assert.NoError(t, err)
+		})
+
+		t.Run("AuthenticationSettings", func(t *testing.T) {
+			authSettings := broker.AuthenticationSettings{
+				Providers: broker.AuthenticationProviders{
+					Google: broker.GoogleAuthenticationSettings{
+						EmailDomains: []string{"pactflow.io"},
+					},
+					Github: broker.GithubAuthenticationSettings{
+						Organizations: []string{"pactflow"},
+					},
+				},
+			}
+
+			t.Run("SetTenantAuthenticationSettings", func(t *testing.T) {
+				mockProvider.
+					AddInteraction().
+					UponReceiving("a request to update authentication settings").
+					WithRequest("PUT", S("/admin/tenant/authentication-settings")).
+					WithHeader("Content-Type", S("application/json")).
+					WithHeader("Authorization", Like("Bearer 1234")).
+					WithJSONBody(Like(authSettings)).
+					WillRespondWith(200).
+					WithHeader("Content-Type", S("application/hal+json")).
+					WithJSONBody(Like(authSettings))
+
+				err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+					client := clientForPact(config)
+
+					res, e := client.SetTenantAuthenticationSettings(authSettings)
+					assert.NoError(t, e)
+					assert.Contains(t, res.Providers.Google.EmailDomains, "pactflow.io")
+					assert.Contains(t, res.Providers.Github.Organizations, "pactflow")
+
+					return e
+				})
+				assert.NoError(t, err)
+			})
+
+			t.Run("ReadTenantAuthenticationSettings", func(t *testing.T) {
+				mockProvider.
+					AddInteraction().
+					UponReceiving("a request to get authentication settings").
+					WithRequest("GET", S("/admin/tenant/authentication-settings")).
+					WillRespondWith(200).
+					WithHeader("Content-Type", S("application/hal+json")).
+					WithJSONBody(Like(authSettings))
+
+				err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+					client := clientForPact(config)
+
+					res, e := client.ReadTenantAuthenticationSettings()
+					assert.NoError(t, e)
+					assert.Contains(t, res.Providers.Google.EmailDomains, "pactflow.io")
+					assert.Contains(t, res.Providers.Github.Organizations, "pactflow")
+
+					return e
+				})
+				assert.NoError(t, err)
+			})
 		})
 	})
 }
