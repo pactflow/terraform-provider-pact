@@ -393,7 +393,8 @@ func webhookCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] response from creating webhook %+v\n", res)
 
 	if err == nil {
-		id := res.ID
+		items := strings.Split(res.Links["self"].Href, "/")
+		id := items[len(items)-1]
 		d.SetId(id)
 
 		return setWebhookState(d, webhook)
