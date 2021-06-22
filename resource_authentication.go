@@ -61,7 +61,7 @@ func authenticationFromState(d *schema.ResourceData) broker.AuthenticationSettin
 	return settings
 }
 
-func authenticationState(d *schema.ResourceData, r *broker.AuthenticationSettingsResponse) error {
+func authenticationState(d *schema.ResourceData, r *broker.AuthenticationSettings) error {
 	log.Printf("[DEBUG] setting authentication state: %v \n", r)
 
 	if len(r.Providers.Google.EmailDomains) > 0 {
