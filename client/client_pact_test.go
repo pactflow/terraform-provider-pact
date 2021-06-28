@@ -168,9 +168,9 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("ReadTeam", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
-				Given("a pacticipant with name terraform-client exists").
+				Given("a team with uuid 99643109-adb0-4e68-b25f-7b14d6bcae16 exists").
 				UponReceiving("a request to get a team").
-				WithRequest("GET", S("/admin/teams/terraform-team")). // NOTE: other resources use the UUID
+				WithRequest("GET", S("/admin/teams/99643109-adb0-4e68-b25f-7b14d6bcae16")).
 				WithHeader("Authorization", Like("Bearer 1234")).
 				WillRespondWith(200).
 				WithHeader("Content-Type", S("application/hal+json")).
@@ -179,7 +179,7 @@ func TestTerraformClientPact(t *testing.T) {
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.ReadTeam("terraform-team")
+				res, e := client.ReadTeam(update)
 
 				assert.NoError(t, e)
 				assert.NotNil(t, res)

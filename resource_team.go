@@ -163,11 +163,11 @@ func teamUpdate(d *schema.ResourceData, meta interface{}) error {
 
 func teamRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
-	uuid := d.Id()
+	read := getTeamFromResourceData(d)
 
-	log.Println("[DEBUG] reading team", uuid)
+	log.Println("[DEBUG] reading team", read)
 
-	team, err := client.ReadTeam(uuid)
+	team, err := client.ReadTeam(read)
 
 	log.Println("[DEBUG] have team for READ", team)
 

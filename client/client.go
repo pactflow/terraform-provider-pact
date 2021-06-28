@@ -138,8 +138,8 @@ func (c *Client) DeletePacticipant(p broker.Pacticipant) error {
 }
 
 // ReadTeam gets a Team
-func (c *Client) ReadTeam(name string) (*broker.Team, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(teamReadUpdateDeleteTemplate, name), nil, new(broker.Team))
+func (c *Client) ReadTeam(t broker.Team) (*broker.Team, error) {
+	res, err := c.doCrud("GET", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), nil, new(broker.Team))
 	return res.(*broker.Team), err
 }
 
