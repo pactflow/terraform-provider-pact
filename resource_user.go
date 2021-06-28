@@ -115,7 +115,7 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 		// Creating a user is a non-atomic transaction, because roles is a separate API call
 		d.Partial(true)
 		log.Println("[ERROR] error updating user roles", err)
-		return fmt.Errorf("Error updating roles for user (%s / %s): %w", d.Id(), created.Email, err)
+		return fmt.Errorf("error updating roles for user (%s / %s): %w", d.Id(), created.Email, err)
 	}
 
 	d.Set("roles", roles)
@@ -148,7 +148,7 @@ func userUpdate(d *schema.ResourceData, meta interface{}) error {
 		if err != nil {
 			d.Partial(true) // updating users is non-atomic, let the diff applier know this
 			log.Println("[ERROR] error updating user roles", err)
-			return fmt.Errorf("Error updating roles for user (%s): %s", d.Id(), err)
+			return fmt.Errorf("error updating roles for user (%s): %s", d.Id(), err)
 		}
 
 		d.Set("roles", roles)
