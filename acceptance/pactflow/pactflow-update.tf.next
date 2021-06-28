@@ -1,0 +1,159 @@
+# Acceptance test: checks that an update to all resources can be applied
+#
+# Required as of Terraform version 0.0.13
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    pact = {
+      source  = "github.com/pactflow/pact"
+      version = "0.0.1"
+    }
+  }
+}
+
+### Provider configuration
+
+provider "pact" {
+  host = "https://tf-acceptance.pactflow.io"
+  # host = "http://localhost:9292"
+  access_token = var.api_token
+}
+
+variable "api_token" {
+  type = string
+}
+
+variable "build_number" {
+  type = string
+}
+
+### Secrets
+
+resource "pact_secret" "jenkins_token" {
+  name = "JenkinsTriggerToken${var.build_number}"
+  description = "API token to trigger Jenkins builds (updated)"
+  value = "super secret thing"
+  team = pact_team.Simpsons.uuid
+}
+
+### Applications
+
+resource "pact_pacticipant" "example" {
+  name = "pactflow-example-consumer${var.build_number}"
+  repository_url = "github.com/foo/example"
+}
+
+resource "pact_pacticipant" "AdminUI" {
+  name = "AdminUI${var.build_number}"
+  repository_url = "github.com/foo/admin-ui"
+}
+
+resource "pact_pacticipant" "GraphQLAPI" {
+  name = "GraphQLAPI${var.build_number}"
+  repository_url = "github.com/foo/graphql-api"
+}
+
+### Teams
+
+resource "pact_team" "Simpsons" {
+  name = "Simpsons${var.build_number} (updated)"
+  users = [
+    pact_user.homer.uuid
+  ]
+}
+
+resource "pact_team" "Futurama" {
+  name = "Futurama${var.build_number} (updated)"
+  pacticipants = [
+    pact_pacticipant.GraphQLAPI.name,
+  ]
+  users = [
+    pact_user.bender_system_user.uuid,
+  ]
+}
+
+resource "pact_team" "Cartoons" {
+  name = "Cartoons${var.build_number} (updated)"
+  users = [
+    pact_user.bender_system_user.uuid
+  ]
+}
+
+### Users
+
+resource "pact_user" "homer" {
+  name = "Homer Simpson (updated)"
+  email = "rholshausen@dius.com.au"
+  active = true
+  roles = [
+    pact_role.special_role.uuid
+  ]
+}
+
+resource "pact_user" "bender_system_user" {
+  name = "Bender Rodríguez (updated)"
+  email = "bskurrie@dius.com.au"
+  type = "system"
+  active = true
+}
+
+### Webhooks
+
+resource "pact_webhook" "ui_changed" {
+  description = "Trigger an API build when the UI changes ${var.build_number} (updated)"
+  team = pact_team.Simpsons.uuid
+  webhook_provider = {
+    name = "GraphQLAPI${var.build_number}"
+  }
+  webhook_consumer = {
+    name = "AdminUI${var.build_number}"
+  }
+  request {
+    url = "https://foo.com/some/endpoint"
+    method = "POST"
+    username = "test"
+    password = "password1"
+    headers = {
+      "X-Content-Type" = "application/json"
+    }
+    body = <<EOF
+{
+  "pact": "$${pactbroker.pactUrl}"
+}
+EOF
+  }
+
+  events = ["contract_content_changed", "contract_published"]
+  depends_on = [pact_pacticipant.AdminUI, pact_pacticipant.GraphQLAPI]
+}
+
+### Roles and Permissions
+
+resource "pact_role" "special_role" {
+  name = "specialrole${var.build_number}"
+  scopes = [
+    "user:manage:*",
+    "team:manage:*",
+    "user:invite",
+    "system_account:manage:*",
+    "system_account:read:*",
+    "user:read:*",
+    "team:read:*",
+    "contract_data:manage:*",
+    "contract_data:read:*",
+    "contract_data:bulk_delete:*",
+    "webhook:manage:*",
+    "secret:manage:*",
+    "role:manage:*",
+    "role:read:*",
+    "token:manage:own",
+    "read_token:manage:own",
+  ]
+}
+
+### Authentication
+
+resource "pact_authentication" "authentication" {
+  github_organizations = ["DiUS", "pactflow"]
+  google_domains = ["dius.com.au", "onegeek.com.au", "pactflow.io"]
+}
