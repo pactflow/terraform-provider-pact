@@ -5,6 +5,10 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.3.1 (28 June 2021)
+  * [78e23d5](https://github.com/pactflow/terraform/commit/78e23d5) - test: run full create, update and delete acceptance cycle (Matt Fellows, Mon Jun 28 21:25:34 2021 +1000)
+  * [a75eb07](https://github.com/pactflow/terraform/commit/a75eb07) - fix: team read should use UUID (Matt Fellows, Mon Jun 28 21:23:32 2021 +1000)
+
 ### v0.3.0 (28 June 2021)
   * [7d6f501](https://github.com/pactflow/terraform/commit/7d6f501) - chore: update readme on progress (Matt Fellows, Mon Jun 28 16:35:55 2021 +1000)
   * [e8e9bac](https://github.com/pactflow/terraform/commit/e8e9bac) - fix: bring back bender system user (Matt Fellows, Mon Jun 28 16:27:08 2021 +1000)
