@@ -24,7 +24,7 @@ type TeamsAssignmentRequest struct {
 	UUID string `json:"-"`
 
 	// List of user UUIDs
-	Users []string `json:"users,omitempty"`
+	Users []string `json:"users"`
 }
 
 type TeamsAssignmentResponse struct {

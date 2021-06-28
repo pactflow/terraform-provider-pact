@@ -110,7 +110,7 @@ pactflow-acceptance-test:
 		TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply -auto-approve && \
 		mv pactflow.tf{,.bak} && mv pactflow-update.tf.next pactflow-update.tf && \
 		TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform apply  -auto-approve && \
-		TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform destroy -auto-approve &&
+		TF_LOG=DEBUG TF_LOG_PATH=log/tf.log terraform destroy -auto-approve && \
 		mv pactflow.tf.bak pactflow.tf && mv pactflow-update.tf pactflow-update.tf.next
 
 binary-acceptance-test:
