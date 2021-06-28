@@ -2,6 +2,7 @@ package broker
 
 type Secret struct {
 	UUID        string `json:"-"`
+	TeamUUID    string `json:"teamUuid,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Value       string `json:"value"`

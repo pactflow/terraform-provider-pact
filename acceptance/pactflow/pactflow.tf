@@ -31,6 +31,7 @@ resource "pact_secret" "jenkins_token" {
   name = "JenkinsTriggerToken${var.build_number}"
   description = "API token to trigger Jenkins builds"
   value = "super secret thing"
+  team = pact_team.Simpsons.uuid
 }
 
 ### Applications
@@ -93,17 +94,13 @@ resource "pact_user" "homer" {
   ]
 }
 
-resource "pact_user" "bender_system_user" {
-  name = "Bender Rodríguez"
-  email = "bskurrie@dius.com.au"
-  type = "system"
-  active = true
-}
+
 
 ### Webhooks
 
 resource "pact_webhook" "ui_changed" {
   description = "Trigger an API build when the UI changes ${var.build_number}"
+  team = pact_team.Simpsons.uuid
   webhook_provider = {
     name = "GraphQLAPI${var.build_number}"
   }

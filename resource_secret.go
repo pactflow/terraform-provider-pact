@@ -47,6 +47,11 @@ func secret() *schema.Resource {
 				Computed:    true,
 				Description: "The UUID of secret",
 			},
+			"team": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The team this secret should be associated with (uuid). Leave empty for a non-team secret",
+			},
 		},
 	}
 }
@@ -64,11 +69,13 @@ func parseSecret(d *schema.ResourceData, meta interface{}) (broker.Secret, error
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	value := d.Get("value").(string)
+	team := d.Get("team").(string)
 
 	secret := broker.Secret{
 		Name:        name,
 		Description: description,
 		Value:       value,
+		TeamUUID:    team,
 	}
 
 	// Existing secret?
@@ -144,6 +151,7 @@ func setSecretState(d *schema.ResourceData, secret broker.Secret) error {
 	d.Set("name", secret.Name)
 	d.Set("uuid", secret.UUID)
 	d.Set("description", secret.Description)
+	d.Set("team", secret.TeamUUID)
 
 	if secret.Value != "" {
 		// First time, set the value

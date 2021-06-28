@@ -148,6 +148,11 @@ func webhook() *schema.Resource {
 				Default:  true,
 				Optional: true,
 			},
+			"team": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The team this webhook should be associated with (uuid). Leave empty for a non-team Webhook",
+			},
 		},
 	}
 }
@@ -162,6 +167,13 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 	log.Printf("[DEBUG] create or update webhook with data %+v \n", d)
 
 	webhook.Description = d.Get("description").(string)
+
+	// Team
+	if team, ok := d.GetOkExists("team"); ok {
+		if team != "" {
+			webhook.TeamUUID = team.(string)
+		}
+	}
 
 	// Provider
 	if rawProvider, ok := d.GetOkExists("webhook_provider"); ok {
@@ -289,8 +301,14 @@ func setWebhookState(d *schema.ResourceData, webhook broker.Webhook) error {
 		log.Println("[ERROR] error setting key 'description'", err)
 		return err
 	}
+
 	if err := d.Set("enabled", webhook.Enabled); err != nil {
 		log.Println("[ERROR] error setting key 'enabled'", err)
+		return err
+	}
+
+	if err := d.Set("team", webhook.TeamUUID); err != nil {
+		log.Println("[ERROR] error setting key 'team'", err)
 		return err
 	}
 

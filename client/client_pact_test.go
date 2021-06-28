@@ -314,6 +314,7 @@ func TestTerraformClientPact(t *testing.T) {
 			Name:        "terraform-secret",
 			Description: "terraform secret",
 			Value:       "supersecret",
+			TeamUUID:    "1da4bc0e-8031-473f-880b-3b3951683284",
 		}
 
 		created := broker.Secret{
@@ -332,6 +333,7 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("CreateSecret", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("a team with uuid 1da4bc0e-8031-473f-880b-3b3951683284 exists").
 				UponReceiving("a request to create a secret").
 				WithRequest("POST", S("/secrets")).
 				WithHeader("Content-Type", S("application/json")).
@@ -749,6 +751,7 @@ func TestTerraformClientPact(t *testing.T) {
 	t.Run("Webhook", func(t *testing.T) {
 		webhook := broker.Webhook{
 			Description: "terraform webhook",
+			TeamUUID:    "607fba87-8209-4aff-a7d2-d8e9f92b94a2",
 			Enabled:     true,
 			Events: []broker.WebhookEvent{
 				{Name: "contract_content_changed"},
@@ -785,6 +788,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 			mockProvider.
 				AddInteraction().
+				Given("a team with uuid 607fba87-8209-4aff-a7d2-d8e9f92b94a2 exists").
 				UponReceiving("a request to create a webhook").
 				WithRequest("POST", S("/webhooks")).
 				WithHeader("Content-Type", S("application/json")).

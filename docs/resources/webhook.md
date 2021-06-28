@@ -10,8 +10,8 @@ Webhooks can be used in conjunction with the [can-i-deploy](https://github.com/p
 
 The broker uses the following logic to determine if a pact has changed:
 
-* If the relevant consumer version has any tags, then for each tag, check if the content is different from the previous latest version for that tag. It is 'changed' if any of the checks are true. One side effect of this is that brand new tags will trigger a pact changed event, even if the content is the same as a previous version.
-* If the relevant consumer version has no tags, then check if the content has changed since the previous latest version.
+- If the relevant consumer version has any tags, then for each tag, check if the content is different from the previous latest version for that tag. It is 'changed' if any of the checks are true. One side effect of this is that brand new tags will trigger a pact changed event, even if the content is the same as a previous version.
+- If the relevant consumer version has no tags, then check if the content has changed since the previous latest version.
 
 ### The 'contract published' event
 
@@ -24,6 +24,7 @@ This is triggered every time a verification is published.
 See [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more information on configuring Webhooks.
 
 ## Example Usage
+
 The following examples show the basic usage of the resource.
 
 ```hcl
@@ -59,40 +60,44 @@ EOF
 
 The following arguments are supported:
 
-* `description` - (Required, string) A human readable description of the Webhooks purpose.
-* `webhook_provider` - (Optional, block) A provider to scope events to. See [Pacticipant](#pacticipant) below for details. Omitting the provider indicates the webhook should fire for all providers.
+- `description` - (Required, string) A human readable description of the Webhooks purpose.
+- `webhook_provider` - (Optional, block) A provider to scope events to. See [Pacticipant](#pacticipant) below for details. Omitting the provider indicates the webhook should fire for all providers.
 
 From https://docs.pact.io/pact_broker/advanced_topics/api_docs/webhooks#creating
 
 > Both provider and consumer are optional - omitting either indicates that any pacticipant in that role will be matched.
-* `webhook_consumer` - (Optional, block) A consumer to scope events to. See [Pacticipant](#pacticipant) below for details. Omitting the consumer indicates the webhook should fire for all consumers.
-* `request` - (Required, block) The request to send when a webhook is fired. See [Request](#request) below for details.
-* `events` - (Required, list of strings) one of	`contract_content_changed`, `contract_published`, `provider_verification_published`, `provider_verification_succeeded` or `provider_verification_failed` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
 
+- `webhook_consumer` - (Optional, block) A consumer to scope events to. See [Pacticipant](#pacticipant) below for details. Omitting the consumer indicates the webhook should fire for all consumers.
+- `request` - (Required, block) The request to send when a webhook is fired. See [Request](#request) below for details.
+- `events` - (Required, list of strings) one of `contract_content_changed`, `contract_published`, `provider_verification_published`, `provider_verification_succeeded` or `provider_verification_failed` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
+- `team` - (Optional, string) The uuid of the team to assign to the webhook.
 
 <a id="pacticipant"></a>
+
 ### Pacticipant
 
 A pacticipant may be used as the consumer, provider, none or both in the webhook relationship.
 
-* `name` - (Required, string) The name of the Pacticipant that should
+- `name` - (Required, string) The name of the Pacticipant that should
 
 <!-- start task-spec -->
+
 <a id="request"></a>
+
 ### Request
 
 `request` is a block within the configuration that can be repeated only **once** to specify the outgoing HTTP Request that should be sent for the Webhook.
 
-* `url` (Required, string) A valid URL for the Webhook. This URL will be invoked on the configured events.
-* `method` (Required, string) One of `POST`, `GET`, `PUT`, `PATCH`, or `DELETE`. Note that by default _only_ `POST` is supported. Other methods need to be explicitly opted in (this configuration is not currently supported by the provider)
-* `username` (Optional, string) Basic auth username to send along with the request.
-* `password` (Optional, string) Basic auth password to send along with the request.
-* `headers` (Required, block) HTTP Headers as key/value pairs to send with the request.
-* `body` (Required, string) A string body to be sent. JSON body validation will be checked and will produce a warning if invalid (it will _not_ fail validation).
+- `url` (Required, string) A valid URL for the Webhook. This URL will be invoked on the configured events.
+- `method` (Required, string) One of `POST`, `GET`, `PUT`, `PATCH`, or `DELETE`. Note that by default _only_ `POST` is supported. Other methods need to be explicitly opted in (this configuration is not currently supported by the provider)
+- `username` (Optional, string) Basic auth username to send along with the request.
+- `password` (Optional, string) Basic auth password to send along with the request.
+- `headers` (Required, block) HTTP Headers as key/value pairs to send with the request.
+- `body` (Required, string) A string body to be sent. JSON body validation will be checked and will produce a warning if invalid (it will _not_ fail validation).
 
 ## Outputs
 
-* `uuid` - (string) The unique ID in Pactflow for this webhook.
+- `uuid` - (string) The unique ID in Pactflow for this webhook.
 
 ## Importing
 
@@ -107,11 +112,13 @@ resource "pact_webhook" "product_events" {
 ```
 
 2. Import the resource
+
 ```sh
 terraform  import pact_webhook.product_events ZBztO9l5poBdBDyUNewbNw
 ```
 
 3. Plan any new changes
+
 ```sh
 teraform plan
 ```

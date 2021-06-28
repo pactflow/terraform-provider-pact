@@ -18,6 +18,7 @@ type Request struct {
 // Webhook represents a webhook configured in the broker
 type Webhook struct {
 	ID          string         `json:"-"`
+	TeamUUID    string         `json:"teamUuid,omitempty"`
 	Description string         `json:"description,omitempty"`
 	Enabled     bool           `json:"enabled,omitempty"`
 	CreatedAt   string         `json:"createdAt,omitempty"`

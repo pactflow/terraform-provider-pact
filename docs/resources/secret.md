@@ -19,13 +19,14 @@ resource "pact_secret" "some_jenkins_token" {
 
 The following arguments are supported:
 
-* `name` - (Required, string) The name of the Secret (alphanumeric characters only)
-* `description` - (Required, string) A human readable description of the Secret.
-* `value` - (Required, string) The actual secret to store.
+- `name` - (Required, string) The name of the Secret (alphanumeric characters only)
+- `description` - (Required, string) A human readable description of the Secret.
+- `value` - (Required, string) The actual secret to store.
+- `team` - (Optional, string) The uuid of the team to assign to the secret.
 
 ## Outputs
 
-* `uuid` - (string) The unique ID in Pactflow for this secret.
+- `uuid` - (string) The unique ID in Pactflow for this secret.
 
 ## Importing
 
@@ -43,11 +44,13 @@ resource "pact_secret" "somesecret" {
 ```
 
 2. Import the resource
+
 ```sh
 terraform import pact_secret.somesecret e8d4891d-5c96-4dbf-b320-5bb7e3238269
 ```
 
 3. Apply any new changes
+
 ```sh
 teraform apply
 ```
