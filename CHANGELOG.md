@@ -5,6 +5,26 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.3.0 (28 June 2021)
+  * [7d6f501](https://github.com/pactflow/terraform/commit/7d6f501) - chore: update readme on progress (Matt Fellows, Mon Jun 28 16:35:55 2021 +1000)
+  * [e8e9bac](https://github.com/pactflow/terraform/commit/e8e9bac) - fix: bring back bender system user (Matt Fellows, Mon Jun 28 16:27:08 2021 +1000)
+  * [1c2206d](https://github.com/pactflow/terraform/commit/1c2206d) - chore: update deps (Matt Fellows, Mon Jun 28 16:16:07 2021 +1000)
+  * [77bbe26](https://github.com/pactflow/terraform/commit/77bbe26) - chore: update deps (Matt Fellows, Mon Jun 28 16:07:07 2021 +1000)
+  * [794e171](https://github.com/pactflow/terraform/commit/794e171) - chore: update deps (Matt Fellows, Mon Jun 28 16:03:21 2021 +1000)
+  * [ecb3822](https://github.com/pactflow/terraform/commit/ecb3822) - chore: update error lint in user resource (Matt Fellows, Mon Jun 28 15:57:59 2021 +1000)
+  * [6750113](https://github.com/pactflow/terraform/commit/6750113) - feat: add secrets to team and webhooks resources (Matt Fellows, Mon Jun 28 15:55:56 2021 +1000)
+  * [2b79880](https://github.com/pactflow/terraform/commit/2b79880) - fix: incorrect type in auth settings resource (Matt Fellows, Tue Jun 22 10:20:57 2021 +1000)
+  * [f3941a6](https://github.com/pactflow/terraform/commit/f3941a6) - chore: tidy go mods (Matt Fellows, Tue Jun 22 10:12:34 2021 +1000)
+  * [074afb0](https://github.com/pactflow/terraform/commit/074afb0) - chore: tidy go mods (Matt Fellows, Tue Jun 22 10:00:56 2021 +1000)
+  * [42948ca](https://github.com/pactflow/terraform/commit/42948ca) - chore: tidy go modules (Matt Fellows, Tue Jun 22 09:59:58 2021 +1000)
+  * [85fa65d](https://github.com/pactflow/terraform/commit/85fa65d) - chore: update deps (Matt Fellows, Tue Jun 22 09:50:23 2021 +1000)
+  * [05b9af2](https://github.com/pactflow/terraform/commit/05b9af2) - chore: update deps (Matt Fellows, Tue Jun 22 09:41:50 2021 +1000)
+  * [db8b7af](https://github.com/pactflow/terraform/commit/db8b7af) - test: add authentication settings pact test (Matt Fellows, Tue Jun 22 09:31:09 2021 +1000)
+  * [945a3d1](https://github.com/pactflow/terraform/commit/945a3d1) - chore: cleanup authentication settings resource (Matt Fellows, Tue Jun 22 09:30:54 2021 +1000)
+  * [3e4f914](https://github.com/pactflow/terraform/commit/3e4f914) - fix: webhook resource does not return ID (Matt Fellows, Tue Jun 22 09:30:37 2021 +1000)
+  * [454d035](https://github.com/pactflow/terraform/commit/454d035) - feat: add pact tests 🤝 (Matt Fellows, Sat Jun 19 15:22:38 2021 +1000)
+  * [344b6e4](https://github.com/pactflow/terraform/commit/344b6e4) - docs: update readme with latest docs (Matt Fellows, Mon Feb 22 15:54:33 2021 +1100)
+
 ### v0.2.0 (22 February 2021)
   * [fa89fed](https://github.com/pactflow/terraform/commit/fa89fed) - fix: correct accept headers (Matt Fellows, Mon Feb 22 15:43:13 2021 +1100)
   * [9ae38c7](https://github.com/pactflow/terraform/commit/9ae38c7) - docs: add gh action badge (Matt Fellows, Mon Feb 22 14:45:42 2021 +1100)
