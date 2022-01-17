@@ -5,6 +5,11 @@ Do this to generate your change history
 
 <a name="0.0.1"></a>
 
+### v0.3.3 (17 January 2022)
+  * [17fde33](https://github.com/pactflow/terraform/commit/17fde33) - chore: problem with bskurrie account (Matt Fellows, Mon Jan 17 23:23:13 2022 +1100)
+  * [ef50fce](https://github.com/pactflow/terraform/commit/ef50fce) - chore: add version file (Matt Fellows, Mon Jan 17 22:00:11 2022 +1100)
+  * [f254291](https://github.com/pactflow/terraform/commit/f254291) - fix: escape URLs in client API calls, fixes #18 (Matt Fellows, Mon Jan 17 21:56:07 2022 +1100)
+
 ### v0.3.2 (29 June 2021)
   * [b2ceba8](https://github.com/pactflow/terraform/commit/b2ceba8) - chore: fix makefile to not use bashisms (Matt Fellows, Tue Jun 29 11:21:46 2021 +1000)
   * [43e3e10](https://github.com/pactflow/terraform/commit/43e3e10) - fix: missing line join in makefile (Matt Fellows, Mon Jun 28 21:55:51 2021 +1000)
