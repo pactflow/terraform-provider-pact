@@ -96,7 +96,7 @@ resource "pact_user" "homer" {
 
 resource "pact_user" "bender_system_user" {
   name = "Bender Rodríguez"
-  email = "bskurrie@dius.com.au"
+  email = "mfellows+20220116@dius.com.au"
   type = "system"
   active = true
 }
