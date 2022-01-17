@@ -233,14 +233,12 @@ func (c *Client) CreateRole(p broker.Role) (*broker.Role, error) {
 }
 
 // UpdateRole updates an existing Role
-// currently only supports modifying the "active" property
 func (c *Client) UpdateRole(p broker.Role) (*broker.Role, error) {
 	res, err := c.doCrud("PUT", urlEncodeTemplate(roleReadUpdateDeleteTemplate, p.UUID), p, new(broker.Role))
 	return res.(*broker.Role), err
 }
 
-// DeleteRole simply de-activates an existing Role. Roles are global on the platform,
-// but can be enabled/disabled at the tenant level
+// DeleteRole removes a role
 func (c *Client) DeleteRole(p broker.Role) error {
 	_, err := c.doCrud("DELETE", urlEncodeTemplate(roleReadUpdateDeleteTemplate, p.UUID), nil, nil)
 
