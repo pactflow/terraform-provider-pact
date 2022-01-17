@@ -12,11 +12,11 @@ import (
 	"net/url"
 
 	"github.com/pactflow/terraform/broker"
+	"github.com/pactflow/terraform/version"
 )
 
 const (
-	libraryVersion                      = "0.0.1"
-	userAgent                           = "go-pact/" + libraryVersion
+	userAgent                           = "go-pact/" + version.LIBRARY_VERSION
 	defaultBaseURL                      = "http://localhost"
 	webhookReadUpdateDeleteTemplate     = "/webhooks/%s"
 	webhookCreateTemplate               = "/webhooks"
@@ -91,7 +91,7 @@ func NewClient(httpClient *http.Client, config Config) *Client {
 
 // ReadWebhook returns a Webhook or an error for a given ID
 func (c *Client) ReadWebhook(id string) (*broker.Webhook, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(webhookReadUpdateDeleteTemplate, id), nil, new(broker.Webhook))
+	res, err := c.doCrud("GET", urlEncodeTemplate(webhookReadUpdateDeleteTemplate, id), nil, new(broker.Webhook))
 	return res.(*broker.Webhook), err
 }
 
@@ -103,19 +103,19 @@ func (c *Client) CreateWebhook(w broker.Webhook) (*broker.WebhookResponse, error
 
 // UpdateWebhook updates an existing webhook. Not all properties are mutable
 func (c *Client) UpdateWebhook(w broker.Webhook) (*broker.WebhookResponse, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(webhookReadUpdateDeleteTemplate, w.ID), w, new(broker.WebhookResponse))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(webhookReadUpdateDeleteTemplate, w.ID), w, new(broker.WebhookResponse))
 	return res.(*broker.WebhookResponse), err
 }
 
 // DeleteWebhook removes an existing webhook
 func (c *Client) DeleteWebhook(w broker.Webhook) error {
-	_, err := c.doCrud("DELETE", fmt.Sprintf(webhookReadUpdateDeleteTemplate, w.ID), nil, nil)
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(webhookReadUpdateDeleteTemplate, w.ID), nil, nil)
 	return err
 }
 
 // ReadPacticipant gets a pacticipant
 func (c *Client) ReadPacticipant(name string) (*broker.Pacticipant, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(pacticipantReadUpdateDeleteTemplate, name), nil, new(broker.Pacticipant))
+	res, err := c.doCrud("GET", urlEncodeTemplate(pacticipantReadUpdateDeleteTemplate, name), nil, new(broker.Pacticipant))
 	return res.(*broker.Pacticipant), err
 }
 
@@ -127,19 +127,19 @@ func (c *Client) CreatePacticipant(p broker.Pacticipant) (*broker.Pacticipant, e
 
 // UpdatePacticipant updates an existing Pacticipant
 func (c *Client) UpdatePacticipant(p broker.Pacticipant) (*broker.Pacticipant, error) {
-	res, err := c.doCrud("PATCH", fmt.Sprintf(pacticipantReadUpdateDeleteTemplate, p.Name), p, new(broker.Pacticipant))
+	res, err := c.doCrud("PATCH", urlEncodeTemplate(pacticipantReadUpdateDeleteTemplate, p.Name), p, new(broker.Pacticipant))
 	return res.(*broker.Pacticipant), err
 }
 
 // DeletePacticipant removes an existing Pacticipant
 func (c *Client) DeletePacticipant(p broker.Pacticipant) error {
-	_, err := c.doCrud("DELETE", fmt.Sprintf(pacticipantReadUpdateDeleteTemplate, p.Name), nil, nil)
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(pacticipantReadUpdateDeleteTemplate, p.Name), nil, nil)
 	return err
 }
 
 // ReadTeam gets a Team
 func (c *Client) ReadTeam(t broker.Team) (*broker.Team, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), nil, new(broker.Team))
+	res, err := c.doCrud("GET", urlEncodeTemplate(teamReadUpdateDeleteTemplate, t.UUID), nil, new(broker.Team))
 	return res.(*broker.Team), err
 }
 
@@ -161,7 +161,7 @@ func (c *Client) CreateTeam(t broker.Team) (*broker.Team, error) {
 
 // ReadTeamAssignments finds all users currently in a team
 func (c *Client) ReadTeamAssignments(t broker.Team) (*broker.TeamsAssignmentResponse, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(teamAssignmentTemplate, t.UUID), t, new(broker.TeamsAssignmentResponse))
+	res, err := c.doCrud("GET", urlEncodeTemplate(teamAssignmentTemplate, t.UUID), t, new(broker.TeamsAssignmentResponse))
 	apiResponse := res.(*broker.TeamsAssignmentResponse)
 
 	return apiResponse, err
@@ -169,7 +169,7 @@ func (c *Client) ReadTeamAssignments(t broker.Team) (*broker.TeamsAssignmentResp
 
 // UpdateTeamAssignments sets the users for a given team, removing any existing users not in the specified request
 func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
 	if len(r.Users) > 0 {
 		apiResponse := res.(*broker.TeamsAssignmentResponse)
 
@@ -181,7 +181,7 @@ func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker
 
 // AppendTeamAssignments adds users to an existing Team (does not remove absent ones)
 func (c *Client) AppendTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
-	res, err := c.doCrud("POST", fmt.Sprintf(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+	res, err := c.doCrud("POST", urlEncodeTemplate(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
 	if len(r.Users) > 0 {
 		apiResponse := res.(*broker.TeamsAssignmentResponse)
 
@@ -193,7 +193,7 @@ func (c *Client) AppendTeamAssignments(r broker.TeamsAssignmentRequest) (*broker
 
 // DeleteTeamAssignment removes a single user from a team
 func (c *Client) DeleteTeamAssignment(t broker.Team, u broker.User) error {
-	_, err := c.doCrud("DELETE", fmt.Sprintf(teamUserTemplate, t.UUID, u.UUID), nil, nil)
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(teamUserTemplate, t.UUID, u.UUID), nil, nil)
 
 	return err
 }
@@ -201,7 +201,7 @@ func (c *Client) DeleteTeamAssignment(t broker.Team, u broker.User) error {
 // DeleteTeamAssignments removes specified users from the team
 func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
 	if len(t.Users) > 0 {
-		_, err := c.doCrud("DELETE", fmt.Sprintf(teamAssignmentTemplate, t.UUID), t, nil)
+		_, err := c.doCrud("DELETE", urlEncodeTemplate(teamAssignmentTemplate, t.UUID), t, nil)
 		return err
 	}
 	return nil
@@ -209,20 +209,20 @@ func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
 
 // UpdateTeam updates the team
 func (c *Client) UpdateTeam(t broker.Team) (*broker.Team, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), t, new(broker.Team))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(teamReadUpdateDeleteTemplate, t.UUID), t, new(broker.Team))
 	return res.(*broker.Team), err
 }
 
 // DeleteTeam deletes the Team
 func (c *Client) DeleteTeam(t broker.Team) error {
-	_, err := c.doCrud("DELETE", fmt.Sprintf(teamReadUpdateDeleteTemplate, t.UUID), nil, nil)
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(teamReadUpdateDeleteTemplate, t.UUID), nil, nil)
 
 	return err
 }
 
 // ReadRole gets a Role
 func (c *Client) ReadRole(uuid string) (*broker.Role, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(roleReadUpdateDeleteTemplate, uuid), nil, new(broker.Role))
+	res, err := c.doCrud("GET", urlEncodeTemplate(roleReadUpdateDeleteTemplate, uuid), nil, new(broker.Role))
 	return res.(*broker.Role), err
 }
 
@@ -235,21 +235,21 @@ func (c *Client) CreateRole(p broker.Role) (*broker.Role, error) {
 // UpdateRole updates an existing Role
 // currently only supports modifying the "active" property
 func (c *Client) UpdateRole(p broker.Role) (*broker.Role, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(roleReadUpdateDeleteTemplate, p.UUID), p, new(broker.Role))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(roleReadUpdateDeleteTemplate, p.UUID), p, new(broker.Role))
 	return res.(*broker.Role), err
 }
 
 // DeleteRole simply de-activates an existing Role. Roles are global on the platform,
 // but can be enabled/disabled at the tenant level
 func (c *Client) DeleteRole(p broker.Role) error {
-	_, err := c.doCrud("DELETE", fmt.Sprintf(roleReadUpdateDeleteTemplate, p.UUID), nil, nil)
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(roleReadUpdateDeleteTemplate, p.UUID), nil, nil)
 
 	return err
 }
 
 // ReadUser gets a User
 func (c *Client) ReadUser(uuid string) (*broker.User, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(userReadUpdateDeleteTemplate, uuid), nil, new(broker.User))
+	res, err := c.doCrud("GET", urlEncodeTemplate(userReadUpdateDeleteTemplate, uuid), nil, new(broker.User))
 	return res.(*broker.User), err
 }
 
@@ -262,7 +262,7 @@ func (c *Client) CreateUser(p broker.User) (*broker.User, error) {
 // UpdateUser updates an existing User
 // currently only supports modifying the "active" property
 func (c *Client) UpdateUser(p broker.User) (*broker.User, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(userReadUpdateDeleteTemplate, p.UUID), p, new(broker.User))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(userReadUpdateDeleteTemplate, p.UUID), p, new(broker.User))
 	return res.(*broker.User), err
 }
 
@@ -277,19 +277,19 @@ func (c *Client) DeleteUser(p broker.User) error {
 
 // AddAdminRoleToUser converts a user to an administrator
 func (c *Client) AddAdminRoleToUser(p broker.User) (*broker.User, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
 	return res.(*broker.User), err
 }
 
 // RemoveAdminRoleFromUser removes the administrator role from a user
 func (c *Client) RemoveAdminRoleFromUser(p broker.User) (*broker.User, error) {
-	res, err := c.doCrud("DELETE", fmt.Sprintf(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
+	res, err := c.doCrud("DELETE", urlEncodeTemplate(userAdminUpdateTemplate, p.UUID), p, new(broker.User))
 	return res.(*broker.User), err
 }
 
 // ReadSecret gets the current Secret information (the actual secret is not returned)
 func (c *Client) ReadSecret(uuid string) (*broker.SecretResponse, error) {
-	res, err := c.doCrud("GET", fmt.Sprintf(secretReadUpdateDeleteTemplate, uuid), nil, new(broker.SecretResponse))
+	res, err := c.doCrud("GET", urlEncodeTemplate(secretReadUpdateDeleteTemplate, uuid), nil, new(broker.SecretResponse))
 	return res.(*broker.SecretResponse), err
 }
 
@@ -302,13 +302,13 @@ func (c *Client) CreateSecret(s broker.Secret) (*broker.SecretResponse, error) {
 
 // UpdateSecret updates an existing secret. All values may be changed
 func (c *Client) UpdateSecret(s broker.Secret) (*broker.SecretResponse, error) {
-	res, err := c.doCrud("PUT", fmt.Sprintf(secretReadUpdateDeleteTemplate, s.UUID), s, new(broker.SecretResponse))
+	res, err := c.doCrud("PUT", urlEncodeTemplate(secretReadUpdateDeleteTemplate, s.UUID), s, new(broker.SecretResponse))
 	return res.(*broker.SecretResponse), err
 }
 
 // DeleteSecret removes an existing secret
 func (c *Client) DeleteSecret(s broker.Secret) error {
-	_, err := c.doCrud("DELETE", fmt.Sprintf(secretReadUpdateDeleteTemplate, s.UUID), nil, nil)
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(secretReadUpdateDeleteTemplate, s.UUID), nil, nil)
 	return err
 }
 
@@ -359,13 +359,13 @@ func (c *Client) FindTokenByType(tokenType string) (*broker.APIToken, error) {
 
 // RegenerateToken generates a new API Token for the given UUID
 func (c *Client) RegenerateToken(t broker.APIToken) (*broker.APITokenResponse, error) {
-	res, err := c.doCrud("POST", fmt.Sprintf(tokenRegenerateTemplate, t.UUID), nil, new(broker.APITokenResponse))
+	res, err := c.doCrud("POST", urlEncodeTemplate(tokenRegenerateTemplate, t.UUID), nil, new(broker.APITokenResponse))
 	return res.(*broker.APITokenResponse), err
 }
 
 // SetUserRoles sets the roles for a given user, removing any not given and adding those that were provided
 func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
-	_, err := c.doCrud("PUT", fmt.Sprintf(userRolesUpdateTemplate, uuid), r, nil)
+	_, err := c.doCrud("PUT", urlEncodeTemplate(userRolesUpdateTemplate, uuid), r, nil)
 	return err
 }
 
@@ -497,4 +497,14 @@ func (c *Client) doCrud(method string, path string, requestEntity interface{}, r
 		_, err = c.do(req, &responseEntity)
 	}
 	return responseEntity, err
+}
+
+func urlEncodeTemplate(template string, parameters ...string) string {
+	encodedParams := make([]interface{}, len(parameters))
+
+	for i, p := range parameters {
+		encodedParams[i] = url.PathEscape(p)
+	}
+
+	return fmt.Sprintf(template, encodedParams...)
 }

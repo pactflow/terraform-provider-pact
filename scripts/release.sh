@@ -14,7 +14,7 @@ function log {
 }
 
 function get_version() {
-  tag=` git tag -n1 | grep "chore(release)" | tail -n 1 | cut -d ' ' -f1`
+  tag=$(git tag -n1 | grep "chore(release)" | tail -n 1 | cut -d ' ' -f1)
   echo "${tag}"
 }
 
@@ -52,8 +52,8 @@ function increment_version() {
 function determine_increment() {
   changelog=${1}
   step="patch"
-  [[ "${1}" =~ (feat:|feat\() ]] && step="minor"
-  [[ "${1}" =~ (BREAKING change|breaking change) ]] && step="major"
+  [[ "${changelog}" =~ (feat:|feat\() ]] && step="minor"
+  [[ "${changelog}" =~ (BREAKING change|breaking change) ]] && step="major"
 
   echo $step
 }
@@ -75,6 +75,16 @@ q
 END
 }
 
+function updatePackageVersion() {
+  new_version="${1}"
+
+cat <<- EOF > version/version.go
+package version
+
+const LIBRARY_VERSION = "${new_version}"
+EOF
+}
+
 function cleanup() {
   log "ERROR generating release, please check your git logs and working tree to ensure things are in order."
 }
@@ -83,7 +93,7 @@ step "Releasing Terraform 🚀 "
 log "finding current version"
 current_version=$(get_version)
 
-full_log=$(git log ${current_version}..HEAD)
+full_log=$(git log "${current_version}"..HEAD)
 inc=$(determine_increment "${full_log}")
 version=$(increment_version "${current_version/v/}" "${inc}")
 log "increment '${inc}' version from ${current_version} to ${version}"
@@ -92,15 +102,18 @@ step "Generating changelog"
 generate_changelog "${current_version}" "${version}"
 log "changelog updated"
 
+step "Updating version"
+updatePackageVersion "${version}"
+
 step "Committing changes"
 log "unstaging files"
 git reset HEAD
-log "adding CHANGELOG.md"
-git add CHANGELOG.md
+log "adding CHANGELOG.md version/version.go"
+git add CHANGELOG.md version/version.go
 log "commiting"
 git commit -m "chore(release): release ${version}"
 
 step "Creating tag ${version}"
-git tag ${version} -m "chore(release): release ${version}"
+git tag "${version}" -m "chore(release): release ${version}"
 
 log "done - check your git logs, CHANGELOG, and then run 'git push --follow-tags'."
