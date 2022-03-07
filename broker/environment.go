@@ -16,7 +16,7 @@ type EnvironmentCreateOrUpdateRequest struct {
 	DisplayName string   `json:"displayName,omitempty"`
 	Name        string   `json:"name,omitempty"`
 	Production  bool     `json:"production"`
-	Teams       []string `json:"teamUuids,omitempty"`
+	Teams       []string `json:"teamUuids"`
 }
 
 type EnvironmentCreateOrUpdateResponse struct {
@@ -26,7 +26,7 @@ type EnvironmentCreateOrUpdateResponse struct {
 	CreatedAt   string                   `json:"createdAt,omitempty"`
 	UpdatedAt   string                   `json:"updatedAt,omitempty"`
 	UUID        string                   `json:"uuid,omitempty"`
-	Teams       []string                 `json:"teamUuids,omitempty"`
+	Teams       []string                 `json:"teamUuids"`
 	Embedded    EnvironmentEmbeddedItems `json:"_embedded,omitempty"`
 }
 

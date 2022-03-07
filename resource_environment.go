@@ -95,10 +95,11 @@ func environmentCreate(d *schema.ResourceData, meta interface{}) error {
 func environmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	environment := getEnvironmentFromState(d)
+	teams := d.Get("teams").([]interface{})
 
 	log.Println("[DEBUG] updating environment", environment)
 
-	updated, err := client.UpdateEnvironment(environmentToCRUD(environment, teamsFromEnvironment(environment)))
+	updated, err := client.UpdateEnvironment(environmentToCRUD(environment, arrayInterfaceToArrayString(teams)))
 
 	if err != nil {
 		return err
