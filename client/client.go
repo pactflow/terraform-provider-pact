@@ -39,6 +39,8 @@ const (
 	listTokensTemplate                  = "/settings/tokens"
 	tokenRegenerateTemplate             = "/settings/tokens/%s/regenerate"
 	metadataTemplate                    = "/"
+	environmentCreateTemplate           = "/environments"
+	environmentReadUpdateDeleteTemplate = "/environments/%s"
 )
 
 const (
@@ -379,6 +381,31 @@ func (c *Client) SetTenantAuthenticationSettings(r broker.AuthenticationSettings
 	res, err := c.doCrud("PUT", tenantAuthenticationTemplate, r, new(broker.AuthenticationSettings))
 
 	return res.(*broker.AuthenticationSettings), err
+}
+
+// ReadEnvironment gets an Environment
+func (c *Client) ReadEnvironment(uuid string) (*broker.Environment, error) {
+	res, err := c.doCrud("GET", urlEncodeTemplate(environmentReadUpdateDeleteTemplate, uuid), nil, new(broker.Environment))
+	return res.(*broker.Environment), err
+}
+
+// CreateEnvironment creates an Environment
+func (c *Client) CreateEnvironment(p broker.EnvironmentCreateOrUpdateRequest) (*broker.EnvironmentCreateOrUpdateResponse, error) {
+	res, err := c.doCrud("POST", environmentCreateTemplate, p, new(broker.EnvironmentCreateOrUpdateResponse))
+	return res.(*broker.EnvironmentCreateOrUpdateResponse), err
+}
+
+// UpdateEnvironment updates an Environment
+func (c *Client) UpdateEnvironment(p broker.EnvironmentCreateOrUpdateRequest) (*broker.EnvironmentCreateOrUpdateResponse, error) {
+	res, err := c.doCrud("PUT", urlEncodeTemplate(environmentReadUpdateDeleteTemplate, p.UUID), p, new(broker.EnvironmentCreateOrUpdateResponse))
+	return res.(*broker.EnvironmentCreateOrUpdateResponse), err
+}
+
+// DeleteEnvironment removes an Environment
+func (c *Client) DeleteEnvironment(p broker.Environment) error {
+	_, err := c.doCrud("DELETE", urlEncodeTemplate(environmentReadUpdateDeleteTemplate, p.UUID), nil, nil)
+
+	return err
 }
 
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
