@@ -165,7 +165,7 @@ resource "pact_authentication" "authentication" {
 ### Environments
 
 resource "pact_environment" "staging" {
-  name = "staging"
+  name = "staging${var.build_number}"
   display_name = "Staging Environment"
   production = false
   teams = [pact_team.Simpsons.uuid]

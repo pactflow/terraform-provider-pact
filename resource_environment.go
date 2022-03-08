@@ -146,7 +146,7 @@ func environmentDelete(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("unable to delete (disable) environment %s: %w", d.Id(), err)
+		return fmt.Errorf("unable to delete environment %s: %w", d.Id(), err)
 	}
 
 	return nil
