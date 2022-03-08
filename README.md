@@ -142,6 +142,7 @@ https://registry.terraform.io/providers/pactflow/pact/latest
 | [Users](docs/resources/user.md)                             | Resource | Pactflow               | Manage Pactflow Users                                           |
 | [Roles](docs/resources/role.md)                             | Resource | Pactflow               | Manage Pactflow Roles                                           |
 | [Teams](docs/resources/team.md)                             | Resource | Pactflow               | Manage Pactflow Teams                                           |
+| [Environments](docs/resources/environment.md)               | Resource | Pact Broker + Pactflow | Manage Environments                                             |
 | [Authentication Settings](docs/resources/authentication.md) | Resource | Pactflow               | Manage Pactflow Authentication (Github, Google etc.)            |
 
 See our [Docs](./docs) folder for all plugins.

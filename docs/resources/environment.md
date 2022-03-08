@@ -24,7 +24,7 @@ The following arguments are supported:
 - `name` - (Required, string) The string name of a environment to create. This must be contain only alphanumeric strings.
 - `display_name` - (Required, string) The visible display name of the environment
 - `production` - (Required, boolean) Whether or not the environment is a "production" environment or not
-- `team_uuids` - (Optional, list of strings) The list of teams to assign to the team
+- `team_uuids` - (Optional, list of strings) The list of teams to assign to the team. _NOTE_: this is a Pactflow only property and has no effect for Pact Broker users.
 
 ## Importing
 
