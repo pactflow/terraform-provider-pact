@@ -14,7 +14,7 @@ terraform {
 provider "pact" {
   host = "https://tf-acceptance.pactflow.io"
   # host = "http://localhost:9292"
-  access_token = var.api_token
+  access_token = "fhykLsrvR93L1wZrw00VQg"
 }
 
 variable "api_token" {
@@ -83,7 +83,7 @@ resource "pact_team" "Cartoons" {
 
 resource "pact_user" "homer" {
   name = "Homer Simpson"
-  email = "rholshausen@dius.com.au"
+  email = "matt+tfacceptance2@pactflow.io"
   active = true
   roles = [
     "c1878b8e-d09e-11ea-8fde-af02c4677eb7",
@@ -96,7 +96,7 @@ resource "pact_user" "homer" {
 
 resource "pact_user" "bender_system_user" {
   name = "Bender Rodríguez"
-  email = "mfellows+20220116@dius.com.au"
+  email = "matt+tfacceptance1@pactflow.io"
   type = "system"
   active = true
 }
@@ -159,7 +159,7 @@ resource "pact_role" "special_role" {
 
 resource "pact_authentication" "authentication" {
   github_organizations = ["DiUS", "pactflow"]
-  google_domains = ["dius.com.au", "onegeek.com.au"]
+  google_domains = ["dius.com.au", "pactflow.io"]
 }
 
 ### Environments
