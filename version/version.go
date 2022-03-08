@@ -1,3 +1,3 @@
 package version
 
-const LIBRARY_VERSION = "v0.4.2"
+const LIBRARY_VERSION = "v0.4.3"
