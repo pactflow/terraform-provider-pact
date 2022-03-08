@@ -4,6 +4,10 @@ Do this to generate your change history
 
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
+
+### v0.4.0 (08 March 2022)
+  * [ecd1dbd](https://github.com/pactflow/terraform/commit/ecd1dbd) - docs: add environments to readme (Matt Fellows, Tue Mar 8 13:56:59 2022 +1100)
+  * [6b5ae7e](https://github.com/pactflow/terraform/commit/6b5ae7e) - Feat/environments (#20) (Matt Fellows, Tue Mar 8 13:52:05 2022 +1100)
 <a name="0.0.1"></a>
 
 ### v0.3.3 (17 January 2022)
