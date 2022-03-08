@@ -886,67 +886,218 @@ func TestTerraformClientPact(t *testing.T) {
 			})
 			assert.NoError(t, err)
 		})
+	})
 
-		t.Run("AuthenticationSettings", func(t *testing.T) {
-			authSettings := broker.AuthenticationSettings{
-				Providers: broker.AuthenticationProviders{
-					Google: broker.GoogleAuthenticationSettings{
-						EmailDomains: []string{"pactflow.io"},
-					},
-					Github: broker.GithubAuthenticationSettings{
-						Organizations: []string{"pactflow"},
-					},
+	t.Run("AuthenticationSettings", func(t *testing.T) {
+		authSettings := broker.AuthenticationSettings{
+			Providers: broker.AuthenticationProviders{
+				Google: broker.GoogleAuthenticationSettings{
+					EmailDomains: []string{"pactflow.io"},
 				},
-			}
+				Github: broker.GithubAuthenticationSettings{
+					Organizations: []string{"pactflow"},
+				},
+			},
+		}
 
-			t.Run("SetTenantAuthenticationSettings", func(t *testing.T) {
-				mockProvider.
-					AddInteraction().
-					UponReceiving("a request to update authentication settings").
-					WithRequest("PUT", S("/admin/tenant/authentication-settings")).
-					WithHeader("Content-Type", S("application/json")).
-					WithHeader("Authorization", Like("Bearer 1234")).
-					WithJSONBody(Like(authSettings)).
-					WillRespondWith(200).
-					WithHeader("Content-Type", S("application/hal+json")).
-					WithJSONBody(Like(authSettings))
+		t.Run("SetTenantAuthenticationSettings", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				UponReceiving("a request to update authentication settings").
+				WithRequest("PUT", S("/admin/tenant/authentication-settings")).
+				WithHeader("Content-Type", S("application/json")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(authSettings)).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(authSettings))
 
-				err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
-					client := clientForPact(config)
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
 
-					res, e := client.SetTenantAuthenticationSettings(authSettings)
-					assert.NoError(t, e)
-					assert.Contains(t, res.Providers.Google.EmailDomains, "pactflow.io")
-					assert.Contains(t, res.Providers.Github.Organizations, "pactflow")
+				res, e := client.SetTenantAuthenticationSettings(authSettings)
+				assert.NoError(t, e)
+				assert.Contains(t, res.Providers.Google.EmailDomains, "pactflow.io")
+				assert.Contains(t, res.Providers.Github.Organizations, "pactflow")
 
-					return e
-				})
-				assert.NoError(t, err)
+				return e
 			})
+			assert.NoError(t, err)
+		})
 
-			t.Run("ReadTenantAuthenticationSettings", func(t *testing.T) {
-				mockProvider.
-					AddInteraction().
-					UponReceiving("a request to get authentication settings").
-					WithRequest("GET", S("/admin/tenant/authentication-settings")).
-					WillRespondWith(200).
-					WithHeader("Content-Type", S("application/hal+json")).
-					WithJSONBody(Like(authSettings))
+		t.Run("ReadTenantAuthenticationSettings", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				UponReceiving("a request to get authentication settings").
+				WithRequest("GET", S("/admin/tenant/authentication-settings")).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(authSettings))
 
-				err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
-					client := clientForPact(config)
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
 
-					res, e := client.ReadTenantAuthenticationSettings()
-					assert.NoError(t, e)
-					assert.Contains(t, res.Providers.Google.EmailDomains, "pactflow.io")
-					assert.Contains(t, res.Providers.Github.Organizations, "pactflow")
+				res, e := client.ReadTenantAuthenticationSettings()
+				assert.NoError(t, e)
+				assert.Contains(t, res.Providers.Google.EmailDomains, "pactflow.io")
+				assert.Contains(t, res.Providers.Github.Organizations, "pactflow")
 
-					return e
-				})
-				assert.NoError(t, err)
+				return e
 			})
+			assert.NoError(t, err)
 		})
 	})
+
+	t.Run("Environment", func(t *testing.T) {
+		environment := broker.Environment{
+			Name:        "TerraformEnvironment",
+			Production:  true,
+			DisplayName: "terraform environment",
+		}
+
+		create := broker.EnvironmentCreateOrUpdateRequest{
+			DisplayName: environment.DisplayName,
+			Name:        environment.Name,
+			Production:  environment.Production,
+			Teams: []string{
+				"99643109-adb0-4e68-b25f-7b14d6bcae16",
+			},
+		}
+
+		created := broker.EnvironmentCreateOrUpdateResponse{
+			UUID:        "8000883c-abf0-4b4c-b993-426f607092a9",
+			Name:        environment.Name,
+			DisplayName: environment.DisplayName,
+			Embedded: broker.EnvironmentEmbeddedItems{
+				Teams: []broker.Team{
+					{
+						Name: "terraform-team",
+						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
+					},
+				},
+			},
+		}
+
+		update := broker.EnvironmentCreateOrUpdateRequest{
+			UUID:        created.UUID,
+			DisplayName: environment.DisplayName,
+			Name:        "terraform-updated-environment",
+			Production:  environment.Production,
+			Teams: []string{
+				"99643109-adb0-4e68-b25f-7b14d6bcae16",
+			},
+		}
+
+		updated := broker.EnvironmentCreateOrUpdateResponse{
+			UUID:        created.UUID,
+			Name:        update.Name,
+			DisplayName: environment.DisplayName,
+			Embedded: broker.EnvironmentEmbeddedItems{
+				Teams: []broker.Team{
+					{
+						Name: "terraform-team",
+						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
+					},
+				},
+			},
+		}
+
+		t.Run("CreateEnvironment", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("a team with uuid 99643109-adb0-4e68-b25f-7b14d6bcae16 exists").
+				UponReceiving("a request to create an environment").
+				WithRequest("POST", S("/environments")).
+				WithHeader("Content-Type", S("application/json")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(create)).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(created))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				res, e := client.CreateEnvironment(create)
+				assert.NoError(t, e)
+				assert.Equal(t, "TerraformEnvironment", res.Name)
+				assert.Len(t, res.Embedded.Teams, 1)
+
+				return e
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("ReadEnvironment", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("an environment with uuid 8000883c-abf0-4b4c-b993-426f607092a9 exists").
+				UponReceiving("a request to get an environment").
+				WithRequest("GET", S("/environments/8000883c-abf0-4b4c-b993-426f607092a9")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(created))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				res, e := client.ReadEnvironment(created.UUID)
+				assert.NoError(t, e)
+				assert.Equal(t, "TerraformEnvironment", res.Name)
+				assert.Len(t, res.Embedded.Teams, 1)
+
+				return e
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("UpdateEnvironment", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("an environment with uuid 8000883c-abf0-4b4c-b993-426f607092a9 exists").
+				UponReceiving("a request to update an environment").
+				WithRequest("PUT", S("/environments/8000883c-abf0-4b4c-b993-426f607092a9")).
+				WithHeader("Content-Type", S("application/json")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(update)).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(updated))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				res, e := client.UpdateEnvironment(update)
+				assert.NoError(t, e)
+				assert.Equal(t, "terraform-updated-environment", res.Name)
+				assert.Len(t, res.Embedded.Teams, 1)
+
+				return e
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("DeleteEnvironment", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("an environment with uuid 8000883c-abf0-4b4c-b993-426f607092a9 exists").
+				UponReceiving("a request to delete a environment").
+				WithRequest("DELETE", S("/environments/8000883c-abf0-4b4c-b993-426f607092a9")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WillRespondWith(200)
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				return client.DeleteEnvironment(broker.Environment{
+					UUID: created.UUID,
+				})
+			})
+			assert.NoError(t, err)
+		})
+	})
+
 }
 
 func clientForPact(config MockServerConfig) *Client {
