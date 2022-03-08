@@ -5,6 +5,9 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.4.2 (08 March 2022)
+  * [dae7d9a](https://github.com/pactflow/terraform/commit/dae7d9a) - fix: clean go.mod (Matt Fellows, Tue Mar 8 17:02:50 2022 +1100)
+
 ### v0.4.1 (08 March 2022)
   * [d932e61](https://github.com/pactflow/terraform/commit/d932e61) - fix: make environment resilient to build failuress (Matt Fellows, Tue Mar 8 16:47:30 2022 +1100)
 
