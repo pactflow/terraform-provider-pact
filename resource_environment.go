@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/pactflow/terraform/broker"
 	"github.com/pactflow/terraform/client"
 )
@@ -18,10 +20,10 @@ func environment() *schema.Resource {
 		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type: schema.TypeString,
-				// ValidateFunc: // TODO: no spaces!,
-				Required:    true,
-				Description: "Name of the Environment",
+				Type:         schema.TypeString,
+				ValidateFunc: validateAlphaNumeric,
+				Required:     true,
+				Description:  "Name of the Environment",
 			},
 			"display_name": {
 				Type:        schema.TypeString,
@@ -49,6 +51,15 @@ func environment() *schema.Resource {
 			},
 		},
 	}
+}
+
+func validateAlphaNumeric(v interface{}, k string) (warns []string, errs []error) {
+	return validation.All(
+		validation.StringLenBetween(1, 255),
+		validation.StringMatch(
+			regexp.MustCompile("[a-zA-Z0-9]+"),
+			"The environment name must consist of alphanumerics"),
+	)(v, k)
 }
 
 func environmentToCRUD(environment broker.Environment, teams []string) broker.EnvironmentCreateOrUpdateRequest {

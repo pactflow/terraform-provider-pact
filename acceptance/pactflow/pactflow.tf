@@ -161,3 +161,12 @@ resource "pact_authentication" "authentication" {
   github_organizations = ["DiUS", "pactflow"]
   google_domains = ["dius.com.au", "onegeek.com.au"]
 }
+
+### Environments
+
+resource "pact_environment" "staging" {
+  name = "staging"
+  display_name = "Staging Environment"
+  production = false
+  teams = [pact_team.Simpsons.uuid]
+}
