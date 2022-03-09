@@ -1082,7 +1082,7 @@ func TestTerraformClientPact(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				Given("an environment with uuid 8000883c-abf0-4b4c-b993-426f607092a9 exists").
-				UponReceiving("a request to delete a environment").
+				UponReceiving("a request to delete an environment").
 				WithRequest("DELETE", S("/environments/8000883c-abf0-4b4c-b993-426f607092a9")).
 				WithHeader("Authorization", Like("Bearer 1234")).
 				WillRespondWith(200)
