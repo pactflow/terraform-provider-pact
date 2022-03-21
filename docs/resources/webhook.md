@@ -6,21 +6,6 @@ Webhooks allow you to trigger an HTTP request when a pact is changed, a pact is 
 
 Webhooks can be used in conjunction with the [can-i-deploy](https://github.com/pact-foundation/pact_broker-client#can-i-deploy) tool \(a CLI that allows you to easily check the verification status of your pacts\), to allow you to fully automate the CI/CD process for all the applications that use the Pact Broker, ensuring both sides of the contract are fulfilled before deploying.
 
-### The 'contract content changed' event
-
-The broker uses the following logic to determine if a pact has changed:
-
-- If the relevant consumer version has any tags, then for each tag, check if the content is different from the previous latest version for that tag. It is 'changed' if any of the checks are true. One side effect of this is that brand new tags will trigger a pact changed event, even if the content is the same as a previous version.
-- If the relevant consumer version has no tags, then check if the content has changed since the previous latest version.
-
-### The 'contract published' event
-
-This is triggered every time a pact is published, regardless of whether it has changed or not.
-
-### The 'verification published' event.
-
-This is triggered every time a verification is published.
-
 See [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more information on configuring Webhooks.
 
 ## Example Usage
@@ -69,7 +54,7 @@ From https://docs.pact.io/pact_broker/advanced_topics/api_docs/webhooks#creating
 
 - `webhook_consumer` - (Optional, block) A consumer to scope events to. See [Pacticipant](#pacticipant) below for details. Omitting the consumer indicates the webhook should fire for all consumers.
 - `request` - (Required, block) The request to send when a webhook is fired. See [Request](#request) below for details.
-- `events` - (Required, list of strings) one of `contract_content_changed`, `contract_published`, `provider_verification_published`, `provider_verification_succeeded` or `provider_verification_failed` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
+- `events` - (Required, list of strings) one of `contract_requiring_verification_published`, `contract_content_changed`, `contract_published`, `provider_verification_published`, `provider_verification_succeeded` or `provider_verification_failed` (see [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more on this).
 - `team` - (Optional, string) The uuid of the team to assign to the webhook.
 
 <a id="pacticipant"></a>

@@ -22,6 +22,7 @@ var allowedEvents = []string{
 	"provider_verification_failed",
 	"provider_verification_published",
 	"provider_verification_succeeded",
+	"contract_requiring_verification_published",
 }
 
 var pacticipantType = &schema.Schema{
