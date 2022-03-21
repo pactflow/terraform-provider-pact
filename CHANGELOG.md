@@ -4,6 +4,10 @@ Do this to generate your change history
 
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
+
+### v0.5.0 (21 March 2022)
+  * [80ccad5](https://github.com/pactflow/terraform/commit/80ccad5) - feat: support 'contract_requiring_verification_published' event in webhook resource (Matt Fellows, Mon Mar 21 20:47:10 2022 +1100)
+  * [b8b2032](https://github.com/pactflow/terraform/commit/b8b2032) - docs: update changelog (Matt Fellows, Tue Mar 8 17:08:22 2022 +1100)
 ### v0.4.3 (08 March 2022)
 
 - [6b5ae7e](https://github.com/pactflow/terraform/commit/6b5ae7e) - Feat/environments (#20) (Matt Fellows, Tue Mar 8 13:52:05 2022 +1100)
