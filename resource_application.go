@@ -28,6 +28,11 @@ func application() *schema.Resource {
 				Optional:    true,
 				Description: "URL or location of the VCS repository",
 			},
+			"main_branch": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Main (default) branch",
+			},
 		},
 	}
 }
@@ -36,12 +41,14 @@ func applicationCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
+	branch := d.Get("main_branch").(string)
 
 	log.Println("[DEBUG] creating pacticipant", name)
 
 	pacticipant := broker.Pacticipant{
 		Name:          name,
 		RepositoryURL: url,
+		MainBranch:    branch,
 	}
 	_, err := client.CreatePacticipant(pacticipant)
 
@@ -60,12 +67,14 @@ func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
+	branch := d.Get("main_branch").(string)
 
 	log.Println("[DEBUG] updating pacticipant", name)
 
 	pacticipant := broker.Pacticipant{
 		Name:          name,
 		RepositoryURL: url,
+		MainBranch:    branch,
 	}
 	_, err := client.UpdatePacticipant(pacticipant)
 
@@ -75,6 +84,7 @@ func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(name)
 	d.Set("repository_url", pacticipant.RepositoryURL)
+	d.Set("main_branch", pacticipant.MainBranch)
 
 	return nil
 }
@@ -94,6 +104,7 @@ func applicationRead(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(pacticipant.Name)
 	d.Set("name", pacticipant.Name)
 	d.Set("repository_url", pacticipant.RepositoryURL)
+	d.Set("main_branch", pacticipant.MainBranch)
 
 	return nil
 }
@@ -102,12 +113,14 @@ func applicationDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
+	branch := d.Get("main_branch").(string)
 
 	log.Println("[DEBUG] deleting pacticipant", name)
 
 	err := client.DeletePacticipant(broker.Pacticipant{
 		Name:          name,
 		RepositoryURL: url,
+		MainBranch:    branch,
 	})
 
 	if err != nil {
