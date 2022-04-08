@@ -5,6 +5,9 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.6.0 (08 April 2022)
+  * [6beb9a0](https://github.com/pactflow/terraform/commit/6beb9a0) - feat: add main_branch property to applications (Matt Fellows, Fri Apr 8 16:15:38 2022 +1000)
+
 ### v0.5.1 (21 March 2022)
   * [9cd0aa5](https://github.com/pactflow/terraform/commit/9cd0aa5) - fix: release under go 1.16 (Matt Fellows, Mon Mar 21 22:01:49 2022 +1100)
 
