@@ -5,6 +5,10 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.7.0 (11 April 2022)
+  * [d492103](https://github.com/pactflow/terraform/commit/d492103) - feat: administrator support for team resource (Matt Fellows, Mon Apr 11 18:41:13 2022 +1000)
+  * [e3894e4](https://github.com/pactflow/terraform/commit/e3894e4) - fix: sort user uuids alphanumerically. Fixes #21 (Matt Fellows, Mon Apr 11 11:38:33 2022 +1000)
+
 ### v0.6.0 (08 April 2022)
   * [6beb9a0](https://github.com/pactflow/terraform/commit/6beb9a0) - feat: add main_branch property to applications (Matt Fellows, Fri Apr 8 16:15:38 2022 +1000)
 
