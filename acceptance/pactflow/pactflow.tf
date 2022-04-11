@@ -13,8 +13,8 @@ terraform {
 
 provider "pact" {
   host = "https://tf-acceptance.pactflow.io"
+  access_token = var.api_token
   # host = "http://localhost:9292"
-  access_token = "fhykLsrvR93L1wZrw00VQg"
 }
 
 variable "api_token" {
@@ -66,7 +66,9 @@ resource "pact_team" "Futurama" {
     pact_pacticipant.example.name
   ]
   users = [
-    pact_user.bender_system_user.uuid,
+    pact_user.bender_system_user.uuid
+  ]
+  administrators = [
     pact_user.homer.uuid
   ]
 }

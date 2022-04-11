@@ -5,18 +5,27 @@ type Team struct {
 	UUID            string            `json:"uuid,omitempty"`
 	Name            string            `json:"name,omitempty"`
 	NumberOfMembers int               `json:"numberOfMembers,omitempty"`
-	Roles           []RoleV1          `json:"roles,omitempty"`
 	Embedded        TeamEmbeddedItems `json:"_embedded,omitempty"`
 }
 
 type TeamEmbeddedItems struct {
-	Pacticipants []Pacticipant `json:"pacticipants,omitempty"`
-	Members      []User        `json:"members,omitempty"`
+	Pacticipants   []Pacticipant `json:"pacticipants,omitempty"`
+	Members        []User        `json:"members,omitempty"`
+	Administrators []User        `json:"administrators,omitempty"`
+	Environments   []Environment `json:"environments,omitempty"`
 }
 
 type TeamsResponse struct {
 	Teams []Team `json:"teams"`
 	HalDoc
+}
+
+type TeamCreateOrUpdateRequest struct {
+	UUID               string   `json:"-"`
+	Name               string   `json:"name"`
+	PacticipantNames   []string `json:"pacticipantNames,omitempty"`
+	AdministratorUUIDs []string `json:"administratorUuids,omitempty"`
+	EnvironmentUUIDs   []string `json:"environmentUuids,omitempty"`
 }
 
 type TeamsAssignmentRequest struct {

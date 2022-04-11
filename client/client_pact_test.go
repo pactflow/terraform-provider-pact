@@ -138,31 +138,45 @@ func TestTerraformClientPact(t *testing.T) {
 	})
 
 	t.Run("Team", func(t *testing.T) {
-		team := broker.Team{
-			Name: "terraform-team",
-			Embedded: broker.TeamEmbeddedItems{
-				Pacticipants: []broker.Pacticipant{
-					{
-						Name: "terraform-client",
-					},
-				},
-			},
+		create := broker.TeamCreateOrUpdateRequest{
+			Name:             "terraform-team",
+			PacticipantNames: []string{pacticipant.Name},
 		}
 
-		update := broker.Team{
-			Name: "terraform-team",
+		created := broker.Team{
+			Name: create.Name,
 			UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
+		}
+
+		updated := broker.Team{
+			Name: create.Name,
+			UUID: created.UUID,
 			Embedded: broker.TeamEmbeddedItems{
-				Pacticipants: []broker.Pacticipant{
-					pacticipant,
-				},
 				Members: []broker.User{
 					{
 						UUID:   "4c260344-b170-41eb-b01e-c0ff10c72f25",
 						Active: true,
 					},
 				},
+				Administrators: []broker.User{
+					{
+						UUID: "4c260344-b170-41eb-b01e-c0ff10c72f25",
+					},
+				},
+				Environments: []broker.Environment{
+					{
+						UUID: "8000883c-abf0-4b4c-b993-426f607092a9",
+					},
+				},
 			},
+		}
+
+		update := broker.TeamCreateOrUpdateRequest{
+			UUID:               updated.UUID,
+			Name:               updated.Name,
+			PacticipantNames:   []string{pacticipant.Name},
+			AdministratorUUIDs: []string{"4c260344-b170-41eb-b01e-c0ff10c72f25"},
+			EnvironmentUUIDs:   []string{"8000883c-abf0-4b4c-b993-426f607092a9"},
 		}
 
 		t.Run("ReadTeam", func(t *testing.T) {
@@ -174,19 +188,18 @@ func TestTerraformClientPact(t *testing.T) {
 				WithHeader("Authorization", Like("Bearer 1234")).
 				WillRespondWith(200).
 				WithHeader("Content-Type", S("application/hal+json")).
-				WithJSONBody(Like(update))
+				WithJSONBody(Like(updated))
 
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.ReadTeam(update)
+				res, e := client.ReadTeam(updated)
 
 				assert.NoError(t, e)
 				assert.NotNil(t, res)
 				assert.Equal(t, "terraform-team", res.Name)
 				assert.Equal(t, "99643109-adb0-4e68-b25f-7b14d6bcae16", res.UUID)
 				assert.Len(t, res.Embedded.Members, 1)
-				assert.Len(t, res.Embedded.Pacticipants, 1)
 
 				return e
 			})
@@ -201,24 +214,24 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("POST", S("/admin/teams")).
 				WithHeader("Content-Type", S("application/json")).
 				WithHeader("Authorization", Like("Bearer 1234")).
-				WithJSONBody(Like(team)).
+				WithJSONBody(Like(create)).
 				WillRespondWith(200).
 				WithHeader("Content-Type", S("application/hal+json")).
 				WithJSONBody(Like(broker.TeamsResponse{
 					Teams: []broker.Team{
-						update,
+						created,
 					},
 				}))
 
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.CreateTeam(team)
+				res, e := client.CreateTeam(create)
 
 				assert.NoError(t, e)
 				assert.NotNil(t, res)
 				assert.Equal(t, "terraform-team", res.Name)
-				assert.Equal(t, update.UUID, res.UUID)
+				assert.Equal(t, updated.UUID, res.UUID)
 
 				return e
 			})
@@ -236,7 +249,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithJSONBody(Like(update)).
 				WillRespondWith(200).
 				WithHeader("Content-Type", S("application/hal+json")).
-				WithJSONBody(Like(update))
+				WithJSONBody(Like(updated))
 
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
@@ -245,7 +258,9 @@ func TestTerraformClientPact(t *testing.T) {
 
 				assert.NoError(t, e)
 				assert.Equal(t, "terraform-team", res.Name)
-				assert.Len(t, res.Embedded.Pacticipants, 1)
+				assert.Len(t, res.Embedded.Administrators, 1)
+				assert.Len(t, res.Embedded.Environments, 1)
+				assert.Len(t, res.Embedded.Members, 1)
 
 				return e
 			})
@@ -264,14 +279,14 @@ func TestTerraformClientPact(t *testing.T) {
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
 
-				return client.DeleteTeam(update)
+				return client.DeleteTeam(updated)
 			})
 			assert.NoError(t, err)
 		})
 
 		t.Run("UpdateTeamAssignments", func(t *testing.T) {
 			req := broker.TeamsAssignmentRequest{
-				UUID: update.UUID,
+				UUID: updated.UUID,
 				Users: []string{
 					"05064a18-229d-4dfd-b37c-f00ec9673a49",
 				},

@@ -68,7 +68,10 @@ resource "pact_team" "Futurama" {
     pact_pacticipant.GraphQLAPI.name,
   ]
   users = [
-    pact_user.bender_system_user.uuid,
+
+  ]
+  administrators = [
+    pact_user.homer.uuid
   ]
 }
 

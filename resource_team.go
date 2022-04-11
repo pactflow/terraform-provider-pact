@@ -42,6 +42,13 @@ func team() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"administrators": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -67,19 +74,18 @@ func getTeamFromResourceData(d *schema.ResourceData) broker.Team {
 		team.Embedded.Pacticipants = items
 	}
 
-	// IF we do this, the resource creation tries to send the members along - but without all of the data
-	// users, ok := d.Get("users").([]interface{})
-	// log.Println("[DEBUG] resource_team.go users?", users, ok)
-	// if ok && len(users) > 0 {
-	// 	log.Println("[DEBUG] resource_team.go have users", len(users), users)
-	// 	items := make([]broker.User, len(users))
-	// 	for i, u := range users {
-	// 		items[i] = broker.User{
-	// 			UUID: u.(string),
-	// 		}
-	// 	}
-	// 	team.Embedded.Members = items
-	// }
+	administrators, ok := d.Get("administrators").([]interface{})
+	log.Println("[DEBUG] resource_team.go administrators?", administrators, ok)
+	if ok && len(administrators) > 0 {
+		log.Println("[DEBUG] resource_team.go have administrators", len(administrators), administrators)
+		items := make([]broker.User, len(administrators))
+		for i, p := range administrators {
+			items[i] = broker.User{
+				UUID: p.(string),
+			}
+		}
+		team.Embedded.Administrators = items
+	}
 
 	return team
 }
@@ -115,13 +121,33 @@ func assignTeamUsers(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func teamToCRUDRequest(t broker.Team) broker.TeamCreateOrUpdateRequest {
+	pacticipants := make([]string, len(t.Embedded.Pacticipants))
+	for i, a := range t.Embedded.Pacticipants {
+		pacticipants[i] = a.Name
+	}
+
+	administrators := make([]string, len(t.Embedded.Administrators))
+	for i, a := range t.Embedded.Administrators {
+		administrators[i] = a.UUID
+	}
+
+	return broker.TeamCreateOrUpdateRequest{
+		Name:               t.Name,
+		UUID:               t.UUID,
+		PacticipantNames:   pacticipants,
+		AdministratorUUIDs: administrators,
+	}
+}
+
 func teamCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	team := getTeamFromResourceData(d)
+	create := teamToCRUDRequest(team)
 
 	log.Println("[DEBUG] creating team", team)
 
-	created, err := client.CreateTeam(team)
+	created, err := client.CreateTeam(create)
 
 	if err != nil {
 		return fmt.Errorf("error creating team: %w", err)
@@ -144,10 +170,11 @@ func teamCreate(d *schema.ResourceData, meta interface{}) error {
 func teamUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	team := getTeamFromResourceData(d)
+	update := teamToCRUDRequest(team)
 
 	log.Println("[DEBUG] updating team", team)
 
-	updated, err := client.UpdateTeam(team)
+	updated, err := client.UpdateTeam(update)
 
 	if err == nil {
 		setTeamState(d, *updated)
@@ -216,6 +243,8 @@ func setTeamState(d *schema.ResourceData, team broker.Team) error {
 			pacticipants[i] = p.Name
 		}
 
+		sort.Strings(pacticipants)
+
 		if err := d.Set("pacticipants", pacticipants); err != nil {
 			log.Println("[ERROR] error setting key 'pacticipants'", err)
 			return err
@@ -229,8 +258,25 @@ func setTeamState(d *schema.ResourceData, team broker.Team) error {
 			members[i] = m.UUID
 		}
 
+		sort.Strings(members)
+
 		if err := d.Set("users", members); err != nil {
 			log.Println("[ERROR] error setting key 'users'", err)
+			return err
+		}
+	}
+
+	if len(team.Embedded.Administrators) > 0 {
+		administrators := make([]string, len(team.Embedded.Administrators))
+		for i, a := range team.Embedded.Administrators {
+			log.Println("[DEBUG] adding administrator with UUID", a.UUID)
+			administrators[i] = a.UUID
+		}
+
+		sort.Strings(administrators)
+
+		if err := d.Set("Administrators", administrators); err != nil {
+			log.Println("[ERROR] error setting key 'administrators'", err)
 			return err
 		}
 	}
@@ -249,19 +295,6 @@ func setTeamAssignmentState(d *schema.ResourceData, team *broker.TeamsAssignment
 	}
 
 	return nil
-}
-
-// Use this to find the delta, and delete them from the team
-func extractUsersFromState(d *schema.ResourceData) []string {
-	usersRaw := d.Get("users").([]interface{})
-	users := make([]string, len(usersRaw))
-	for i, u := range usersRaw {
-		users[i] = u.(string)
-	}
-
-	sort.Strings(users)
-
-	return users
 }
 
 // Use this to find the delta, and delete them from the team

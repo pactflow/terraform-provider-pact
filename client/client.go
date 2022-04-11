@@ -146,7 +146,7 @@ func (c *Client) ReadTeam(t broker.Team) (*broker.Team, error) {
 }
 
 // CreateTeam creates a Team
-func (c *Client) CreateTeam(t broker.Team) (*broker.Team, error) {
+func (c *Client) CreateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, error) {
 	res, err := c.doCrud("POST", teamCreateTemplate, t, new(broker.TeamsResponse))
 	apiResponse := res.(*broker.TeamsResponse)
 
@@ -210,7 +210,7 @@ func (c *Client) DeleteTeamAssignments(t broker.TeamsAssignmentRequest) error {
 }
 
 // UpdateTeam updates the team
-func (c *Client) UpdateTeam(t broker.Team) (*broker.Team, error) {
+func (c *Client) UpdateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, error) {
 	res, err := c.doCrud("PUT", urlEncodeTemplate(teamReadUpdateDeleteTemplate, t.UUID), t, new(broker.Team))
 	return res.(*broker.Team), err
 }
