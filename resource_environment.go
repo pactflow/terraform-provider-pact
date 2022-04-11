@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -185,6 +186,8 @@ func teamsFromEnvironment(u broker.Environment) []string {
 	for i, r := range u.Embedded.Teams {
 		teams[i] = r.UUID
 	}
+
+	sort.Strings(teams)
 
 	return teams
 }

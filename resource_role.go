@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/pactflow/terraform/broker"
@@ -77,6 +78,8 @@ func scopesFromUser(u broker.Role) []string {
 	for i, p := range u.Permissions {
 		scopes[i] = p.Scope
 	}
+
+	sort.Strings(scopes)
 
 	return scopes
 }

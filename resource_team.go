@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/pactflow/terraform/broker"
@@ -258,6 +259,8 @@ func extractUsersFromState(d *schema.ResourceData) []string {
 		users[i] = u.(string)
 	}
 
+	sort.Strings(users)
+
 	return users
 }
 
@@ -267,6 +270,8 @@ func extractUsersFromAPIResponse(response *broker.TeamsAssignmentResponse) []str
 	for i, u := range response.Embedded.Users {
 		users[i] = u.UUID
 	}
+
+	sort.Strings(users)
 
 	return users
 }

@@ -1,5 +1,7 @@
 package main
 
+import "sort"
+
 func arrayInterfaceToArrayString(raw []interface{}) []string {
 	items := make([]string, len(raw))
 	if len(raw) > 0 {
@@ -7,6 +9,8 @@ func arrayInterfaceToArrayString(raw []interface{}) []string {
 			items[i] = s.(string)
 		}
 	}
+
+	sort.Strings(items)
 
 	return items
 }
@@ -17,6 +21,8 @@ func interfaceToStringArray(o interface{}) []string {
 	for i, item := range items {
 		res[i] = item.(string)
 	}
+
+	sort.Strings(res)
 
 	return res
 }

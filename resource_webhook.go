@@ -352,6 +352,9 @@ func flattenEvents(w broker.Webhook) []string {
 	for i, event := range w.Events {
 		events[i] = event.Name
 	}
+
+	sort.Strings(events)
+
 	return events
 }
 

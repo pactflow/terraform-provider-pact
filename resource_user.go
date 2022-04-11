@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/pactflow/terraform/broker"
@@ -256,6 +257,8 @@ func rolesFromUser(u broker.User) []string {
 	for i, r := range u.Embedded.Roles {
 		roles[i] = r.UUID
 	}
+
+	sort.Strings(roles)
 
 	return roles
 }
