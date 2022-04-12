@@ -41,4 +41,12 @@ type UpdateResourceAssignmentPatchRequest struct {
 	Value     PatchResource `json:"value"`
 }
 
-// application/json-patch+json
+// Default platform roles
+const (
+	ROLE_ADMINISTRATOR      = "cf75d7c2-416b-11ea-af5e-53c3b1a4efd8"
+	ROLE_CI_CD              = "c1878b8e-d09e-11ea-8fde-af02c4677eb7"
+	ROLE_GUEST              = "d6938de2-e37c-11eb-b80e-3f68328092ca"
+	ROLE_TEAM_ADMINISTRATOR = "d635f960-88f2-4f13-8043-4641a02dffa0"
+	ROLE_USER               = "e9282e22-416b-11ea-a16e-57ee1bb61d18"
+	ROLE_VIEWER             = "9fa50562-a42b-4771-aa8e-4bb3d623ae60"
+)

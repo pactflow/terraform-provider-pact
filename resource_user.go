@@ -252,10 +252,13 @@ func setUserState(d *schema.ResourceData, user broker.User) error {
 }
 
 func rolesFromUser(u broker.User) []string {
-	roles := make([]string, len(u.Embedded.Roles))
+	var roles []string
 
-	for i, r := range u.Embedded.Roles {
-		roles[i] = r.UUID
+	// Remove special team administrator role
+	for _, r := range u.Embedded.Roles {
+		if r.UUID != broker.ROLE_TEAM_ADMINISTRATOR {
+			roles = append(roles, r.UUID)
+		}
 	}
 
 	sort.Strings(roles)
