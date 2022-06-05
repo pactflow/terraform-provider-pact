@@ -40,6 +40,7 @@ docker:
 	docker-compose up -d
 
 bin:
+	$$(go env GOPATH)/bin/gox -os="darwin" -arch="arm64" -output="bin/terraform-provider-pact_{{.OS}}_{{.Arch}}"
 	$$(go env GOPATH)/bin/gox -os="darwin" -arch="amd64" -output="bin/terraform-provider-pact_{{.OS}}_{{.Arch}}"
 	$$(go env GOPATH)/bin/gox -os="windows" -arch="386" -output="bin/terraform-provider-pact_{{.OS}}_{{.Arch}}"
 	$$(go env GOPATH)/bin/gox -os="linux" -arch="386" -output="bin/terraform-provider-pact_{{.OS}}_{{.Arch}}"
@@ -50,11 +51,11 @@ bin:
 deps:
 	@echo "--- 🐿  Fetching build dependencies "
 	cd /tmp; \
-	go get github.com/axw/gocov/gocov; \
-	go get github.com/mattn/goveralls; \
-	go get golang.org/x/tools/cmd/cover; \
-	go get github.com/modocache/gover; \
-	go get github.com/mitchellh/gox; \
+	go install github.com/axw/gocov/gocov@latest; \
+	go install github.com/mattn/goveralls@latest; \
+	go install golang.org/x/tools/cmd/cover@latest; \
+	go install github.com/modocache/gover@latest; \
+	go install github.com/mitchellh/gox@latest; \
 	cd -
 	go get github.com/pact-foundation/pact-go/v2/@2.0.0-beta.5;
 
