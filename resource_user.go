@@ -25,7 +25,7 @@ func user() *schema.Resource {
 			},
 			"email": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: "Email address of the user",
 			},
@@ -45,10 +45,11 @@ func user() *schema.Resource {
 				Default:      allowedUserTypes[userType],
 				Description:  "The type of user (regular/system)",
 				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validateUserType,
 			},
 			"roles": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: "A list of roles (as uuids) to apply to the user",
 				Elem: &schema.Schema{
@@ -93,10 +94,17 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	user := getUserFromState(d)
 
-	_roles := d.Get("roles").([]interface{})
-	log.Println("[DEBUG] creating user", user, _roles)
+	roles := ExpandStringSet(d.Get("roles").(*schema.Set))
+	log.Println("[DEBUG] creating user", user, roles)
 
-	created, err := client.CreateUser(user)
+	var created *broker.User
+	var err error
+	if user.Type == broker.SystemAccount {
+		created, err = client.CreateSystemAccount(user)
+	} else {
+		created, err = client.CreateUser(user)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -105,7 +113,6 @@ func userCreate(d *schema.ResourceData, meta interface{}) error {
 
 	setUserState(d, *created)
 
-	roles := rolesFromStateChange(d)
 	log.Println("[DEBUG] updating user roles", d.Id(), roles)
 
 	err = client.SetUserRoles(d.Id(), broker.SetUserRolesRequest{
@@ -258,18 +265,15 @@ func rolesFromUser(u broker.User) []string {
 		roles[i] = r.UUID
 	}
 
+	log.Println("[DEBUG] unsorted roles:", roles)
 	sort.Strings(roles)
+	log.Println("[DEBUG] sorted roles:", roles)
 
 	return roles
 }
 
 func rolesFromStateChange(d *schema.ResourceData) []string {
-	_, after := d.GetChange("roles")
-	roles, ok := after.([]interface{})
-	if !ok {
-		return []string{}
-	}
-	return arrayInterfaceToArrayString(roles)
+	return ExpandStringSet(d.Get("roles").(*schema.Set))
 }
 
 func getUserFromState(d *schema.ResourceData) broker.User {

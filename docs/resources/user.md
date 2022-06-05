@@ -20,8 +20,9 @@ resource "pact_user" "billy" {
 The following arguments are supported:
 
 * `name` - (Required, string) The name of the user.
-* `email` - (Required, string) The email address of the user to invite.
+* `email` - (Required for User, Optional for SystemAccount, string) The email address of the user to invite.
 * `active` - (Optional, bool) Whether or not the user should be able to access the platform.
+* `type` - (Optional, string) Whether or not to provision a standard user (`user`) or a System Account (`system`).
 
 ## Outputs
 

@@ -673,8 +673,162 @@ func TestTerraformClientPact(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				Given("a user with uuid 819f6dbf-dd7a-47ff-b369-e3ed1d2578a0 exists").
-				UponReceiving("a request to set user roles").
+				UponReceiving("a request to set user's roles").
 				WithRequest("PUT", S("/admin/users/819f6dbf-dd7a-47ff-b369-e3ed1d2578a0/roles")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(setUserRoles)).
+				WillRespondWith(200)
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				return client.SetUserRoles(created.UUID, setUserRoles)
+			})
+			assert.NoError(t, err)
+		})
+	})
+
+	t.Run("SystemAccount", func(t *testing.T) {
+		user := broker.User{
+			Name:   "system account",
+			Active: true,
+			Type:   broker.SystemAccount,
+		}
+
+		created := broker.User{
+			UUID:   "71a5be7d-bb9c-427b-ba49-ee8f1df0ae58",
+			Name:   user.Name,
+			Active: user.Active,
+			Type:   user.Type,
+			Embedded: struct {
+				Roles []broker.Role `json:"roles,omitempty"`
+				Teams []broker.Team `json:"teams,omitempty"`
+			}{
+				Roles: []broker.Role{
+					{
+						Name: "terraform-role",
+						UUID: "84f66fab-1c42-4351-96bf-88d3a09d7cd2",
+						Permissions: []broker.Permission{
+							{
+								Name:        "role name",
+								Scope:       "user:manage:*",
+								Label:       "role label",
+								Description: "role description",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		update := created
+
+		setUserRoles := broker.SetUserRolesRequest{
+			Roles: []string{
+				"84f66fab-1c42-4351-96bf-88d3a09d7cd2",
+			},
+		}
+
+		t.Run("CreateUser", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				UponReceiving("a request to create a system account").
+				WithRequest("POST", S("/admin/system-accounts")).
+				WithHeader("Content-Type", S("application/json")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(user)).
+				WillRespondWith(201).
+				WithHeader("Content-Type", S("application/hal+json"))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				res, e := client.CreateSystemAccount(user)
+				assert.NoError(t, e)
+				assert.Equal(t, "system account", res.Name)
+
+				return e
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("ReadUser", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
+				UponReceiving("a request to get a system account").
+				WithRequest("GET", S("/admin/users/71a5be7d-bb9c-427b-ba49-ee8f1df0ae58")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(created))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				res, e := client.ReadUser(created.UUID)
+				assert.NoError(t, e)
+				assert.Equal(t, "system account", res.Name)
+				assert.Len(t, res.Embedded.Roles, 1)
+
+				return e
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("UpdateUser", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
+				UponReceiving("a request to update a system account").
+				WithRequest("PUT", S("/admin/users/71a5be7d-bb9c-427b-ba49-ee8f1df0ae58")).
+				WithHeader("Content-Type", S("application/json")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(update)).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(update))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				res, e := client.UpdateUser(update)
+				assert.NoError(t, e)
+				assert.Equal(t, "system account", res.Name)
+				assert.Len(t, res.Embedded.Roles, 1)
+
+				return e
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("DeleteUser", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
+				UponReceiving("a request to delete a system account").
+				WithRequest("PUT", S("/admin/users/71a5be7d-bb9c-427b-ba49-ee8f1df0ae58")).
+				WithHeader("Content-Type", S("application/json")).
+				WithHeader("Authorization", Like("Bearer 1234")).
+				WithJSONBody(Like(update)).
+				WillRespondWith(200).
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithJSONBody(Like(update))
+
+			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
+				client := clientForPact(config)
+
+				return client.DeleteUser(created)
+			})
+			assert.NoError(t, err)
+		})
+
+		t.Run("SetUserRoles", func(t *testing.T) {
+			mockProvider.
+				AddInteraction().
+				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
+				UponReceiving("a request to set a system account's roles").
+				WithRequest("PUT", S("/admin/users/71a5be7d-bb9c-427b-ba49-ee8f1df0ae58/roles")).
 				WithHeader("Authorization", Like("Bearer 1234")).
 				WithJSONBody(Like(setUserRoles)).
 				WillRespondWith(200)

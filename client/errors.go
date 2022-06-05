@@ -32,12 +32,12 @@ type apiArrayErrorResponse struct {
 	err          error
 }
 
-type apiError interface {
-	Error() string
-	GetError() error
-	GetReference() string
-	GetMessage() string
-}
+// type apiError interface {
+// 	Error() string
+// 	GetError() error
+// 	GetReference() string
+// 	GetMessage() string
+// }
 
 func (e *apiErrorResponse) Error() string {
 	errors := new(strings.Builder)

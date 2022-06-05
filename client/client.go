@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/pactflow/terraform/broker"
 	"github.com/pactflow/terraform/version"
@@ -33,6 +34,7 @@ const (
 	userRolesUpdateTemplate             = "/admin/users/%s/roles"
 	userRolesDeleteAppendTemplate       = "/admin/users/%s/roles/%s"
 	userCreateTemplate                  = "/admin/users/invite-user"
+	systemAccountCreateTemplate         = "/admin/system-accounts"
 	userAdminUpdateTemplate             = "/admin/users/%s/role/admin"
 	secretReadUpdateDeleteTemplate      = "/secrets/%s"
 	secretCreateTemplate                = "/secrets"
@@ -253,10 +255,28 @@ func (c *Client) ReadUser(uuid string) (*broker.User, error) {
 	return res.(*broker.User), err
 }
 
-// CreateUser creates a user
-func (c *Client) CreateUser(p broker.User) (*broker.User, error) {
-	res, err := c.doCrud("POST", userCreateTemplate, p, new(broker.User))
+// CreateUser creates a user or a system account
+func (c *Client) CreateUser(u broker.User) (*broker.User, error) {
+	template := userCreateTemplate
+	if u.Type == broker.SystemAccount {
+		return c.CreateSystemAccount(u)
+	}
+	res, err := c.doCrud("POST", template, u, new(broker.User))
 	return res.(*broker.User), err
+}
+
+// CreateUser creates a user or a system account
+func (c *Client) CreateSystemAccount(u broker.User) (*broker.User, error) {
+	res, err := c.doCrud("POST", systemAccountCreateTemplate, u, nil)
+
+	// Returns a 201
+	// e.g. https://tf-acceptance.pactflow.io/admin/system-accounts/f996d7e5-6525-4649-b479-9299793d105e
+	// + a list of users
+	// Extracting the location is probably more reliable than guessing what the new resource is by name
+	parts := strings.Split(res.(string), "/")
+	u.UUID = parts[len(parts)-1]
+
+	return &u, err
 }
 
 // UpdateUser updates an existing User
@@ -513,14 +533,23 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 func (c *Client) doCrud(method string, path string, requestEntity interface{}, responseEntity interface{}) (interface{}, error) {
 	req, err := c.newRequest(method, path, requestEntity)
+	var resp *http.Response
+
 	if err != nil {
 		return responseEntity, err
 	}
 	if responseEntity == nil {
-		_, err = c.do(req, nil)
+		resp, err = c.do(req, nil)
+
+		// 201 -> extract the location header if the expectation is a string value
+		if resp.StatusCode == 201 {
+			log.Println("[DEBUG] have 201, returning Location header", resp.Header)
+			return resp.Header.Get("Location"), err
+		}
 	} else {
 		_, err = c.do(req, &responseEntity)
 	}
+
 	return responseEntity, err
 }
 

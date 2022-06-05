@@ -1,6 +1,10 @@
 package main
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+)
 
 func arrayInterfaceToArrayString(raw []interface{}) []string {
 	items := make([]string, len(raw))
@@ -43,4 +47,24 @@ func diff(a, b []string) []string {
 	}
 
 	return diff
+}
+
+// From: https://github.com/hashicorp/terraform-provider-aws/blob/77cbe287f2805319b1c25aa94d70b7a971165f2e/internal/flex/flex.go
+
+// Takes the result of schema.Set of strings and returns a []*string
+func ExpandStringSet(configured *schema.Set) []string {
+	return ExpandStringList(configured.List()) // nosemgrep: helper-schema-Set-extraneous-ExpandStringList-with-List
+}
+
+// Takes the result of flatmap.Expand for an array of strings
+// and returns a []*string
+func ExpandStringList(configured []interface{}) []string {
+	vs := make([]string, 0, len(configured))
+	for _, v := range configured {
+		val, ok := v.(string)
+		if ok && val != "" {
+			vs = append(vs, val)
+		}
+	}
+	return vs
 }
