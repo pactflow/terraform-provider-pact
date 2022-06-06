@@ -30,3 +30,8 @@ jobs:
           PACT_BROKER_TOKEN: "${{ secrets.PACTFLOW_PACT_BROKER_TOKEN }}"
           PACT_BROKER_BASE_URL: "${{ secrets.PACTFLOW_PACT_BROKER_BASE_URL }}"
           ACCEPTANCE_PACT_BROKER_TOKEN: "${{ secrets.ACCEPTANCE_PACT_BROKER_TOKEN }}"
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: logs
+          path: acceptance/**/log/*.log
