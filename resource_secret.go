@@ -159,7 +159,7 @@ func setSecretState(d *schema.ResourceData, secret broker.Secret) error {
 	} else {
 		// Broker does not return the value, to prevent it always thinking the value is ""
 		// and requires an update, set to original
-		if original, ok := d.GetOkExists("value"); ok {
+		if original, ok := d.GetOk("value"); ok {
 			d.Set("value", original.(string))
 		} else {
 			log.Println("[DEBUG] could not find original value for 'value'")

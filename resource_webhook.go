@@ -170,14 +170,14 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 	webhook.Description = d.Get("description").(string)
 
 	// Team
-	if team, ok := d.GetOkExists("team"); ok {
+	if team, ok := d.GetOk("team"); ok {
 		if team != "" {
 			webhook.TeamUUID = team.(string)
 		}
 	}
 
 	// Provider
-	if rawProvider, ok := d.GetOkExists("webhook_provider"); ok {
+	if rawProvider, ok := d.GetOk("webhook_provider"); ok {
 		provider := new(broker.Pacticipant)
 		log.Printf("[DEBUG] raw provider %+v \n", rawProvider)
 		err := mapstructure.Decode(rawProvider, provider)
@@ -192,7 +192,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 	}
 
 	// Consumer
-	if rawConsumer, ok := d.GetOkExists("webhook_consumer"); ok {
+	if rawConsumer, ok := d.GetOk("webhook_consumer"); ok {
 		consumer := new(broker.Pacticipant)
 		log.Printf("[DEBUG] raw consumer %+v \n", rawConsumer)
 		err := mapstructure.Decode(rawConsumer, consumer)
@@ -207,7 +207,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 	}
 
 	// Events
-	if eventsRaw, ok := d.GetOkExists("events"); ok {
+	if eventsRaw, ok := d.GetOk("events"); ok {
 		events := eventsRaw.(*schema.Set)
 		for _, event := range ExpandStringSet(events) {
 			log.Printf("[DEBUG]event item %+v\n", event)
@@ -219,7 +219,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 
 	// Request
 	log.Println("[DEBUG] checking request")
-	if rawRequest, ok := d.GetOkExists("request"); ok {
+	if rawRequest, ok := d.GetOk("request"); ok {
 		log.Printf("[DEBUG] have raw request of %+v \n", rawRequest)
 
 		rawRequestList := rawRequest.([]interface{})
@@ -370,7 +370,7 @@ func flattenRequest(d *schema.ResourceData, r broker.Request) []interface{} {
 	} else {
 		// Broker obscures the value to "******", set the value to what it was previously
 		// to prevent it always thinking the value is ""
-		if original, ok := d.GetOkExists("request.0.password"); ok {
+		if original, ok := d.GetOk("request.0.password"); ok {
 			m["password"] = original.(string)
 		} else {
 			log.Println("[DEBUG] could not find original value for 'password'")
