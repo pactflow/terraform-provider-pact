@@ -43,7 +43,7 @@ var pacticipantType = &schema.Schema{
 }
 
 var eventsType = &schema.Schema{
-	Type:     schema.TypeList,
+	Type:     schema.TypeSet,
 	Optional: true,
 	Elem: &schema.Schema{
 		Type:         schema.TypeString,
@@ -52,7 +52,7 @@ var eventsType = &schema.Schema{
 }
 
 var requestType = &schema.Schema{
-	Type:     schema.TypeList,
+	Type:     schema.TypeList, // Terraform hack for complex objects
 	MaxItems: 1,
 	Required: true,
 	Elem: &schema.Resource{
@@ -208,14 +208,12 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 
 	// Events
 	if eventsRaw, ok := d.GetOkExists("events"); ok {
-		events := eventsRaw.([]interface{})
-		for _, event := range events {
-			if event != nil {
-				log.Printf("[DEBUG]event item %+v\n", event.(string))
-				webhook.Events = append(webhook.Events, broker.WebhookEvent{
-					Name: event.(string),
-				})
-			}
+		events := eventsRaw.(*schema.Set)
+		for _, event := range ExpandStringSet(events) {
+			log.Printf("[DEBUG]event item %+v\n", event)
+			webhook.Events = append(webhook.Events, broker.WebhookEvent{
+				Name: event,
+			})
 		}
 	}
 

@@ -24,7 +24,7 @@ func role() *schema.Resource {
 				Description: "Name of the Role",
 			},
 			"scopes": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -54,13 +54,14 @@ func validateScopes(val interface{}, key string) (warns []string, errs []error) 
 
 func getRoleFromState(d *schema.ResourceData) broker.Role {
 	name := d.Get("name").(string)
-	raw, ok := d.Get("scopes").([]interface{})
+	raw, ok := d.Get("scopes").(*schema.Set)
+	set := ExpandStringSet(raw)
 
-	permissions := make([]broker.Permission, len(raw))
-	if ok && len(raw) > 0 {
-		for i, s := range raw {
+	permissions := make([]broker.Permission, len(set))
+	if ok && len(set) > 0 {
+		for i, s := range set {
 			permissions[i] = broker.Permission{
-				Scope: s.(string),
+				Scope: s,
 			}
 		}
 	}

@@ -38,7 +38,7 @@ func environment() *schema.Resource {
 				Description: "Is this environment a production environment?",
 			},
 			"teams": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: "A list of teams (as uuids) that may use the environment",
 				Elem: &schema.Schema{
@@ -89,10 +89,10 @@ func environmentCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	environment := getEnvironmentFromState(d)
 
-	teams := d.Get("teams").([]interface{})
+	teams := ExpandStringSet(d.Get("teams").(*schema.Set))
 	log.Println("[DEBUG] creating environment", environment, teams)
 
-	created, err := client.CreateEnvironment(environmentToCRUD(environment, arrayInterfaceToArrayString(teams)))
+	created, err := client.CreateEnvironment(environmentToCRUD(environment, teams))
 
 	if err != nil {
 		return err
@@ -107,11 +107,11 @@ func environmentCreate(d *schema.ResourceData, meta interface{}) error {
 func environmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	environment := getEnvironmentFromState(d)
-	teams := d.Get("teams").([]interface{})
+	teams := ExpandStringSet(d.Get("teams").(*schema.Set))
 
 	log.Println("[DEBUG] updating environment", environment)
 
-	updated, err := client.UpdateEnvironment(environmentToCRUD(environment, arrayInterfaceToArrayString(teams)))
+	updated, err := client.UpdateEnvironment(environmentToCRUD(environment, teams))
 
 	if err != nil {
 		return err
@@ -194,11 +194,11 @@ func teamsFromEnvironment(u broker.Environment) []string {
 
 func teamsFromStateChange(d *schema.ResourceData) []string {
 	_, after := d.GetChange("teams")
-	teams, ok := after.([]interface{})
+	teams, ok := after.(*schema.Set)
 	if !ok {
 		return []string{}
 	}
-	return arrayInterfaceToArrayString(teams)
+	return ExpandStringSet(teams)
 }
 
 func getEnvironmentFromState(d *schema.ResourceData) broker.Environment {

@@ -29,21 +29,21 @@ func team() *schema.Resource {
 				Description: "The UUID of team",
 			},
 			"pacticipants": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"users": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"administrators": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -61,27 +61,27 @@ func getTeamFromResourceData(d *schema.ResourceData) broker.Team {
 		Name: name,
 	}
 
-	pacticipants, ok := d.Get("pacticipants").([]interface{})
-	log.Println("[DEBUG] resource_team.go pacticipants?", pacticipants, ok)
-	if ok && len(pacticipants) > 0 {
+	pacticipants := ExpandStringSet(d.Get("pacticipants").(*schema.Set))
+	log.Println("[DEBUG] resource_team.go pacticipants?", pacticipants)
+	if len(pacticipants) > 0 {
 		log.Println("[DEBUG] resource_team.go have pacticipants", len(pacticipants), pacticipants)
 		items := make([]broker.Pacticipant, len(pacticipants))
 		for i, p := range pacticipants {
 			items[i] = broker.Pacticipant{
-				Name: p.(string),
+				Name: p,
 			}
 		}
 		team.Embedded.Pacticipants = items
 	}
 
-	administrators, ok := d.Get("administrators").([]interface{})
-	log.Println("[DEBUG] resource_team.go administrators?", administrators, ok)
-	if ok && len(administrators) > 0 {
+	administrators := ExpandStringSet(d.Get("administrators").(*schema.Set))
+	log.Println("[DEBUG] resource_team.go administrators?", administrators)
+	if len(administrators) > 0 {
 		log.Println("[DEBUG] resource_team.go have administrators", len(administrators), administrators)
 		items := make([]broker.User, len(administrators))
 		for i, p := range administrators {
 			items[i] = broker.User{
-				UUID: p.(string),
+				UUID: p,
 			}
 		}
 		team.Embedded.Administrators = items
@@ -101,7 +101,7 @@ func assignTeamUsers(d *schema.ResourceData, meta interface{}) error {
 		old, new := d.GetChange("users")
 		log.Println("[DEBUG] teamAssignmentCreate - change. old:", old, "new:", new)
 
-		usersToAdd := interfaceToStringArray(new)
+		usersToAdd := ExpandStringSet(new.(*schema.Set))
 		log.Println("[DEBUG] teamAssignmentCreate - setting users:", usersToAdd)
 
 		req := broker.TeamsAssignmentRequest{

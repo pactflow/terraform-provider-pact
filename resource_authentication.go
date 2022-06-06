@@ -18,7 +18,7 @@ func authentication() *schema.Resource {
 		Delete:   authenticationDelete,
 		Schema: map[string]*schema.Schema{
 			"github_organizations": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -26,7 +26,7 @@ func authentication() *schema.Resource {
 				Description: "The list of Github organisations allowed access to the account",
 			},
 			"google_domains": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -41,22 +41,12 @@ func authenticationFromState(d *schema.ResourceData) broker.AuthenticationSettin
 	settings := broker.AuthenticationSettings{
 		Providers: broker.AuthenticationProviders{},
 	}
-	raw, ok := d.Get("github_organizations").([]interface{})
+	orgs := ExpandStringSet(d.Get("github_organizations").(*schema.Set))
 
-	settings.Providers.Github.Organizations = make([]string, len(raw))
-	if ok && len(raw) > 0 {
-		for i, s := range raw {
-			settings.Providers.Github.Organizations[i] = s.(string)
-		}
-	}
+	settings.Providers.Github.Organizations = orgs
 
-	raw, ok = d.Get("google_domains").([]interface{})
-	settings.Providers.Google.EmailDomains = make([]string, len(raw))
-	if ok && len(raw) > 0 {
-		for i, s := range raw {
-			settings.Providers.Google.EmailDomains[i] = s.(string)
-		}
-	}
+	domains := ExpandStringSet(d.Get("google_domains").(*schema.Set))
+	settings.Providers.Google.EmailDomains = domains
 
 	return settings
 }
