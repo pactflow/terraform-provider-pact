@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/pactflow/terraform/broker"
@@ -64,6 +63,9 @@ const (
 	userType   = "user"
 	systemType = "system"
 )
+
+// Special role that can't be assigned via API: https://github.com/pactflow/terraform-provider-pact/issues/22
+const TEAM_ADMINISTRATOR_ROLE = "d635f960-88f2-4f13-8043-4641a02dffa0"
 
 var allowedUserTypes = map[string]broker.UserType{
 	userType:   broker.RegularUser,
@@ -246,7 +248,7 @@ func setUserState(d *schema.ResourceData, user broker.User) error {
 		log.Println("[ERROR] error setting key 'uuid'", err)
 		return err
 	}
-	if err := d.Set("type", userTypeAsString(user.Type)); err != nil {
+	if err := d.Set("type", user.Type); err != nil {
 		log.Println("[ERROR] error setting key 'type'", err)
 		return err
 	}
@@ -259,15 +261,15 @@ func setUserState(d *schema.ResourceData, user broker.User) error {
 }
 
 func rolesFromUser(u broker.User) []string {
-	roles := make([]string, len(u.Embedded.Roles))
+	roles := make([]string, 0)
 
-	for i, r := range u.Embedded.Roles {
-		roles[i] = r.UUID
+	for _, r := range u.Embedded.Roles {
+		// Exclude the team administrator role
+		// See https://github.com/pactflow/terraform-provider-pact/issues/22
+		if r.UUID != TEAM_ADMINISTRATOR_ROLE {
+			roles = append(roles, r.UUID)
+		}
 	}
-
-	log.Println("[DEBUG] unsorted roles:", roles)
-	sort.Strings(roles)
-	log.Println("[DEBUG] sorted roles:", roles)
 
 	return roles
 }

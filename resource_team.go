@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/pactflow/terraform/broker"
@@ -243,8 +242,6 @@ func setTeamState(d *schema.ResourceData, team broker.Team) error {
 			pacticipants[i] = p.Name
 		}
 
-		sort.Strings(pacticipants)
-
 		if err := d.Set("pacticipants", pacticipants); err != nil {
 			log.Println("[ERROR] error setting key 'pacticipants'", err)
 			return err
@@ -257,8 +254,6 @@ func setTeamState(d *schema.ResourceData, team broker.Team) error {
 			log.Println("[DEBUG] adding team member with UUID", m.UUID)
 			members[i] = m.UUID
 		}
-
-		sort.Strings(members)
 
 		if err := d.Set("users", members); err != nil {
 			log.Println("[ERROR] error setting key 'users'", err)
@@ -273,9 +268,7 @@ func setTeamState(d *schema.ResourceData, team broker.Team) error {
 			administrators[i] = a.UUID
 		}
 
-		sort.Strings(administrators)
-
-		if err := d.Set("Administrators", administrators); err != nil {
+		if err := d.Set("administrators", administrators); err != nil {
 			log.Println("[ERROR] error setting key 'administrators'", err)
 			return err
 		}
@@ -303,8 +296,6 @@ func extractUsersFromAPIResponse(response *broker.TeamsAssignmentResponse) []str
 	for i, u := range response.Embedded.Users {
 		users[i] = u.UUID
 	}
-
-	sort.Strings(users)
 
 	return users
 }
