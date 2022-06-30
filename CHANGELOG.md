@@ -5,6 +5,10 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.9.0 (30 June 2022)
+  * [d3e052c](https://github.com/pactflow/terraform/commit/d3e052c) - fix: disable forcenew property on user. Fixes #25 (Matt Fellows, Thu Jun 30 14:04:18 2022 +1000)
+  * [4215464](https://github.com/pactflow/terraform/commit/4215464) - feat: support display name in pacticipant resource (Matt Fellows, Thu Jun 30 14:03:19 2022 +1000)
+
 ### v0.8.0 (06 June 2022)
   * [376e92f](https://github.com/pactflow/terraform/commit/376e92f) - fix: bug in user resource incorrectly setting/detecting user type (Matt Fellows, Mon Jun 6 11:41:41 2022 +1000)
   * [426b6bb](https://github.com/pactflow/terraform/commit/426b6bb) - feat: support SystemAccount types (Matt Fellows, Sun Jun 5 21:27:18 2022 +1000)
