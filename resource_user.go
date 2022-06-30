@@ -44,7 +44,6 @@ func user() *schema.Resource {
 				Default:      allowedUserTypes[userType],
 				Description:  "The type of user (regular/system)",
 				Optional:     true,
-				ForceNew:     true,
 				ValidateFunc: validateUserType,
 			},
 			"roles": {
