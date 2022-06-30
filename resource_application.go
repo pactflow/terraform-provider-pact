@@ -33,6 +33,11 @@ func application() *schema.Resource {
 				Optional:    true,
 				Description: "Main (default) branch",
 			},
+			"display_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The display name of the pacticipant",
+			},
 		},
 	}
 }
@@ -42,6 +47,7 @@ func applicationCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
 	branch := d.Get("main_branch").(string)
+	displayName := d.Get("display_name").(string)
 
 	log.Println("[DEBUG] creating pacticipant", name)
 
@@ -49,6 +55,7 @@ func applicationCreate(d *schema.ResourceData, meta interface{}) error {
 		Name:          name,
 		RepositoryURL: url,
 		MainBranch:    branch,
+		DisplayName:   displayName,
 	}
 	_, err := client.CreatePacticipant(pacticipant)
 
@@ -59,6 +66,8 @@ func applicationCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(name)
 	d.Set("name", pacticipant.Name)
 	d.Set("repository_url", pacticipant.RepositoryURL)
+	d.Set("main_branch", pacticipant.MainBranch)
+	d.Set("display_name", pacticipant.DisplayName)
 
 	return nil
 }
@@ -68,6 +77,7 @@ func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	url := d.Get("repository_url").(string)
 	branch := d.Get("main_branch").(string)
+	displayName := d.Get("display_name").(string)
 
 	log.Println("[DEBUG] updating pacticipant", name)
 
@@ -75,6 +85,7 @@ func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 		Name:          name,
 		RepositoryURL: url,
 		MainBranch:    branch,
+		DisplayName:   displayName,
 	}
 	_, err := client.UpdatePacticipant(pacticipant)
 
@@ -83,8 +94,10 @@ func applicationUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(name)
+	d.Set("name", pacticipant.Name)
 	d.Set("repository_url", pacticipant.RepositoryURL)
 	d.Set("main_branch", pacticipant.MainBranch)
+	d.Set("display_name", pacticipant.DisplayName)
 
 	return nil
 }
@@ -105,6 +118,7 @@ func applicationRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", pacticipant.Name)
 	d.Set("repository_url", pacticipant.RepositoryURL)
 	d.Set("main_branch", pacticipant.MainBranch)
+	d.Set("display_name", pacticipant.DisplayName)
 
 	return nil
 }
@@ -112,15 +126,11 @@ func applicationRead(d *schema.ResourceData, meta interface{}) error {
 func applicationDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*client.Client)
 	name := d.Get("name").(string)
-	url := d.Get("repository_url").(string)
-	branch := d.Get("main_branch").(string)
 
 	log.Println("[DEBUG] deleting pacticipant", name)
 
 	err := client.DeletePacticipant(broker.Pacticipant{
-		Name:          name,
-		RepositoryURL: url,
-		MainBranch:    branch,
+		Name: name,
 	})
 
 	if err != nil {

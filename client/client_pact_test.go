@@ -1,3 +1,4 @@
+//go:build consumer
 // +build consumer
 
 package client
@@ -33,12 +34,16 @@ func TestTerraformClientPact(t *testing.T) {
 	pacticipant := broker.Pacticipant{
 		Name:          "terraform-client",
 		RepositoryURL: "https://github.com/pactflow/new-terraform-provider-pact",
+		MainBranch:    "Main",
+		DisplayName:   "Terraform Client",
 	}
 
 	t.Run("Pacticipant", func(t *testing.T) {
 		pacticipant := broker.Pacticipant{
 			Name:          "terraform-client",
 			RepositoryURL: "https://github.com/pactflow/terraform-provider-pact",
+			MainBranch:    "Main",
+			DisplayName:   "Terraform Client",
 		}
 
 		t.Run("CreatePacticipant", func(t *testing.T) {

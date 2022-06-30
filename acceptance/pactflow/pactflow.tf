@@ -37,15 +37,18 @@ resource "pact_secret" "jenkins_token" {
 ### Applications
 
 resource "pact_pacticipant" "example" {
+  display_name = "pactflow example consumer${var.build_number}"
   name = "pactflow-example-consumer${var.build_number}"
 }
 
 resource "pact_pacticipant" "AdminUI" {
+  display_name = "Admin UI ${var.build_number}"
   name = "AdminUI${var.build_number}"
   repository_url = "github.com/foo/admin"
 }
 
 resource "pact_pacticipant" "GraphQLAPI" {
+  display_name = "GraphQL API ${var.build_number}"
   name = "GraphQLAPI${var.build_number}"
   repository_url = "github.com/foo/api"
 }
