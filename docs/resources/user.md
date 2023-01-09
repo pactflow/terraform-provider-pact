@@ -25,6 +25,7 @@ The following arguments are supported:
 * `email` - (Required for User, Optional for SystemAccount, string) The email address of the user to invite.
 * `active` - (Optional, bool) Whether or not the user should be able to access the platform.
 * `type` - (Optional, string) Whether or not to provision a standard user (`user`) or a System Account (`system`).
+* `roles` - (Optional, list) List of roles (uuid) to apply to the user.
 
 ## Outputs
 
@@ -47,6 +48,10 @@ resource "pact_user" "someuser" {
   name = "Some User"
   active = true
   email = "foo@foo.com
+  roles = [
+    pact_role.special_role.uuid,           # TF file reference
+    "cf75d7c2-416b-11ea-af5e-53c3b1a4efd8" # Admin - known value
+  ]  
 }
 ```
 
