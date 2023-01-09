@@ -14,6 +14,10 @@ resource "pact_user" "billy" {
   name = "Billy Sampson"
   email = "billy@sampson.co"
   active = false
+  roles = [
+    pact_role.special_role.uuid,           # TF file reference
+    "cf75d7c2-416b-11ea-af5e-53c3b1a4efd8" # Admin - known value
+  ]
 }
 ```
 
@@ -47,11 +51,7 @@ As per the [docs](https://www.terraform.io/docs/import/usage.html), the ID used 
 resource "pact_user" "someuser" {
   name = "Some User"
   active = true
-  email = "foo@foo.com
-  roles = [
-    pact_role.special_role.uuid,           # TF file reference
-    "cf75d7c2-416b-11ea-af5e-53c3b1a4efd8" # Admin - known value
-  ]  
+  email = "foo@foo.com 
 }
 ```
 
