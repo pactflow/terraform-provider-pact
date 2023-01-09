@@ -4,6 +4,10 @@ This resource allows you to create custom Environments for assigning to Users.
 
 See https://docs.pact.io/pact_broker/recording_deployments_and_releases#environments and https://docs.pactflow.io/docs/user-interface/settings/environments for further documentation on managing environments.
 
+## Compatibility
+
+-> This feature is available to both Pactflow and OSS users
+
 ## Example Usage
 
 The following example shows the basic usage of the resource. We are creating a custom environment that allows the user permissions to manage people and teams:

@@ -1,10 +1,12 @@
 # Token Resource
 
-This resource manages the lifecycle of an _API Token_. A Token can be used to make API calls to the Pactflow platform.
+This resource manages the lifecycle of the _API Token_ of the current user. A Token can be used to make API calls to the Pactflow platform.
 
-!> **It is highly recommended that this resource only be used to import existing tokens, and not be used to update existing tokens - you are likely to end up locking yourself out this way**
+!> **It is highly recommended that this resource only be used to import existing tokens, and not be used to update existing tokens - you are likely to end up locking yourself out this way. This feature should not be used by most customers**
 
--> This is currently only supported for the Pactflow.io platform.
+## Compatibility
+
+-> This feature is only available for the Pactflow platform.
 
 ## Example Usage
 
@@ -21,7 +23,7 @@ resource "pact_token" "read_write_api_token" {
 }
 ```
 
-**NOTE**: There can be at most 1 of each type of token, as shown above. Our [roadamp](https://pactflow.io/pactflow-feature-roadmap/) includes expanded support for API tokens (multiple named tokens at the user and administration level).
+**NOTE**: There can be at most 1 of each type of token, as shown above. There is an open item on our [roadmap](https://github.com/pactflow/roadmap/issues/87) that includes expanded support for API tokens (multiple named tokens at the user and administration level).
 
 **NOTE**: If you change the `read-write` token, it will generate a new token and invalidate the existing token. You will need to use the new value returned to run Terraform again. For example, you may want to extract the `value` property using the Terraform [Output](https://www.terraform.io/docs/configuration/outputs.html) feature.
 

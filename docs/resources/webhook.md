@@ -8,6 +8,10 @@ Webhooks can be used in conjunction with the [can-i-deploy](https://github.com/p
 
 See [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for more information on configuring Webhooks.
 
+## Compatibility
+
+-> This feature is available to both Pactflow and OSS users
+
 ## Example Usage
 
 The following examples show the basic usage of the resource.

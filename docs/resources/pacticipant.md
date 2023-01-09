@@ -4,6 +4,10 @@ This resource manages the lifecycle of a _Pacticipant_. A Pacticipant is an appl
 
 !> This resource is deprecated in favour of the `pact_application` resource.
 
+## Compatibility
+
+-> This feature is available to both Pactflow and OSS users
+
 ## Example Usage
 The following examples show the basic usage of the resource.
 

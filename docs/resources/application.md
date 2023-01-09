@@ -2,6 +2,10 @@
 
 This resource manages the lifecycle of a _Application_ (also known as a pacticipant). An Application may perform the role of a consumer or a provider in the Pact ecosystem.
 
+## Compatibility
+
+-> This feature is available to both Pactflow and OSS users
+
 ## Example Usage
 
 The following examples show the basic usage of the resource.

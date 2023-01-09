@@ -137,13 +137,13 @@ https://registry.terraform.io/providers/pactflow/pact/latest
 | [Pact](docs/index.md)                                       | Provider | Pact Broker + Pactflow | Configures a target Pact Broker (such as a pactflow.io account) |
 | [Pacticipant](docs/resources/pacticipant.md)                | Resource | Pact Broker + Pactflow | Create applications (known as Pacticipants)                     |
 | [Webhook](docs/resources/webhook.md)                        | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events      |
-| [Secret](docs/resources/secret.md)                          | Resource | Pactflow               | Create an encrypted secret for use in Webhooks                  |
+| [Secret](docs/resources/secret.md)                          | Resource | Pactflow              | Create an encrypted secret for use in Webhooks                  |
 | [API Token](docs/resources/token.md)                        | Resource | Pactflow               | Manage Pactflow API Tokens                                      |
-| [Users](docs/resources/user.md)                             | Resource | Pactflow               | Manage Pactflow Users                                           |
+| [Users](docs/resources/user.md)                             | Resource | Pactflow (cloud only)               | Manage Pactflow Users                                           |
 | [Roles](docs/resources/role.md)                             | Resource | Pactflow               | Manage Pactflow Roles                                           |
 | [Teams](docs/resources/team.md)                             | Resource | Pactflow               | Manage Pactflow Teams                                           |
 | [Environments](docs/resources/environment.md)               | Resource | Pact Broker + Pactflow | Manage Environments                                             |
-| [Authentication Settings](docs/resources/authentication.md) | Resource | Pactflow               | Manage Pactflow Authentication (Github, Google etc.)            |
+| [Authentication Settings](docs/resources/authentication.md) | Resource | Pactflow (cloud only)              | Manage Pactflow Authentication (Github, Google etc.)            |
 
 See our [Docs](./docs) folder for all plugins.
 

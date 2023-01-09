@@ -2,7 +2,7 @@
 
 This resource manages the authentication settings on a Pactflow account.
 
--> This is currently only supported for the Pactflow.io platform, and does not apply to the on-premise version
+-> This is currently only supported for the pactflow.io cloud platform, and does not apply to the on-premise version
 
 ## Example Usage
 The following examples show the basic usage of the resource.

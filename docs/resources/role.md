@@ -4,6 +4,10 @@ This resource allows you to create custom Roles for assigning to Users.
 
 See https://docs.pactflow.io/docs/permissions/predefined-roles for documentation on managing users and roles within Pactflow.
 
+## Compatibility
+
+-> This feature is only available for the Pactflow platform.
+
 ## Example Usage
 
 The following example shows the basic usage of the resource. We are creating a custom role that allows the user permissions to manage people and teams:

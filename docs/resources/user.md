@@ -2,6 +2,8 @@
 
 This resource manages the lifecycle of a user.
 
+!> **This resource only works for Pactflow Cloud users, and is not compatible with the use of SSO providers (e.g. Google, SAML). That is, it will create users separate to any external Identity Provider you have configured**
+
 See https://docs.pactflow.io/docs/user-interface/#settings---users for documentation on managing users within Pactflow.
 
 ## Example Usage

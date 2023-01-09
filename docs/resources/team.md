@@ -4,6 +4,10 @@ This resource allows you to create teams for grouping users and applications.
 
 https://docs.pactflow.io/docs/user-interface/settings/teams for documentation on managing teams.
 
+## Compatibility
+
+-> This feature is only available for the Pactflow platform.
+
 ## Example Usage
 
 The following examples show the basic usage of the resource. We are creating a custom role that allows the user permissions to manage people and teams:
