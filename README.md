@@ -1,6 +1,6 @@
 # Pact Broker - Terraform Provider
 
-Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_broker) and [Pactflow](https://pactflow.io).
+Terraform Provider for [Pact Broker](https://github.com/pact-foundation/pact_broker) and [PactFlow](https://pactflow.io).
 
 [![Build Status](https://github.com/pactflow/terraform-provider-pact/actions/workflows/test.yml/badge.svg)](https://github.com/pactflow/terraform-provider-pact/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pactflow/terraform/badge.svg?branch=master)](https://coveralls.io/github/pactflow/terraform?branch=master)
@@ -36,7 +36,7 @@ provider "pact" {
   # basic_auth_username = "pact_broker"
   # basic_auth_password = "pact_broker"
 
-  # For a Pactflow Broker
+  # For a PactFlow Broker
   host = "https://mybroker.pact.dius.com.au"
   access_token = var.token
 }
@@ -56,7 +56,7 @@ resource "pact_application" "ecommerce_web" {
 # Create a secret
 resource "pact_secret" "ci_token" {
   name = "CIToken"
-  description = "Jenkins token for Pactflow"
+  description = "Jenkins token for PactFlow"
   value = "my super secret value"
 }
 
@@ -134,16 +134,16 @@ https://registry.terraform.io/providers/pactflow/pact/latest
 
 | Plugin                                                      | Type     | Platform Support       | Description                                                     |
 | ----------------------------------------------------------- | -------- | ---------------------- | --------------------------------------------------------------- |
-| [Pact](docs/index.md)                                       | Provider | Pact Broker + Pactflow | Configures a target Pact Broker (such as a pactflow.io account) |
-| [Pacticipant](docs/resources/pacticipant.md)                | Resource | Pact Broker + Pactflow | Create applications (known as Pacticipants)                     |
-| [Webhook](docs/resources/webhook.md)                        | Resource | Pact Broker + Pactflow | Configures a webhook to trigger on certain platform events      |
-| [Secret](docs/resources/secret.md)                          | Resource | Pactflow              | Create an encrypted secret for use in Webhooks                  |
-| [API Token](docs/resources/token.md)                        | Resource | Pactflow               | Manage Pactflow API Tokens                                      |
-| [Users](docs/resources/user.md)                             | Resource | Pactflow (cloud only)               | Manage Pactflow Users                                           |
-| [Roles](docs/resources/role.md)                             | Resource | Pactflow               | Manage Pactflow Roles                                           |
-| [Teams](docs/resources/team.md)                             | Resource | Pactflow               | Manage Pactflow Teams                                           |
-| [Environments](docs/resources/environment.md)               | Resource | Pact Broker + Pactflow | Manage Environments                                             |
-| [Authentication Settings](docs/resources/authentication.md) | Resource | Pactflow (cloud only)              | Manage Pactflow Authentication (Github, Google etc.)            |
+| [Pact](docs/index.md)                                       | Provider | Pact Broker + PactFlow | Configures a target Pact Broker (such as a pactflow.io account) |
+| [Pacticipant](docs/resources/pacticipant.md)                | Resource | Pact Broker + PactFlow | Create applications (known as Pacticipants)                     |
+| [Webhook](docs/resources/webhook.md)                        | Resource | Pact Broker + PactFlow | Configures a webhook to trigger on certain platform events      |
+| [Secret](docs/resources/secret.md)                          | Resource | PactFlow              | Create an encrypted secret for use in Webhooks                  |
+| [API Token](docs/resources/token.md)                        | Resource | PactFlow               | Manage PactFlow API Tokens                                      |
+| [Users](docs/resources/user.md)                             | Resource | PactFlow (cloud only)               | Manage PactFlow Users                                           |
+| [Roles](docs/resources/role.md)                             | Resource | PactFlow               | Manage PactFlow Roles                                           |
+| [Teams](docs/resources/team.md)                             | Resource | PactFlow               | Manage PactFlow Teams                                           |
+| [Environments](docs/resources/environment.md)               | Resource | Pact Broker + PactFlow | Manage Environments                                             |
+| [Authentication Settings](docs/resources/authentication.md) | Resource | PactFlow (cloud only)              | Manage PactFlow Authentication (Github, Google etc.)            |
 
 See our [Docs](./docs) folder for all plugins.
 
@@ -177,13 +177,13 @@ Plan for the next few months:
 
 - [x] Pacticipants
 - [x] Webhooks
-- [x] Secrets (Pactflow only)
-- [x] Users (Pactflow only)
-- [x] Teams (Pactflow only)
-- [x] Assign users to teams (Pactflow only)
-- [x] System Users (Pactflow only)
-- [x] Custom role creation (Pactflow only)
-- [x] Role assignment (Pactflow only)
+- [x] Secrets (PactFlow only)
+- [x] Users (PactFlow only)
+- [x] Teams (PactFlow only)
+- [x] Assign users to teams (PactFlow only)
+- [x] System Users (PactFlow only)
+- [x] Custom role creation (PactFlow only)
+- [x] Role assignment (PactFlow only)
 - [x] Better error messages for HTTP / runtime failures
 - [x] Acceptance tests
 - [x] Pact tests

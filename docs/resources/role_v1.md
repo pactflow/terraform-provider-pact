@@ -4,11 +4,11 @@
 
 This resource manages assigns existing platform roles to a given User.
 
-See https://docs.pactflow.io/docs/user-interface/#settings---users for documentation on managing users and roles within Pactflow.
+See https://docs.pactflow.io/docs/user-interface/#settings---users for documentation on managing users and roles within PactFlow.
 
 ## Compatibility
 
--> This feature is only available for the Pactflow platform.
+-> This feature is only available for the PactFlow platform.
 
 ## Example Usage
 The following examples show the basic usage of the resource. Here, we first create a user "billy" and attach a role to them, referencing the unique id (`uuid`) of the user.

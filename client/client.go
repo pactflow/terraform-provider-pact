@@ -314,7 +314,7 @@ func (c *Client) ReadSecret(uuid string) (*broker.SecretResponse, error) {
 }
 
 // CreateSecret creates a new secret
-// TODO: better response message for OSS broker vs Pactflow
+// TODO: better response message for OSS broker vs PactFlow
 func (c *Client) CreateSecret(s broker.Secret) (*broker.SecretResponse, error) {
 	res, err := c.doCrud("POST", secretCreateTemplate, s, new(broker.SecretResponse))
 	return res.(*broker.SecretResponse), err
@@ -389,14 +389,14 @@ func (c *Client) SetUserRoles(uuid string, r broker.SetUserRolesRequest) error {
 	return err
 }
 
-// ReadTenantAuthenticationSettings configures the authentication settings on a given Pactflow account
+// ReadTenantAuthenticationSettings configures the authentication settings on a given PactFlow account
 func (c *Client) ReadTenantAuthenticationSettings() (*broker.AuthenticationSettings, error) {
 	res, err := c.doCrud("GET", tenantAuthenticationTemplate, nil, new(broker.AuthenticationSettings))
 
 	return res.(*broker.AuthenticationSettings), err
 }
 
-// SetTenantAuthenticationSettings configures the authentication settings on a given Pactflow account
+// SetTenantAuthenticationSettings configures the authentication settings on a given PactFlow account
 func (c *Client) SetTenantAuthenticationSettings(r broker.AuthenticationSettings) (*broker.AuthenticationSettings, error) {
 	res, err := c.doCrud("PUT", tenantAuthenticationTemplate, r, new(broker.AuthenticationSettings))
 

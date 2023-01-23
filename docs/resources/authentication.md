@@ -1,6 +1,6 @@
 # Authentication Settings Resource
 
-This resource manages the authentication settings on a Pactflow account.
+This resource manages the authentication settings on a PactFlow account.
 
 -> This is currently only supported for the pactflow.io cloud platform, and does not apply to the on-premise version
 

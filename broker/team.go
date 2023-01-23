@@ -1,6 +1,6 @@
 package broker
 
-// Team represents a user login to Pactflow
+// Team represents a user login to PactFlow
 type Team struct {
 	UUID            string            `json:"uuid,omitempty"`
 	Name            string            `json:"name,omitempty"`
@@ -65,7 +65,7 @@ type EmbeddedUsers = struct {
 //     {
 //       "createdAt": "2020-10-20T08:20:02+00:00",
 //       "uuid": "6d746ad5-919f-49e3-84c0-648cafc5d912",
-//       "name": "Pactflow Demos",
+//       "name": "PactFlow Demos",
 //       "numberOfMembers": 1,
 //       "_links": {
 //         "self": {
@@ -87,7 +87,7 @@ type EmbeddedUsers = struct {
 // {
 //   "createdAt": "2020-10-20T08:20:02+00:00",
 //   "uuid": "6d746ad5-919f-49e3-84c0-648cafc5d912",
-//   "name": "Pactflow Demos",
+//   "name": "PactFlow Demos",
 //   "numberOfMembers": 1,
 //   "_embedded": {
 //     "members": [
@@ -213,12 +213,12 @@ type EmbeddedUsers = struct {
 //           ],
 //           "teams": [
 //             {
-//               "name": "Pactflow Demos",
+//               "name": "PactFlow Demos",
 //               "uuid": "6d746ad5-919f-49e3-84c0-648cafc5d912",
 //               "_links": {
 //                 "self": {
 //                   "title": "Team",
-//                   "name": "Pactflow Demos",
+//                   "name": "PactFlow Demos",
 //                   "href": "https://testdemo.pactflow.io/teams/6d746ad5-919f-49e3-84c0-648cafc5d912"
 //                 },
 //                 "pf:membership": {
@@ -227,7 +227,7 @@ type EmbeddedUsers = struct {
 //                 },
 //                 "pf:integrations": {
 //                   "title": "Team integrations",
-//                   "name": "Pactflow Demos",
+//                   "name": "PactFlow Demos",
 //                   "href": "https://testdemo.pactflow.io/integrations/team/6d746ad5-919f-49e3-84c0-648cafc5d912"
 //                 }
 //               }

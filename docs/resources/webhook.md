@@ -10,7 +10,7 @@ See [Webhooks](http://docs.pact.io/pact_broker/advanced_topics/webhooks/) for mo
 
 ## Compatibility
 
--> This feature is available to both Pactflow and OSS users
+-> This feature is available to both PactFlow and OSS users
 
 ## Example Usage
 
@@ -86,7 +86,7 @@ A pacticipant may be used as the consumer, provider, none or both in the webhook
 
 ## Outputs
 
-- `uuid` - (string) The unique ID in Pactflow for this webhook.
+- `uuid` - (string) The unique ID in PactFlow for this webhook.
 
 ## Importing
 

@@ -1,6 +1,6 @@
 package broker
 
-// UserType describes the type of user represented in Pactflow
+// UserType describes the type of user represented in PactFlow
 type UserType int
 
 const (
@@ -11,7 +11,7 @@ const (
 	SystemAccount
 )
 
-// User represents a user login to Pactflow
+// User represents a user login to PactFlow
 type User struct {
 	UUID               string   `json:"uuid,omitempty"`
 	Name               string   `json:"name,omitempty"`
@@ -165,12 +165,12 @@ type SetUserRolesRequest struct {
 //     ],
 //     "teams": [
 //       {
-//         "name": "Pactflow Demos",
+//         "name": "PactFlow Demos",
 //         "uuid": "6d746ad5-919f-49e3-84c0-648cafc5d912",
 //         "_links": {
 //           "self": {
 //             "title": "Team",
-//             "name": "Pactflow Demos",
+//             "name": "PactFlow Demos",
 //             "href": "https://testdemo.pactflow.io/teams/6d746ad5-919f-49e3-84c0-648cafc5d912"
 //           },
 //           "pf:membership": {
@@ -179,7 +179,7 @@ type SetUserRolesRequest struct {
 //           },
 //           "pf:integrations": {
 //             "title": "Team integrations",
-//             "name": "Pactflow Demos",
+//             "name": "PactFlow Demos",
 //             "href": "https://testdemo.pactflow.io/integrations/team/6d746ad5-919f-49e3-84c0-648cafc5d912"
 //           }
 //         }

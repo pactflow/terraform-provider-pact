@@ -104,7 +104,7 @@ oss-acceptance-test:
 		terraform destroy -auto-approve
 
 pactflow-acceptance-test:
-	@echo "--- Running Pactflow acceptance tests"
+	@echo "--- Running PactFlow acceptance tests"
 	cd acceptance/pactflow && \
 		mkdir -p ./log && \
 		terraform init && \

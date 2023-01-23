@@ -4,7 +4,7 @@ This resource manages the lifecycle of a _Secret_. A Secret is an application th
 
 ## Compatibility
 
--> This feature is only available for the Pactflow platform.
+-> This feature is only available for the PactFlow platform.
 
 ## Example Usage
 The following examples show the basic usage of the resource.
@@ -28,7 +28,7 @@ The following arguments are supported:
 
 ## Outputs
 
-- `uuid` - (string) The unique ID in Pactflow for this secret.
+- `uuid` - (string) The unique ID in PactFlow for this secret.
 
 ## Importing
 

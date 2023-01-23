@@ -28,22 +28,22 @@ func Provider() *schema.Provider {
 			"access_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "An API Bearer token to authenticate to a Pactflow account (for Pactflow users only)",
+				Description: "An API Bearer token to authenticate to a PactFlow account (for PactFlow users only)",
 			},
 			"basic_auth_username": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "A basic auth username to authenticate to a Pact Broker (not required for Pactflow users)",
+				Description: "A basic auth username to authenticate to a Pact Broker (not required for PactFlow users)",
 			},
 			"basic_auth_password": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "A basic auth password to authenticate to a Pact Broker (not required for Pactflow users)",
+				Description: "A basic auth password to authenticate to a Pact Broker (not required for PactFlow users)",
 			},
 			"host": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "A fully qualified hostname (e.g. for a Pactflow account https://mybroker.pact.dius.com.au",
+				Description: "A fully qualified hostname (e.g. for a PactFlow account https://mybroker.pact.dius.com.au",
 			},
 			"tls_insecure": {
 				Type:        schema.TypeBool,

@@ -1,6 +1,6 @@
 package broker
 
-// RoleV1 is a role that a User may have in Pactflow
+// RoleV1 is a role that a User may have in PactFlow
 // {
 // 	"updatedAt": "2020-06-28T23:31:51+00:00",
 // 	"createdAt": "2020-06-28T23:31:51+00:00",

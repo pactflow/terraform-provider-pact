@@ -6,7 +6,7 @@ This resource manages the lifecycle of a _Pacticipant_. A Pacticipant is an appl
 
 ## Compatibility
 
--> This feature is available to both Pactflow and OSS users
+-> This feature is available to both PactFlow and OSS users
 
 ## Example Usage
 The following examples show the basic usage of the resource.

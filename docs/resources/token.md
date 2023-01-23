@@ -1,12 +1,12 @@
 # Token Resource
 
-This resource manages the lifecycle of the _API Token_ of the current user. A Token can be used to make API calls to the Pactflow platform.
+This resource manages the lifecycle of the _API Token_ of the current user. A Token can be used to make API calls to the PactFlow platform.
 
 !> **It is highly recommended that this resource only be used to import existing tokens, and not be used to update existing tokens - you are likely to end up locking yourself out this way. This feature should not be used by most customers**
 
 ## Compatibility
 
--> This feature is only available for the Pactflow platform.
+-> This feature is only available for the PactFlow platform.
 
 ## Example Usage
 

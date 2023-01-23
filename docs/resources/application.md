@@ -4,7 +4,7 @@ This resource manages the lifecycle of a _Application_ (also known as a pacticip
 
 ## Compatibility
 
--> This feature is available to both Pactflow and OSS users
+-> This feature is available to both PactFlow and OSS users
 
 ## Example Usage
 

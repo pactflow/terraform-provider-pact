@@ -6,7 +6,7 @@ https://docs.pactflow.io/docs/user-interface/settings/teams for documentation on
 
 ## Compatibility
 
--> This feature is only available for the Pactflow platform.
+-> This feature is only available for the PactFlow platform.
 
 ## Example Usage
 
