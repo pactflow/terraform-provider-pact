@@ -6,6 +6,7 @@ PACT_CLI="docker run --rm -v ${PWD}:${PWD} -e PACT_BROKER_BASE_URL -e PACT_BROKE
 
 export TF_VAR_build_number=$(GITHUB_RUN_ID)
 export TF_VAR_api_token=$(ACCEPTANCE_PACT_BROKER_TOKEN)
+export TF_VAR_broker_base_url=$(ACCEPTANCE_PACT_BROKER_BASE_URL)
 
 ci:: clean docker deps pact-go vet bin test pact publish acceptance-test
 

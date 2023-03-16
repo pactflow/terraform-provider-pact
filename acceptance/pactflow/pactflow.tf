@@ -12,9 +12,13 @@ terraform {
 ### Provider configuration
 
 provider "pact" {
-  host = "https://tf-acceptance.pactflow.io"
+  host = var.broker_base_url
   access_token = var.api_token
   # host = "http://localhost:9292"
+}
+
+variable "broker_base_url" {
+  type = string
 }
 
 variable "api_token" {
