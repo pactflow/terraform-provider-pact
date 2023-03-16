@@ -30,6 +30,7 @@ jobs:
           PACT_BROKER_TOKEN: "${{ secrets.PACTFLOW_PACT_BROKER_TOKEN }}"
           PACT_BROKER_BASE_URL: "${{ secrets.PACTFLOW_PACT_BROKER_BASE_URL }}"
           ACCEPTANCE_PACT_BROKER_TOKEN: "${{ secrets.ACCEPTANCE_PACT_BROKER_TOKEN }}"
+          ACCEPTANCE_PACT_BROKER_BASE_URL: "${{ secrets.ACCEPTANCE_PACT_BROKER_BASE_URL }}"
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
