@@ -150,6 +150,11 @@ func (c *Client) ReadTeam(t broker.Team) (*broker.Team, error) {
 // CreateTeam creates a Team
 func (c *Client) CreateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, error) {
 	res, err := c.doCrud("POST", teamCreateTemplate, t, new(broker.TeamsResponse))
+
+	if err != nil {
+		return nil, err
+	}
+
 	apiResponse := res.(*broker.TeamsResponse)
 
 	// TODO: why is this a collection not a single resource?
@@ -166,14 +171,17 @@ func (c *Client) CreateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, e
 // ReadTeamAssignments finds all users currently in a team
 func (c *Client) ReadTeamAssignments(t broker.Team) (*broker.TeamsAssignmentResponse, error) {
 	res, err := c.doCrud("GET", urlEncodeTemplate(teamAssignmentTemplate, t.UUID), t, new(broker.TeamsAssignmentResponse))
-	apiResponse := res.(*broker.TeamsAssignmentResponse)
-
-	return apiResponse, err
+	return res.(*broker.TeamsAssignmentResponse), err
 }
 
 // UpdateTeamAssignments sets the users for a given team, removing any existing users not in the specified request
 func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
 	res, err := c.doCrud("PUT", urlEncodeTemplate(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+
+	if err != nil {
+		return nil, err
+	}
+
 	if len(r.Users) > 0 {
 		apiResponse := res.(*broker.TeamsAssignmentResponse)
 
@@ -186,6 +194,11 @@ func (c *Client) UpdateTeamAssignments(r broker.TeamsAssignmentRequest) (*broker
 // AppendTeamAssignments adds users to an existing Team (does not remove absent ones)
 func (c *Client) AppendTeamAssignments(r broker.TeamsAssignmentRequest) (*broker.TeamsAssignmentResponse, error) {
 	res, err := c.doCrud("POST", urlEncodeTemplate(teamAssignmentTemplate, r.UUID), r, new(broker.TeamsAssignmentResponse))
+
+	if err != nil {
+		return nil, err
+	}
+
 	if len(r.Users) > 0 {
 		apiResponse := res.(*broker.TeamsAssignmentResponse)
 
@@ -268,6 +281,10 @@ func (c *Client) CreateUser(u broker.User) (*broker.User, error) {
 // CreateUser creates a user or a system account
 func (c *Client) CreateSystemAccount(u broker.User) (*broker.User, error) {
 	res, err := c.doCrud("POST", systemAccountCreateTemplate, u, nil)
+
+	if err != nil {
+		return nil, err
+	}
 
 	// Returns a 201
 	// e.g. https://tf-acceptance.pactflow.io/admin/system-accounts/f996d7e5-6525-4649-b479-9299793d105e
