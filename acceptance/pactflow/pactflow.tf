@@ -91,7 +91,7 @@ resource "pact_team" "Cartoons" {
 ### Users
 
 resource "pact_user" "homer" {
-  name = "Homer Simpson"
+  name = "Homer Simpson${var.build_number}"
   email = "matt+tfacceptance1${var.build_number}@pactflow.io"
   active = true
   roles = [
@@ -104,7 +104,7 @@ resource "pact_user" "homer" {
 }
 
 resource "pact_user" "bender_system_user" {
-  name = "Bender Rodríguez"
+  name = "Bender Rodríguez${var.build_number}"
   email = "matt+tfacceptance2${var.build_number}@pactflow.io"
   type = "system"
   active = true
