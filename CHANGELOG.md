@@ -5,6 +5,12 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.9.1 (17 March 2023)
+  * [ac72d8e](https://github.com/pactflow/terraform/commit/ac72d8e) - fix: errors in some API resources weren't being propagated (#32) (Matt Fellows, Fri Mar 17 12:11:10 2023 +1100)
+  * [38d559e](https://github.com/pactflow/terraform/commit/38d559e) - docs: add role details to resource_role (Matt Fellows, Mon Jan 9 11:19:03 2023 +1100)
+  * [4408e77](https://github.com/pactflow/terraform/commit/4408e77) - docs: add role details to resource_role (Matt Fellows, Mon Jan 9 11:18:11 2023 +1100)
+  * [1d0c5d2](https://github.com/pactflow/terraform/commit/1d0c5d2) - docs: improve explanation and compatibility of several resources (Matt Fellows, Mon Jan 9 11:08:20 2023 +1100)
+
 ### v0.9.0 (30 June 2022)
   * [d3e052c](https://github.com/pactflow/terraform/commit/d3e052c) - fix: disable forcenew property on user. Fixes #25 (Matt Fellows, Thu Jun 30 14:04:18 2022 +1000)
   * [4215464](https://github.com/pactflow/terraform/commit/4215464) - feat: support display name in pacticipant resource (Matt Fellows, Thu Jun 30 14:03:19 2022 +1000)
