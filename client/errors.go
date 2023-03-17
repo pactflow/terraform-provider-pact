@@ -11,7 +11,7 @@ type apiErrorDescriptions []string
 
 type APIKeyedError map[apiErrorKey]apiErrorDescriptions
 
-// apiErrorResponse represents a body of the shape: {"errors":{"parameter": ["parameter is invaled"]}}
+// apiErrorResponse represents a body of the shape: {"errors":{"parameter": ["parameter is invalid"]}}
 type apiErrorResponse struct {
 	Errors       APIKeyedError   `json:"errors"`
 	Reference    string          `json:"reference"`
