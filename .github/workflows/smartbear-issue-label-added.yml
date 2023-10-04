@@ -1,0 +1,11 @@
+name: SmartBear Supported Issue Label Added
+
+on:
+  issues:
+    types:
+      - labeled
+
+jobs:
+  call-workflow:
+    uses: pactflow/.github/.github/workflows/smartbear-issue-label-added.yml@main
+    secrets: inherit
