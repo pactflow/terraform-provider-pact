@@ -5,6 +5,9 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.9.2 (27 November 2023)
+  * [b623105](https://github.com/pactflow/terraform/commit/b623105) - fix: remove firstname/lastname as they never existed in the API (Matt Fellows, Mon Nov 27 14:12:22 2023 +1100)
+
 ### v0.9.1 (17 March 2023)
   * [ac72d8e](https://github.com/pactflow/terraform/commit/ac72d8e) - fix: errors in some API resources weren't being propagated (#32) (Matt Fellows, Fri Mar 17 12:11:10 2023 +1100)
   * [38d559e](https://github.com/pactflow/terraform/commit/38d559e) - docs: add role details to resource_role (Matt Fellows, Mon Jan 9 11:19:03 2023 +1100)
