@@ -222,11 +222,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithJSONBody(Like(create)).
 				WillRespondWith(200).
 				WithHeader("Content-Type", S("application/hal+json")).
-				WithJSONBody(Like(broker.TeamsResponse{
-					Teams: []broker.Team{
-						created,
-					},
-				}))
+				WithJSONBody(Like(created))
 
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
