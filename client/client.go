@@ -149,7 +149,7 @@ func (c *Client) ReadTeam(t broker.Team) (*broker.Team, error) {
 
 // CreateTeam creates a Team
 func (c *Client) CreateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, error) {
-	res, err := c.doCrud("POST", teamCreateTemplate, t, new(broker.TeamsResponse))
+	res, err := c.doCrud("POST", teamCreateTemplate, t, new(broker.Team))
 	return res.(*broker.Team), err
 }
 
