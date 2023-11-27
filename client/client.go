@@ -150,14 +150,7 @@ func (c *Client) ReadTeam(t broker.Team) (*broker.Team, error) {
 // CreateTeam creates a Team
 func (c *Client) CreateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, error) {
 	res, err := c.doCrud("POST", teamCreateTemplate, t, new(broker.TeamsResponse))
-
-	if err != nil {
-		return nil, err
-	}
-
-	apiResponse := res.(*broker.TeamsResponse)
-
-	return &apiResponse.Team, err
+	return res.(*broker.Team), err
 }
 
 // ReadTeamAssignments finds all users currently in a team
@@ -278,10 +271,10 @@ func (c *Client) CreateSystemAccount(u broker.User) (*broker.User, error) {
 		return nil, err
 	}
 
-	// Returns a 201
+	// TODO: Returns a 201
 	// e.g. https://tf-acceptance.pactflow.io/admin/system-accounts/f996d7e5-6525-4649-b479-9299793d105e
 	// + a list of users
-	// Extracting the location is probably more reliable than guessing what the new resource is by name
+	// Extracting the UUID from response
 	parts := strings.Split(res.(string), "/")
 	u.UUID = parts[len(parts)-1]
 
