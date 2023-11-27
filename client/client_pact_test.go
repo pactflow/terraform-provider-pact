@@ -739,14 +739,15 @@ func TestTerraformClientPact(t *testing.T) {
 				WithHeader("Authorization", Like("Bearer 1234")).
 				WithJSONBody(Like(user)).
 				WillRespondWith(201).
-				WithHeader("Content-Type", S("application/hal+json"))
+				WithHeader("Content-Type", S("application/hal+json")).
+				WithHeader("Location", S(created.UUID))
 
 			err = mockProvider.ExecuteTest(t, func(config MockServerConfig) error {
 				client := clientForPact(config)
 
 				res, e := client.CreateSystemAccount(user)
 				assert.NoError(t, e)
-				assert.Equal(t, "system account", res.Name)
+				assert.Equal(t, created.UUID, res.UUID)
 
 				return e
 			})
