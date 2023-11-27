@@ -16,7 +16,7 @@ type TeamEmbeddedItems struct {
 }
 
 type TeamsResponse struct {
-	Teams []Team `json:"teams"`
+	Team
 	HalDoc
 }
 

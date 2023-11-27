@@ -157,15 +157,7 @@ func (c *Client) CreateTeam(t broker.TeamCreateOrUpdateRequest) (*broker.Team, e
 
 	apiResponse := res.(*broker.TeamsResponse)
 
-	// TODO: why is this a collection not a single resource?
-	// check if it's consistent with the other APIs
-	for _, i := range apiResponse.Teams {
-		if i.Name == t.Name {
-			return &i, err
-		}
-	}
-
-	return nil, err
+	return &apiResponse.Team, err
 }
 
 // ReadTeamAssignments finds all users currently in a team
