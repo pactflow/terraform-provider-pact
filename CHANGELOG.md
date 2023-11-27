@@ -5,6 +5,10 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+### v0.10.0 (27 November 2023)
+  * [80b7d49](https://github.com/pactflow/terraform/commit/80b7d49) - feat: update response for create team endpoint (#34) (Matt Fellows, Mon Nov 27 16:32:56 2023 +1100)
+  * [50f29a7](https://github.com/pactflow/terraform/commit/50f29a7) - Add .whitesource configuration file (#27) (mend-for-github-com[bot], Mon Nov 27 14:50:34 2023 +1100)
+
 ### v0.9.2 (27 November 2023)
   * [b623105](https://github.com/pactflow/terraform/commit/b623105) - fix: remove firstname/lastname as they never existed in the API (Matt Fellows, Mon Nov 27 14:12:22 2023 +1100)
 
