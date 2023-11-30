@@ -770,7 +770,7 @@ func TestTerraformClientPact(t *testing.T) {
 			},
 		}
 
-		t.Run("CreateUser", func(t *testing.T) {
+		t.Run("CreateSystemAccount", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				UponReceiving("a request to create a system account").
@@ -782,7 +782,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json"))
-					// TODO: body/location header?
+					b.Header("Location", S(fmt.Sprintf("https://foo.com/path/to/%s", created.UUID)))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -790,14 +790,14 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreateSystemAccount(user)
 				assert.NoError(t, e)
-				assert.Equal(t, "system account", res.Name)
+				assert.Equal(t, created.UUID, res.UUID)
 
 				return e
 			})
 			assert.NoError(t, err)
 		})
 
-		t.Run("ReadUser", func(t *testing.T) {
+		t.Run("ReadSystemAccount", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
@@ -823,7 +823,7 @@ func TestTerraformClientPact(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
-		t.Run("UpdateUser", func(t *testing.T) {
+		t.Run("UpdateSystemAccount", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
@@ -852,7 +852,7 @@ func TestTerraformClientPact(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
-		t.Run("DeleteUser", func(t *testing.T) {
+		t.Run("DeleteSystemAccount", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
@@ -875,7 +875,7 @@ func TestTerraformClientPact(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
-		t.Run("SetUserRoles", func(t *testing.T) {
+		t.Run("SetSystemAccountRoles", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
 				Given("a system account with uuid 71a5be7d-bb9c-427b-ba49-ee8f1df0ae58 exists").
