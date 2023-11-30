@@ -2,7 +2,7 @@
 // collaboration test cases, and Provider contract test verification.
 package consumer
 
-// TODO: setup a proper state machine to prevent actions
+// TODO: setup a proper state machine to prevent actions -> use type state fluent pattern
 // Current issues
 // 1. Setup needs to be initialised to get a port -> should be resolved by creating the server at the point of verification
 // 2. Ensure that interactions are properly cleared
@@ -22,15 +22,11 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	native "github.com/pact-foundation/pact-go/v2/internal/native/mockserver"
+	"github.com/pact-foundation/pact-go/v2/internal/native"
 	logging "github.com/pact-foundation/pact-go/v2/log"
 	"github.com/pact-foundation/pact-go/v2/models"
 	"github.com/pact-foundation/pact-go/v2/utils"
 )
-
-func init() {
-	logging.InitLogging()
-}
 
 // MockHTTPProviderConfig provides the configuration options for an HTTP mock server
 // consumer test.
@@ -115,14 +111,16 @@ func (p *httpMockProvider) configure() error {
 		p.config.ClientTimeout = 10 * time.Second
 	}
 
-	p.mockserver = native.NewHTTPMockServer(p.config.Consumer, p.config.Provider)
+	p.mockserver = native.NewHTTPPact(p.config.Consumer, p.config.Provider)
 	switch p.specificationVersion {
 	case models.V2:
 		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V2)
 	case models.V3:
 		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V3)
+	case models.V4:
+		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V4)
 	}
-	native.Init()
+	native.Init(string(logging.LogLevel()))
 
 	return nil
 }
@@ -172,6 +170,8 @@ func (p *httpMockProvider) ExecuteTest(t *testing.T, integrationTest func(MockSe
 		return fmt.Errorf("pact validation failed: %+v", mismatches)
 	}
 
+	p.mockserver.CleanupPlugins()
+
 	return p.writePact()
 }
 
@@ -179,7 +179,10 @@ func (p *httpMockProvider) ExecuteTest(t *testing.T, integrationTest func(MockSe
 func (p *httpMockProvider) reset() {
 	p.mockserver.CleanupMockServer(p.config.Port)
 	p.config.Port = 0
-	p.configure()
+	err := p.configure()
+	if err != nil {
+		log.Println("[ERROR] failed to configure the mock server")
+	}
 }
 
 // TODO: improve / pretty print this to make it really easy to understand the problems
@@ -208,8 +211,7 @@ func (p *httpMockProvider) displayMismatches(t *testing.T, mismatches []native.M
 			for _, detail := range m.Mismatches {
 				switch detail.Type {
 				case "HeaderMismatch":
-					fmt.Printf("\t\t\tComparing Header: '%s'\n", detail.Key)
-					fmt.Println("\t\t\t", detail.Mismatch)
+					fmt.Printf("\t\t\t%s\n:", detail.Mismatch)
 					fmt.Println("\t\t\texpected: \t", detail.Expected)
 					fmt.Println("\t\t\tactual: \t", detail.Actual)
 				case "BodyMismatch":

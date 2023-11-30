@@ -59,10 +59,6 @@ func (m like) GetValue() interface{} {
 func (m like) isMatcher() {
 }
 
-func (m like) string() string {
-	return fmt.Sprintf("%s", m.Value)
-}
-
 type term struct {
 	Value string `json:"value"`
 	Type  string `json:"pact:matcher:type"`
@@ -74,10 +70,6 @@ func (m term) GetValue() interface{} {
 }
 
 func (m term) isMatcher() {
-}
-
-func (m term) string() string {
-	return string(m.Value)
 }
 
 func (m term) MarshalJSON() ([]byte, error) {
@@ -209,13 +201,7 @@ func (s S) string() string {
 }
 
 func (s S) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Value string `json:"value"`
-		Type  string `json:"pact:matcher:type"`
-	}{
-		Value: s.string(),
-		Type:  "dummy",
-	})
+	return json.Marshal(s.string())
 }
 
 // String is the longer named form of the string primitive wrapper,
@@ -235,13 +221,7 @@ func (s String) string() string {
 }
 
 func (s String) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Value string `json:"value"`
-		Type  string `json:"pact:matcher:type"`
-	}{
-		Value: s.string(),
-		Type:  "dummy",
-	})
+	return json.Marshal(s.string())
 }
 
 // StructMatcher matches a complex object structure, which may itself
@@ -259,6 +239,7 @@ func (m StructMatcher) GetValue() interface{} {
 // MapMatcher allows a map[string]string-like object
 // to also contain complex matchers
 type MapMatcher map[string]Matcher
+type Map MapMatcher
 
 // UnmarshalJSON is a custom JSON parser for MapMatcher
 // It treats the matchers as strings
