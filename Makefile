@@ -58,7 +58,7 @@ deps:
 	go install github.com/modocache/gover@latest; \
 	go install github.com/mitchellh/gox@latest; \
 	cd -
-	go get github.com/pact-foundation/pact-go/v2/@2.0.0-beta.5;
+	go install github.com/pact-foundation/pact-go/v2@v2.0.2;
 
 goveralls:
 	goveralls -service="travis-ci" -coverprofile=coverage.txt -repotoken $(COVERALLS_TOKEN)
@@ -80,7 +80,7 @@ test:
 
 pact-go:
 	echo "--- 🐿 Installing Pact FFI dependencies"
-	~/go/bin/pact-go -l DEBUG install --libDir /tmp
+	pact-go -l DEBUG install --libDir /tmp
 
 pact: pact-go
 	@echo "--- 🤝 Running Pact tests"
