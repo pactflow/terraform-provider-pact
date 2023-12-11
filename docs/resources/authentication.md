@@ -2,7 +2,7 @@
 
 This resource manages the authentication settings on a Pactflow account.
 
--> This is currently only supported for the pactflow.io cloud platform, and does not apply to the on-premise version
+-> This feature is supported for the pactflow.io cloud platform, and does not apply to the on-premise version. Additionally, only customers on the legacy (Cognito) authentication mode may modify these settings (see https://docs.pactflow.io/docs/authentication/main/).
 
 ## Example Usage
 The following examples show the basic usage of the resource.

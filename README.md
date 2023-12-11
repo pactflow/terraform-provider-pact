@@ -101,7 +101,9 @@ resource "pact_role" "somebody_admin" {
   user = pact_user.somebody.uuid
 }
 
-# Enable authentication via Github and Googl
+# Enable authentication via Github and Google
+# NOTE: This only applies to customers on the legacy (Cognito)
+#       authentication. see https://docs.pactflow.io/docs/authentication/main/
 resource "pact_authentication" "authentication" {
   github_organizations = ["pactflow"]
   google_domains = ["pactflow.io"]
