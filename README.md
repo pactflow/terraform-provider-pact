@@ -158,7 +158,7 @@ All resources (except for Roles) support [importing](https://www.terraform.io/do
 ### Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) 0.10+
-- [Go](https://golang.org/doc/install) 1.13 (to build the provider plugin)
+- [Go](https://golang.org/doc/install) (See [build version](.github/workflows/test.yml))
 
 ### Building locally
 
