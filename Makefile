@@ -27,9 +27,9 @@ build:
 	cp bin/terraform-provider-pact ~/.terraform.d/plugins/github.com/pactflow/pact/0.0.1/darwin_amd64/
 
 clean:
-	mkdir -p ./log acceptance/oss/log acceptance/pactflow/log && \
-	touch terraform.tfstate terraform.tfstate.backup log/tf.log && \
-	rm terraform.tf* log/tf.log
+	mkdir -p ./log acceptance/oss/log acceptance/pactflow/log client/pacts && \
+	touch terraform.tfstate terraform.tfstate.backup log/tf.log client/pacts/pact.json && \
+	rm terraform.tf* log/tf.log client/pacts/*.json
 
 clean-acceptance:
 	mkdir -p ./acceptance/pactflow/.terraform && \
@@ -82,7 +82,7 @@ pact-go:
 	echo "--- 🐿 Installing Pact FFI dependencies"
 	pact-go -l DEBUG install --libDir /tmp
 
-pact: pact-go
+pact: clean pact-go
 	@echo "--- 🤝 Running Pact tests"
 	go test -tags=consumer -count=1 -v github.com/pactflow/terraform/client/...
 
