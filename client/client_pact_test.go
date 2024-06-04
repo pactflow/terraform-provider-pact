@@ -136,7 +136,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/pacticipants/terraform-client", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -423,7 +423,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/secrets/b6af03cd-018c-4f1b-9546-c778d214f305", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {})
+				WillRespondWith(204, func(b *consumer.V2ResponseBuilder) {})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -550,7 +550,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/admin/roles/e1407277-2a25-4559-8fed-4214dd12a1e8", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -668,7 +668,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -696,7 +696,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -1060,7 +1060,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1112,7 +1112,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/webhooks/2e4bf0e6-b0cf-451f-b05b-69048955f019", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -1251,7 +1251,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(create))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("text/plain"))
+					b.Header("Content-Type", S("application/hal+json"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1277,7 +1277,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1332,7 +1332,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/environments/8000883c-abf0-4b4c-b993-426f607092a9", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
