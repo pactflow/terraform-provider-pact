@@ -199,7 +199,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(updated))
 				})
 
@@ -288,7 +288,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/admin/teams/99643109-adb0-4e68-b25f-7b14d6bcae16", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -1251,7 +1251,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(create))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
