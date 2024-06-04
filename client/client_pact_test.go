@@ -53,8 +53,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(pacticipant))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(pacticipant))
 				})
 
@@ -79,7 +79,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.BodyMatch(&broker.Pacticipant{})
 				})
 
@@ -107,7 +107,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(pacticipant))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(pacticipant))
 				})
 
@@ -199,7 +199,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(updated))
 				})
 
@@ -229,8 +229,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(create))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -260,7 +260,7 @@ func TestTerraformClientPact(t *testing.T) {
 					and.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(and *consumer.V2ResponseBuilder) {
-					and.Header("Content-Type", S("application/hal+json"))
+					and.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					and.JSONBody(Like(updated))
 				})
 
@@ -372,7 +372,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(secret))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -399,7 +399,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -468,8 +468,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(role))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 
 				})
@@ -496,7 +496,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -524,7 +524,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 
 				})
@@ -615,7 +615,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -640,7 +640,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -668,7 +668,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -696,7 +696,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -781,7 +781,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.Header("Location", S(fmt.Sprintf("https://foo.com/path/to/%s", created.UUID)))
 				})
 
@@ -806,7 +806,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -835,7 +835,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -863,7 +863,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -916,7 +916,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(map[string]interface{}{
 						"_embedded": map[string]interface{}{
 							"items": []interface{}{
@@ -956,7 +956,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(broker.APITokenResponse{
 						APIToken: readOnlytoken,
 					}))
@@ -1023,7 +1023,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(broker.WebhookResponse{
 						Webhook: webhook,
 						HalDoc: broker.HalDoc{
@@ -1060,7 +1060,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1088,7 +1088,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1145,7 +1145,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(authSettings))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(authSettings))
 				})
 
@@ -1168,7 +1168,7 @@ func TestTerraformClientPact(t *testing.T) {
 				UponReceiving("a request to get authentication settings").
 				WithRequest("GET", "/admin/tenant/authentication-settings").
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(authSettings))
 				})
 
@@ -1251,7 +1251,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(create))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("text/plain"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1277,7 +1277,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1306,7 +1306,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(updated))
 
 				})
