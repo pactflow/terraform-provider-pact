@@ -439,10 +439,9 @@ func TestTerraformClientPact(t *testing.T) {
 			Name: "terraform-role",
 			Permissions: []broker.Permission{
 				{
-					Name:        "role name",
 					Scope:       "user:manage:*",
-					Label:       "role label",
-					Description: "role description",
+					Label:       "permission label",
+					Description: "premission description",
 				},
 			},
 		}
@@ -585,10 +584,9 @@ func TestTerraformClientPact(t *testing.T) {
 						UUID: "84f66fab-1c42-4351-96bf-88d3a09d7cd2",
 						Permissions: []broker.Permission{
 							{
-								Name:        "role name",
 								Scope:       "user:manage:*",
-								Label:       "role label",
-								Description: "role description",
+								Label:       "permission label",
+								Description: "permission description",
 							},
 						},
 					},
@@ -751,10 +749,9 @@ func TestTerraformClientPact(t *testing.T) {
 						UUID: "84f66fab-1c42-4351-96bf-88d3a09d7cd2",
 						Permissions: []broker.Permission{
 							{
-								Name:        "role name",
 								Scope:       "user:manage:*",
-								Label:       "role label",
-								Description: "role description",
+								Label:       "permission label",
+								Description: "permission description",
 							},
 						},
 					},
@@ -917,7 +914,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.JSONBody(map[string]interface{}{
+					b.JSONBody(Like(map[string]interface{}{
 						"_embedded": map[string]interface{}{
 							"items": []interface{}{
 								map[string]interface{}{
@@ -932,7 +929,7 @@ func TestTerraformClientPact(t *testing.T) {
 								},
 							},
 						},
-					})
+					}))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -955,10 +952,21 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("POST", "/settings/tokens/e068b1ea-d064-4719-971f-98af49cdf3f7/regenerate", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(broker.APITokenResponse{
 						APIToken: readOnlytoken,
+						HalDoc: broker.HalDoc{
+							Links: broker.HalLinks{
+								"pb:regenerate": broker.Link{
+									Href: "http://some-broker/settings/tokens/4rsEtKpIevglPW3a3ixYcA/regenerate",
+									Title: "Regenerate this token",
+								},
+								"self": broker.Link{
+									Href: "http://some-broker/settings/tokens/4rsEtKpIevglPW3a3ixYcA",
+								},
+							},
+						},
 					}))
 				})
 

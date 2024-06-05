@@ -7,7 +7,6 @@ type Role struct {
 }
 
 type Permission struct {
-	Name        string `json:"name,omitempty"`
 	Scope       string `json:"scope,omitempty"`
 	Label       string `json:"label,omitempty"`
 	Description string `json:"description,omitempty"`
