@@ -31,7 +31,12 @@ type EnvironmentCreateOrUpdateResponse struct {
 }
 
 type EnvironmentEmbeddedItems struct {
-	Teams []Team `json:"teams,omitempty"`
+	Teams []EnvironmentEmbeddedTeams `json:"teams,omitempty"`
+}
+
+type EnvironmentEmbeddedTeams struct {
+	UUID string `json:"uuid,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 // POST environments

@@ -956,17 +956,6 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(broker.APITokenResponse{
 						APIToken: readOnlytoken,
-						HalDoc: broker.HalDoc{
-							Links: broker.HalLinks{
-								"pb:regenerate": broker.Link{
-									Href: "http://some-broker/settings/tokens/4rsEtKpIevglPW3a3ixYcA/regenerate",
-									Title: "Regenerate this token",
-								},
-								"self": broker.Link{
-									Href: "http://some-broker/settings/tokens/4rsEtKpIevglPW3a3ixYcA",
-								},
-							},
-						},
 					}))
 				})
 
@@ -1196,9 +1185,18 @@ func TestTerraformClientPact(t *testing.T) {
 
 	t.Run("Environment", func(t *testing.T) {
 		environment := broker.Environment{
+			UUID:        "8000883c-abf0-4b4c-b993-426f607092a9",
 			Name:        "TerraformEnvironment",
 			Production:  true,
 			DisplayName: "terraform environment",
+			Embedded: broker.EnvironmentEmbeddedItems{
+				Teams: []broker.EnvironmentEmbeddedTeams{
+					{
+						Name: "terraform-team",
+						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
+					},
+				},
+			},
 		}
 
 		create := broker.EnvironmentCreateOrUpdateRequest{
@@ -1211,11 +1209,15 @@ func TestTerraformClientPact(t *testing.T) {
 		}
 
 		created := broker.EnvironmentCreateOrUpdateResponse{
-			UUID:        "8000883c-abf0-4b4c-b993-426f607092a9",
+			UUID:        environment.UUID,
 			Name:        environment.Name,
 			DisplayName: environment.DisplayName,
+			Production:  environment.Production,
+			Teams: []string{
+				"99643109-adb0-4e68-b25f-7b14d6bcae16",
+			},
 			Embedded: broker.EnvironmentEmbeddedItems{
-				Teams: []broker.Team{
+				Teams: []broker.EnvironmentEmbeddedTeams{
 					{
 						Name: "terraform-team",
 						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
@@ -1235,11 +1237,11 @@ func TestTerraformClientPact(t *testing.T) {
 		}
 
 		updated := broker.EnvironmentCreateOrUpdateResponse{
-			UUID:        created.UUID,
+			UUID:        environment.UUID,
 			Name:        update.Name,
 			DisplayName: environment.DisplayName,
 			Embedded: broker.EnvironmentEmbeddedItems{
-				Teams: []broker.Team{
+				Teams: []broker.EnvironmentEmbeddedTeams{
 					{
 						Name: "terraform-team",
 						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
@@ -1258,7 +1260,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(create))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
@@ -1286,7 +1288,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.JSONBody(Like(created))
+					b.JSONBody(Like(environment))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
