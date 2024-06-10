@@ -342,7 +342,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 	t.Run("Secret", func(t *testing.T) {
 		secret := broker.Secret{
-			Name:        "terraform-secret",
+			Name:        "terraformSecret",
 			Description: "terraform secret",
 			Value:       "supersecret",
 			TeamUUID:    "1da4bc0e-8031-473f-880b-3b3951683284",
@@ -358,7 +358,13 @@ func TestTerraformClientPact(t *testing.T) {
 			UUID:        created.UUID,
 			Name:        secret.Name,
 			Description: "updated description",
-			Value:       "supersecret",
+			Value:       "topsecret",
+		}
+
+		updated := broker.Secret{
+			UUID:        created.UUID,
+			Name:        secret.Name,
+			Description: "updated description",
 		}
 
 		t.Run("CreateSecret", func(t *testing.T) {
@@ -371,7 +377,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(secret))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
@@ -381,7 +387,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreateSecret(secret)
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-secret", res.Name)
+				assert.Equal(t, "terraformSecret", res.Name)
 
 				return e
 			})
@@ -400,7 +406,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.JSONBody(Like(update))
+					b.JSONBody(Like(updated))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -408,7 +414,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.UpdateSecret(update)
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-secret", res.Name)
+				assert.Equal(t, "terraformSecret", res.Name)
 
 				return e
 			})
