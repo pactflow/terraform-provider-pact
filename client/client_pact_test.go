@@ -162,18 +162,18 @@ func TestTerraformClientPact(t *testing.T) {
 			Name: create.Name,
 			UUID: created.UUID,
 			Embedded: broker.TeamEmbeddedItems{
-				Members: []broker.User{
+				Members: []broker.TeamUser{
 					{
 						UUID:   "4c260344-b170-41eb-b01e-c0ff10c72f25",
 						Active: true,
 					},
 				},
-				Administrators: []broker.User{
+				Administrators: []broker.TeamUser{
 					{
 						UUID: "4c260344-b170-41eb-b01e-c0ff10c72f25",
 					},
 				},
-				Environments: []broker.Environment{
+				Environments: []broker.TeamEnvironment{
 					{
 						UUID: "8000883c-abf0-4b4c-b993-426f607092a9",
 					},
