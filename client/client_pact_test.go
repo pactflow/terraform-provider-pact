@@ -960,9 +960,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.JSONBody(Like(broker.APITokenResponse{
-						APIToken: readOnlytoken,
-					}))
+					b.JSONBody(Like(readOnlytoken))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -1012,6 +1010,7 @@ func TestTerraformClientPact(t *testing.T) {
 		c, _ := copystructure.Copy(&webhook)
 		created := c.(*broker.Webhook)
 		created.ID = "2e4bf0e6-b0cf-451f-b05b-69048955f019"
+		created.Request.Password = ""
 
 		t.Run("CreateWebhook", func(t *testing.T) {
 
