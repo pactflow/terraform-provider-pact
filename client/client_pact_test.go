@@ -1024,7 +1024,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(webhook))
 
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(broker.WebhookResponse{
 						Webhook: webhook,
