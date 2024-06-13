@@ -158,14 +158,41 @@ func TestTerraformClientPact(t *testing.T) {
 			UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
 		}
 
-		updated := broker.Team{
+		team := broker.Team{
 			Name: create.Name,
 			UUID: created.UUID,
 			Embedded: broker.TeamEmbeddedItems{
+				Pacticipants: []broker.Pacticipant{
+					{
+						Name: "Pactflow Saas",
+					},
+				},
 				Members: []broker.TeamUser{
 					{
 						UUID:   "4c260344-b170-41eb-b01e-c0ff10c72f25",
 						Active: true,
+					},
+				},
+				Administrators: []broker.TeamUser{
+					{
+						UUID: "4c260344-b170-41eb-b01e-c0ff10c72f25",
+					},
+				},
+				Environments: []broker.TeamEnvironment{
+					{
+						UUID: "8000883c-abf0-4b4c-b993-426f607092a9",
+					},
+				},
+			},
+		}
+		
+		updated := broker.Team{
+			Name: create.Name,
+			UUID: created.UUID,
+			Embedded: broker.TeamEmbeddedItems{
+				Pacticipants: []broker.Pacticipant{
+					{
+						Name: "Terraform Client",
 					},
 				},
 				Administrators: []broker.TeamUser{
@@ -200,13 +227,13 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.JSONBody(Like(updated))
+					b.JSONBody(Like(team))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.ReadTeam(updated)
+				res, e := client.ReadTeam(team)
 
 				assert.NoError(t, e)
 				assert.NotNil(t, res)
@@ -273,7 +300,7 @@ func TestTerraformClientPact(t *testing.T) {
 				assert.Equal(t, "terraform-team", res.Name)
 				assert.Len(t, res.Embedded.Administrators, 1)
 				assert.Len(t, res.Embedded.Environments, 1)
-				assert.Len(t, res.Embedded.Members, 1)
+				assert.Len(t, res.Embedded.Pacticipants, 1)
 
 				return e
 			})
