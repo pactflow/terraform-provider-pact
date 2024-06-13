@@ -63,7 +63,7 @@ type TeamsAssignmentResponse struct {
 }
 
 type EmbeddedUsers = struct {
-	Users []User `json:"users,omitempty"`
+	Users []TeamUser `json:"users,omitempty"`
 }
 
 // Create POST /admin/teams

@@ -342,11 +342,12 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(req))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(broker.TeamsAssignmentResponse{
 						Embedded: broker.EmbeddedUsers{
-							Users: []broker.User{
+							Users: []broker.TeamUser{
 								{
-									UUID:   "4c260344-b170-41eb-b01e-c0ff10c72f25",
+									UUID:   "05064a18-229d-4dfd-b37c-f00ec9673a49",
 									Active: true,
 								},
 							},
