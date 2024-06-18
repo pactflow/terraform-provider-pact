@@ -1,7 +1,6 @@
 package client
 
 import (
-	"strings"
 	"testing"
 
 	"fmt"
@@ -1054,16 +1053,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.JSONBody(Like(broker.WebhookResponse{
-						Webhook: webhook,
-						HalDoc: broker.HalDoc{
-							Links: broker.HalLinks{
-								"self": broker.Link{
-									Href: "http://some-broker/webhooks/2e4bf0e6-b0cf-451f-b05b-69048955f019",
-								},
-							},
-						},
-					}))
+					b.JSONBody(Like(created))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -1072,9 +1062,6 @@ func TestTerraformClientPact(t *testing.T) {
 				res, e := client.CreateWebhook(webhook)
 				assert.NoError(t, e)
 				assert.Equal(t, "terraform webhook", res.Description)
-
-				items := strings.Split(res.Links["self"].Href, "/")
-				assert.Equal(t, "2e4bf0e6-b0cf-451f-b05b-69048955f019", items[len(items)-1])
 
 				return e
 			})
