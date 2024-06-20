@@ -1155,6 +1155,7 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("SetTenantAuthenticationSettings", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("a tenant with authentication providers exists").
 				UponReceiving("a request to update authentication settings").
 				WithRequest("PUT", "/admin/tenant/authentication-settings", func(b *consumer.V2RequestBuilder) {
 					b.Header("Content-Type", S("application/json"))
@@ -1182,6 +1183,7 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("ReadTenantAuthenticationSettings", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("a tenant with authentication providers exists").
 				UponReceiving("a request to get authentication settings").
 				WithRequest("GET", "/admin/tenant/authentication-settings").
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
