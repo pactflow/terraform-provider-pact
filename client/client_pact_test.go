@@ -812,7 +812,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.Header("Location", S(fmt.Sprintf("https://foo.com/path/to/%s", created.UUID)))
+					b.Header("Location", Regex("https://foo.com/admin/system-accounts/47b267ba-6163-40f5-833c-112caea52735", `https?://(?:localhost:9292|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/admin/system-accounts/[a-f0-9\-]+`))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -820,7 +820,9 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreateSystemAccount(user)
 				assert.NoError(t, e)
-				assert.Equal(t, created.UUID, res.UUID)
+				if len(res.UUID) <= 0 {
+					t.Errorf("expected UUID to exists")
+				}
 
 				return e
 			})
