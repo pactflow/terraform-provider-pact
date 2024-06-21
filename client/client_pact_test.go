@@ -749,7 +749,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(setUserRoles))
 
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -914,7 +914,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(setUserRoles))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
