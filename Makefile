@@ -87,7 +87,7 @@ pact: pact-go
 	go test -tags=consumer -count=1 -v github.com/pactflow/terraform/client/...
 
 publish:
-	@echo "--- 🤝 Transorming Broken Keys in Pact File"
+	@echo "--- 🤝 Transforming Broken Keys in Pact File"
 	"$(CURDIR)/scripts/transform-broken-keys.sh"
 	@echo "--- 🤝 Publishing Pact"
 	"${PACT_CLI}" publish ${PWD}/client/pacts --consumer-app-version ${GITHUB_SHA} --tag ${GITHUB_BRANCH}
