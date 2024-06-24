@@ -598,7 +598,7 @@ func TestTerraformClientPact(t *testing.T) {
 			Name:   "terraform user",
 			Email:  "terraform.user@some.domain",
 			Active: true,
-			Type:   broker.RegularUser,
+			Type:   0,
 		}
 
 		created := broker.User{
@@ -638,6 +638,7 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("CreateUser", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("user service responds correctly").
 				UponReceiving("a request to create a user").
 				WithRequest("POST", "/admin/users/invite-user", func(b *consumer.V2RequestBuilder) {
 					b.Header("Content-Type", S("application/json"))
