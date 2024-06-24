@@ -79,6 +79,8 @@ test:
 	go tool cover -func coverage.txt
 
 pact-go:
+	echo "Cleaning up tmp libpact files"
+	rm /tmp/libpact*
 	echo "--- 🐿 Installing Pact FFI dependencies"
 	pact-go -l DEBUG install --libDir /tmp
 
