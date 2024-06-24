@@ -12,7 +12,7 @@ type Environment struct {
 }
 
 type EnvironmentCreateOrUpdateRequest struct {
-	UUID        string   `json:"uuid"`
+	UUID        string   `json:"-"`
 	DisplayName string   `json:"displayName,omitempty"`
 	Name        string   `json:"name,omitempty"`
 	Production  bool     `json:"production"`

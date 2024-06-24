@@ -1265,6 +1265,10 @@ func TestTerraformClientPact(t *testing.T) {
 			UUID:        environment.UUID,
 			Name:        update.Name,
 			DisplayName: environment.DisplayName,
+			Production:  environment.Production,
+			Teams: []string{
+				"99643109-adb0-4e68-b25f-7b14d6bcae16",
+			},
 			Embedded: broker.EnvironmentEmbeddedItems{
 				Teams: []broker.EnvironmentEmbeddedTeams{
 					{
@@ -1341,7 +1345,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/json;charset=utf-8"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(updated))
 
 				})
