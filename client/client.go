@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	userAgent                           = "go-pact/" + version.LIBRARY_VERSION
+	userAgent                           = "terraform-pact/" + version.LIBRARY_VERSION
 	defaultBaseURL                      = "http://localhost"
 	webhookReadUpdateDeleteTemplate     = "/webhooks/%s"
 	webhookCreateTemplate               = "/webhooks"

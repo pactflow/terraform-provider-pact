@@ -310,8 +310,7 @@ func (m *Message) WithResponseJSONContents(body interface{}) *Message {
 	return m.WithContents(INTERACTION_PART_RESPONSE, "application/json", []byte(value))
 }
 
-// TODO: note that string values here must be NUL terminated.
-// Only accepts JSON
+// Note that string values here must be NUL terminated.
 func (m *Message) WithContents(part interactionPart, contentType string, body []byte) *Message {
 	cHeader := C.CString(contentType)
 	defer free(cHeader)
@@ -503,17 +502,15 @@ func (m *Message) GetMessageResponseContents() ([][]byte, error) {
 
 		// Get Response body
 		len := C.pactffi_sync_message_get_response_contents_length(message, C.size_t(i))
-		if len == 0 {
-			return nil, errors.New("retrieved an empty message")
+		if len != 0 {
+			data := C.pactffi_sync_message_get_response_contents_bin(message, C.size_t(i))
+			if data == nil {
+				return nil, errors.New("retrieved an empty pointer to the message contents")
+			}
+			ptr := unsafe.Pointer(data)
+			bytes := C.GoBytes(ptr, C.int(len))
+			responses[i] = bytes
 		}
-		data := C.pactffi_sync_message_get_response_contents_bin(message, C.size_t(i))
-		if data == nil {
-			return nil, errors.New("retrieved an empty pointer to the message contents")
-		}
-		ptr := unsafe.Pointer(data)
-		bytes := C.GoBytes(ptr, C.int(len))
-
-		responses[i] = bytes
 	}
 
 	return responses, nil

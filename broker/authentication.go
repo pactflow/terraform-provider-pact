@@ -13,11 +13,11 @@ type AuthenticationProviders struct {
 
 // GoogleAuthenticationSettings configures the allowed email domains to authenticate to Pactflow
 type GoogleAuthenticationSettings struct {
-	EmailDomains []string `json:"EmailDomains"`
+	EmailDomains []string `json:"emailDomains"`
 }
 
 // GithubAuthenticationSettings configures the allowed organisations that may authenticate to Pactflow
 // NOTE: this does not perform any Github OAuth process, which must be confirmed via the UI after enabling
 type GithubAuthenticationSettings struct {
-	Organizations []string `json:"GithubOrganizations"`
+	Organizations []string `json:"githubOrganizations"`
 }

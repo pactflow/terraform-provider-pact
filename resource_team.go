@@ -77,9 +77,9 @@ func getTeamFromResourceData(d *schema.ResourceData) broker.Team {
 	log.Println("[DEBUG] resource_team.go administrators?", administrators)
 	if len(administrators) > 0 {
 		log.Println("[DEBUG] resource_team.go have administrators", len(administrators), administrators)
-		items := make([]broker.User, len(administrators))
+		items := make([]broker.TeamUser, len(administrators))
 		for i, p := range administrators {
-			items[i] = broker.User{
+			items[i] = broker.TeamUser{
 				UUID: p,
 			}
 		}

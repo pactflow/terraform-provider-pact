@@ -10,9 +10,31 @@ type Team struct {
 
 type TeamEmbeddedItems struct {
 	Pacticipants   []Pacticipant `json:"pacticipants,omitempty"`
-	Members        []User        `json:"members,omitempty"`
-	Administrators []User        `json:"administrators,omitempty"`
-	Environments   []Environment `json:"environments,omitempty"`
+	Members        []TeamUser        `json:"members,omitempty"`
+	Administrators []TeamUser        `json:"administrators,omitempty"`
+	Environments   []TeamEnvironment `json:"environments,omitempty"`
+}
+
+type TeamUser struct {
+	UUID               string   `json:"uuid,omitempty"`
+	Name               string   `json:"name,omitempty"`
+	Email              string   `json:"email,omitempty"`
+	Active             bool     `json:"active"`
+	CreatedAt          string   `json:"createdAt,omitempty"`
+	UpdatedAt          string   `json:"updatedAt,omitempty"`
+	LastLogin          string   `json:"lastLogin,omitempty"`
+	IdentityProviderID string   `json:"identityProviderId,omitempty"`
+	Type               UserType `json:"type,omitempty"`
+	TypeDescription    string   `json:"typeDescription,omitempty"`
+}
+
+type TeamEnvironment struct {
+	Name        string                   `json:"name,omitempty"`
+	Production  bool                     `json:"production"`
+	DisplayName string                   `json:"displayName,omitempty"`
+	CreatedAt   string                   `json:"createdAt,omitempty"`
+	UpdatedAt   string                   `json:"updatedAt,omitempty"`
+	UUID        string                   `json:"uuid,omitempty"`
 }
 
 type TeamsResponse struct {
@@ -41,7 +63,7 @@ type TeamsAssignmentResponse struct {
 }
 
 type EmbeddedUsers = struct {
-	Users []User `json:"users,omitempty"`
+	Users []TeamUser `json:"users,omitempty"`
 }
 
 // Create POST /admin/teams

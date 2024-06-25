@@ -1,7 +1,6 @@
 package client
 
 import (
-	"strings"
 	"testing"
 
 	"fmt"
@@ -53,8 +52,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(pacticipant))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(pacticipant))
 				})
 
@@ -79,7 +78,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.BodyMatch(&broker.Pacticipant{})
 				})
 
@@ -107,7 +106,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(pacticipant))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(pacticipant))
 				})
 
@@ -136,7 +135,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/pacticipants/terraform-client", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -158,22 +157,49 @@ func TestTerraformClientPact(t *testing.T) {
 			UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
 		}
 
-		updated := broker.Team{
+		team := broker.Team{
 			Name: create.Name,
 			UUID: created.UUID,
 			Embedded: broker.TeamEmbeddedItems{
-				Members: []broker.User{
+				Pacticipants: []broker.Pacticipant{
+					{
+						Name: "Pactflow Saas",
+					},
+				},
+				Members: []broker.TeamUser{
 					{
 						UUID:   "4c260344-b170-41eb-b01e-c0ff10c72f25",
 						Active: true,
 					},
 				},
-				Administrators: []broker.User{
+				Administrators: []broker.TeamUser{
 					{
 						UUID: "4c260344-b170-41eb-b01e-c0ff10c72f25",
 					},
 				},
-				Environments: []broker.Environment{
+				Environments: []broker.TeamEnvironment{
+					{
+						UUID: "8000883c-abf0-4b4c-b993-426f607092a9",
+					},
+				},
+			},
+		}
+		
+		updated := broker.Team{
+			Name: create.Name,
+			UUID: created.UUID,
+			Embedded: broker.TeamEmbeddedItems{
+				Pacticipants: []broker.Pacticipant{
+					{
+						Name: "Terraform Client",
+					},
+				},
+				Administrators: []broker.TeamUser{
+					{
+						UUID: "4c260344-b170-41eb-b01e-c0ff10c72f25",
+					},
+				},
+				Environments: []broker.TeamEnvironment{
 					{
 						UUID: "8000883c-abf0-4b4c-b993-426f607092a9",
 					},
@@ -199,14 +225,14 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.JSONBody(Like(updated))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.JSONBody(Like(team))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.ReadTeam(updated)
+				res, e := client.ReadTeam(team)
 
 				assert.NoError(t, e)
 				assert.NotNil(t, res)
@@ -229,8 +255,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(create))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -260,7 +286,7 @@ func TestTerraformClientPact(t *testing.T) {
 					and.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(and *consumer.V2ResponseBuilder) {
-					and.Header("Content-Type", S("application/hal+json"))
+					and.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					and.JSONBody(Like(updated))
 				})
 
@@ -273,7 +299,7 @@ func TestTerraformClientPact(t *testing.T) {
 				assert.Equal(t, "terraform-team", res.Name)
 				assert.Len(t, res.Embedded.Administrators, 1)
 				assert.Len(t, res.Embedded.Environments, 1)
-				assert.Len(t, res.Embedded.Members, 1)
+				assert.Len(t, res.Embedded.Pacticipants, 1)
 
 				return e
 			})
@@ -288,7 +314,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/admin/teams/99643109-adb0-4e68-b25f-7b14d6bcae16", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -315,11 +341,12 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(req))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(broker.TeamsAssignmentResponse{
 						Embedded: broker.EmbeddedUsers{
-							Users: []broker.User{
+							Users: []broker.TeamUser{
 								{
-									UUID:   "4c260344-b170-41eb-b01e-c0ff10c72f25",
+									UUID:   "05064a18-229d-4dfd-b37c-f00ec9673a49",
 									Active: true,
 								},
 							},
@@ -342,7 +369,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 	t.Run("Secret", func(t *testing.T) {
 		secret := broker.Secret{
-			Name:        "terraform-secret",
+			Name:        "terraformSecret",
 			Description: "terraform secret",
 			Value:       "supersecret",
 			TeamUUID:    "1da4bc0e-8031-473f-880b-3b3951683284",
@@ -358,7 +385,13 @@ func TestTerraformClientPact(t *testing.T) {
 			UUID:        created.UUID,
 			Name:        secret.Name,
 			Description: "updated description",
-			Value:       "supersecret",
+			Value:       "topsecret",
+		}
+
+		updated := broker.Secret{
+			UUID:        created.UUID,
+			Name:        secret.Name,
+			Description: "updated description",
 		}
 
 		t.Run("CreateSecret", func(t *testing.T) {
@@ -371,8 +404,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(secret))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -381,7 +414,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreateSecret(secret)
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-secret", res.Name)
+				assert.Equal(t, "terraformSecret", res.Name)
 
 				return e
 			})
@@ -399,8 +432,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.JSONBody(Like(update))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.JSONBody(Like(updated))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -408,7 +441,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.UpdateSecret(update)
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-secret", res.Name)
+				assert.Equal(t, "terraformSecret", res.Name)
 
 				return e
 			})
@@ -423,7 +456,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/secrets/b6af03cd-018c-4f1b-9546-c778d214f305", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {})
+				WillRespondWith(204, func(b *consumer.V2ResponseBuilder) {})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -439,10 +472,9 @@ func TestTerraformClientPact(t *testing.T) {
 			Name: "terraform-role",
 			Permissions: []broker.Permission{
 				{
-					Name:        "role name",
 					Scope:       "user:manage:*",
-					Label:       "role label",
-					Description: "role description",
+					Label:       "permission label",
+					Description: "premission description",
 				},
 			},
 		}
@@ -468,8 +500,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(role))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 
 				})
@@ -496,7 +528,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -524,7 +556,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 
 				})
@@ -550,7 +582,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/admin/roles/e1407277-2a25-4559-8fed-4214dd12a1e8", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -585,10 +617,9 @@ func TestTerraformClientPact(t *testing.T) {
 						UUID: "84f66fab-1c42-4351-96bf-88d3a09d7cd2",
 						Permissions: []broker.Permission{
 							{
-								Name:        "role name",
 								Scope:       "user:manage:*",
-								Label:       "role label",
-								Description: "role description",
+								Label:       "permission label",
+								Description: "permission description",
 							},
 						},
 					},
@@ -607,6 +638,7 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("CreateUser", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("user service responds correctly").
 				UponReceiving("a request to create a user").
 				WithRequest("POST", "/admin/users/invite-user", func(b *consumer.V2RequestBuilder) {
 					b.Header("Content-Type", S("application/json"))
@@ -615,7 +647,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -640,7 +672,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -668,7 +700,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -696,7 +728,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -718,7 +750,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(setUserRoles))
 
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -751,10 +783,9 @@ func TestTerraformClientPact(t *testing.T) {
 						UUID: "84f66fab-1c42-4351-96bf-88d3a09d7cd2",
 						Permissions: []broker.Permission{
 							{
-								Name:        "role name",
 								Scope:       "user:manage:*",
-								Label:       "role label",
-								Description: "role description",
+								Label:       "permission label",
+								Description: "permission description",
 							},
 						},
 					},
@@ -781,8 +812,8 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.Header("Location", S(fmt.Sprintf("https://foo.com/path/to/%s", created.UUID)))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.Header("Location", Regex("https://foo.com/admin/system-accounts/71a5be7d-bb9c-427b-ba49-ee8f1df0ae58", `https?://(?:localhost:9292|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/admin/system-accounts/[a-f0-9\-]+`))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -806,7 +837,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -835,7 +866,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -863,7 +894,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(update))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(update))
 				})
 
@@ -884,7 +915,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(setUserRoles))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -916,8 +947,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.JSONBody(map[string]interface{}{
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.JSONBody(Like(map[string]interface{}{
 						"_embedded": map[string]interface{}{
 							"items": []interface{}{
 								map[string]interface{}{
@@ -932,7 +963,7 @@ func TestTerraformClientPact(t *testing.T) {
 								},
 							},
 						},
-					})
+					}))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -955,11 +986,9 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("POST", "/settings/tokens/e068b1ea-d064-4719-971f-98af49cdf3f7/regenerate", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.JSONBody(Like(broker.APITokenResponse{
-						APIToken: readOnlytoken,
-					}))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.JSONBody(Like(readOnlytoken))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -1009,6 +1038,7 @@ func TestTerraformClientPact(t *testing.T) {
 		c, _ := copystructure.Copy(&webhook)
 		created := c.(*broker.Webhook)
 		created.ID = "2e4bf0e6-b0cf-451f-b05b-69048955f019"
+		created.Request.Password = ""
 
 		t.Run("CreateWebhook", func(t *testing.T) {
 
@@ -1022,18 +1052,9 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(webhook))
 
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.JSONBody(Like(broker.WebhookResponse{
-						Webhook: webhook,
-						HalDoc: broker.HalDoc{
-							Links: broker.HalLinks{
-								"self": broker.Link{
-									Href: "http://some-broker/webhooks/2e4bf0e6-b0cf-451f-b05b-69048955f019",
-								},
-							},
-						},
-					}))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.JSONBody(Like(created))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -1042,9 +1063,6 @@ func TestTerraformClientPact(t *testing.T) {
 				res, e := client.CreateWebhook(webhook)
 				assert.NoError(t, e)
 				assert.Equal(t, "terraform webhook", res.Description)
-
-				items := strings.Split(res.Links["self"].Href, "/")
-				assert.Equal(t, "2e4bf0e6-b0cf-451f-b05b-69048955f019", items[len(items)-1])
 
 				return e
 			})
@@ -1060,7 +1078,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1088,7 +1106,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1112,7 +1130,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/webhooks/2e4bf0e6-b0cf-451f-b05b-69048955f019", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
@@ -1138,6 +1156,7 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("SetTenantAuthenticationSettings", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("a tenant with authentication providers exists").
 				UponReceiving("a request to update authentication settings").
 				WithRequest("PUT", "/admin/tenant/authentication-settings", func(b *consumer.V2RequestBuilder) {
 					b.Header("Content-Type", S("application/json"))
@@ -1145,7 +1164,7 @@ func TestTerraformClientPact(t *testing.T) {
 					b.JSONBody(Like(authSettings))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(authSettings))
 				})
 
@@ -1165,10 +1184,11 @@ func TestTerraformClientPact(t *testing.T) {
 		t.Run("ReadTenantAuthenticationSettings", func(t *testing.T) {
 			mockProvider.
 				AddInteraction().
+				Given("a tenant with authentication providers exists").
 				UponReceiving("a request to get authentication settings").
 				WithRequest("GET", "/admin/tenant/authentication-settings").
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/json;charset=utf-8"))
 					b.JSONBody(Like(authSettings))
 				})
 
@@ -1188,9 +1208,18 @@ func TestTerraformClientPact(t *testing.T) {
 
 	t.Run("Environment", func(t *testing.T) {
 		environment := broker.Environment{
+			UUID:        "8000883c-abf0-4b4c-b993-426f607092a9",
 			Name:        "TerraformEnvironment",
 			Production:  true,
 			DisplayName: "terraform environment",
+			Embedded: broker.EnvironmentEmbeddedItems{
+				Teams: []broker.EnvironmentEmbeddedTeams{
+					{
+						Name: "terraform-team",
+						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
+					},
+				},
+			},
 		}
 
 		create := broker.EnvironmentCreateOrUpdateRequest{
@@ -1203,11 +1232,15 @@ func TestTerraformClientPact(t *testing.T) {
 		}
 
 		created := broker.EnvironmentCreateOrUpdateResponse{
-			UUID:        "8000883c-abf0-4b4c-b993-426f607092a9",
+			UUID:        environment.UUID,
 			Name:        environment.Name,
 			DisplayName: environment.DisplayName,
+			Production:  environment.Production,
+			Teams: []string{
+				"99643109-adb0-4e68-b25f-7b14d6bcae16",
+			},
 			Embedded: broker.EnvironmentEmbeddedItems{
-				Teams: []broker.Team{
+				Teams: []broker.EnvironmentEmbeddedTeams{
 					{
 						Name: "terraform-team",
 						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
@@ -1227,11 +1260,15 @@ func TestTerraformClientPact(t *testing.T) {
 		}
 
 		updated := broker.EnvironmentCreateOrUpdateResponse{
-			UUID:        created.UUID,
+			UUID:        environment.UUID,
 			Name:        update.Name,
 			DisplayName: environment.DisplayName,
+			Production:  environment.Production,
+			Teams: []string{
+				"99643109-adb0-4e68-b25f-7b14d6bcae16",
+			},
 			Embedded: broker.EnvironmentEmbeddedItems{
-				Teams: []broker.Team{
+				Teams: []broker.EnvironmentEmbeddedTeams{
 					{
 						Name: "terraform-team",
 						UUID: "99643109-adb0-4e68-b25f-7b14d6bcae16",
@@ -1250,8 +1287,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 					b.JSONBody(Like(create))
 				}).
-				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(created))
 				})
 
@@ -1277,8 +1314,8 @@ func TestTerraformClientPact(t *testing.T) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
-					b.JSONBody(Like(created))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
+					b.JSONBody(Like(environment))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -1306,7 +1343,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
-					b.Header("Content-Type", S("application/hal+json"))
+					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
 					b.JSONBody(Like(updated))
 
 				})
@@ -1332,7 +1369,7 @@ func TestTerraformClientPact(t *testing.T) {
 				WithRequest("DELETE", "/environments/8000883c-abf0-4b4c-b993-426f607092a9", func(b *consumer.V2RequestBuilder) {
 					b.Header("Authorization", Like("Bearer 1234"))
 				}).
-				WillRespondWith(200)
+				WillRespondWith(204)
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
