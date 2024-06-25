@@ -598,7 +598,7 @@ func TestTerraformClientPact(t *testing.T) {
 			Name:   "terraform user",
 			Email:  "terraform.user@some.domain",
 			Active: true,
-			Type:   0,
+			Type:   broker.RegularUser,
 		}
 
 		created := broker.User{
@@ -813,7 +813,7 @@ func TestTerraformClientPact(t *testing.T) {
 				}).
 				WillRespondWith(201, func(b *consumer.V2ResponseBuilder) {
 					b.Header("Content-Type", S("application/hal+json;charset=utf-8"))
-					b.Header("Location", Regex("https://foo.com/admin/system-accounts/47b267ba-6163-40f5-833c-112caea52735", `https?://(?:localhost:9292|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/admin/system-accounts/[a-f0-9\-]+`))
+					b.Header("Location", Regex("https://foo.com/admin/system-accounts/71a5be7d-bb9c-427b-ba49-ee8f1df0ae58", `https?://(?:localhost:9292|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/admin/system-accounts/[a-f0-9\-]+`))
 				})
 
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
@@ -821,9 +821,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreateSystemAccount(user)
 				assert.NoError(t, e)
-				if len(res.UUID) <= 0 {
-					t.Errorf("expected UUID to exists")
-				}
+				assert.Equal(t, created.UUID, res.UUID)
 
 				return e
 			})
