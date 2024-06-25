@@ -58,7 +58,7 @@ deps:
 	go install github.com/modocache/gover@latest; \
 	go install github.com/mitchellh/gox@latest; \
 	cd -
-	go install github.com/pact-foundation/pact-go/v2@v2.0.2;
+	go install github.com/pact-foundation/pact-go/v2@v2.0.5;
 
 goveralls:
 	goveralls -service="travis-ci" -coverprofile=coverage.txt -repotoken $(COVERALLS_TOKEN)
