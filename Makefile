@@ -38,7 +38,7 @@ clean-acceptance:
 	rm -rf terraform.tf* log/tf.log .terraform*
 
 docker:
-	docker-compose up -d
+	docker compose up -d
 
 bin:
 	$$(go env GOPATH)/bin/gox -os="darwin" -arch="arm64" -output="bin/terraform-provider-pact_{{.OS}}_{{.Arch}}"
