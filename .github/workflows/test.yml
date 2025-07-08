@@ -16,14 +16,14 @@ jobs:
           echo "LOG_LEVEL=trace" >> $GITHUB_ENV
           echo "GITHUB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - name: Install Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@19bb51245e9c80abacb2e91cc42b33fa478b8639 # v4
         with:
           go-version: ${{ matrix.go-version }}
-      - uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@ed3a0531877aca392eb870f440d9ae7aba83a6bd # v1
         with:
           terraform_version: 0.14.5
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       - name: Test
         run: make
         env:
@@ -31,7 +31,7 @@ jobs:
           PACT_BROKER_BASE_URL: "${{ secrets.PACTFLOW_PACT_BROKER_BASE_URL }}"
           ACCEPTANCE_PACT_BROKER_TOKEN: "${{ secrets.ACCEPTANCE_PACT_BROKER_TOKEN }}"
           ACCEPTANCE_PACT_BROKER_BASE_URL: "${{ secrets.ACCEPTANCE_PACT_BROKER_BASE_URL }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: logs
