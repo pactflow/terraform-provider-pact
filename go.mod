@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/hashicorp/terraform-plugin-sdk v1.17.2
 	github.com/mitchellh/copystructure v1.2.0
-	github.com/mitchellh/mapstructure v1.1.2
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pact-foundation/pact-go/v2 v2.0.5
 	github.com/stretchr/testify v1.8.4
 )
