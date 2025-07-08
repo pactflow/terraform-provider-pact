@@ -2,7 +2,7 @@ version: "3"
 
 services:
   postgres:
-    image: postgres
+    image: postgres@sha256:3962158596daaef3682838cc8eb0e719ad1ce520f88e34596ce8d5de1b6330a1
     healthcheck:
       test: psql postgres --command "select 1" -U postgres
     ports:
@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: postgres
 
   broker_app:
-    image: dius/pact-broker
+    image: dius/pact-broker@sha256:16b7fce5e61f91435e06163add2a63662a69d74ae124bba8aadd6117f6a67e51
     links:
       - postgres
     ports:
