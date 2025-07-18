@@ -1,6 +1,6 @@
 module github.com/pactflow/terraform
 
-go 1.18
+go 1.23.0
 
 require (
 	github.com/hashicorp/terraform-plugin-sdk v1.17.2
@@ -12,8 +12,7 @@ require (
 
 require (
 	cloud.google.com/go v0.112.0 // indirect
-	cloud.google.com/go/compute v1.24.0 // indirect
-	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
 	cloud.google.com/go/storage v1.36.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -81,7 +80,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.22.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/oauth2 v0.17.0 // indirect
+	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
