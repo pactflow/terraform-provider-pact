@@ -31,7 +31,7 @@ jobs:
           PACT_BROKER_BASE_URL: "${{ secrets.PACTFLOW_PACT_BROKER_BASE_URL }}"
           ACCEPTANCE_PACT_BROKER_TOKEN: "${{ secrets.ACCEPTANCE_PACT_BROKER_TOKEN }}"
           ACCEPTANCE_PACT_BROKER_BASE_URL: "${{ secrets.ACCEPTANCE_PACT_BROKER_BASE_URL }}"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: failure()
         with:
           name: logs
