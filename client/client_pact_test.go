@@ -85,7 +85,7 @@ func TestTerraformClientPact(t *testing.T) {
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.ReadPacticipant("pactflow-terraform-client")
+				res, e := client.ReadPacticipant("terraform-client")
 				assert.NoError(t, e)
 				assert.Equal(t, "terraform-client", res.Name)
 				assert.NotEmpty(t, res.RepositoryURL)
@@ -115,7 +115,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.UpdatePacticipant(pacticipant)
 				assert.NoError(t, e)
-				assert.Equal(t, "pactflow-terraform-client", res.Name)
+				assert.Equal(t, "terraform-client", res.Name)
 
 				return e
 			})
