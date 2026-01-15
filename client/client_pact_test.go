@@ -22,14 +22,14 @@ func TestTerraformClientPact(t *testing.T) {
 	log.SetLogLevel("ERROR")
 
 	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
-		Consumer: "terraform-client",
+		Consumer: "pactflow-terraform-client",
 		Provider: "pactflow-application-saas",
 		Host:     "127.0.0.1",
 	})
 	assert.NoError(t, err)
 
 	pacticipant := broker.Pacticipant{
-		Name:          "terraform-client",
+		Name:          "pactflow-terraform-client",
 		RepositoryURL: "https://github.com/pactflow/new-terraform-provider-pact",
 		MainBranch:    "Main",
 		DisplayName:   "Terraform Client",
@@ -62,7 +62,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreatePacticipant(pacticipant)
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-client", res.Name)
+				assert.Equal(t, "pactflow-terraform-client", res.Name)
 
 				return e
 			})
@@ -85,9 +85,9 @@ func TestTerraformClientPact(t *testing.T) {
 			err = mockProvider.ExecuteTest(t, func(config consumer.MockServerConfig) error {
 				client := clientForPact(config)
 
-				res, e := client.ReadPacticipant("terraform-client")
+				res, e := client.ReadPacticipant("pactflow-terraform-client")
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-client", res.Name)
+				assert.Equal(t, "pactflow-terraform-client", res.Name)
 				assert.NotEmpty(t, res.RepositoryURL)
 
 				return e
@@ -115,7 +115,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.UpdatePacticipant(pacticipant)
 				assert.NoError(t, e)
-				assert.Equal(t, "terraform-client", res.Name)
+				assert.Equal(t, "pactflow-terraform-client", res.Name)
 
 				return e
 			})
@@ -124,7 +124,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 		t.Run("DeletePacticipant", func(t *testing.T) {
 			newPacticipant := broker.Pacticipant{
-				Name:          "terraform-client",
+				Name:          "pactflow-terraform-client",
 				RepositoryURL: "https://github.com/pactflow/new-terraform-provider-pact",
 			}
 
