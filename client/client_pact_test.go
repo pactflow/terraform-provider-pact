@@ -29,7 +29,7 @@ func TestTerraformClientPact(t *testing.T) {
 	assert.NoError(t, err)
 
 	pacticipant := broker.Pacticipant{
-		Name:          "pactflow-terraform-client",
+		Name:          "terraform-client",
 		RepositoryURL: "https://github.com/pactflow/new-terraform-provider-pact",
 		MainBranch:    "Main",
 		DisplayName:   "Terraform Client",
@@ -62,7 +62,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.CreatePacticipant(pacticipant)
 				assert.NoError(t, e)
-				assert.Equal(t, "pactflow-terraform-client", res.Name)
+				assert.Equal(t, "terraform-client", res.Name)
 
 				return e
 			})
@@ -87,7 +87,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 				res, e := client.ReadPacticipant("pactflow-terraform-client")
 				assert.NoError(t, e)
-				assert.Equal(t, "pactflow-terraform-client", res.Name)
+				assert.Equal(t, "terraform-client", res.Name)
 				assert.NotEmpty(t, res.RepositoryURL)
 
 				return e
@@ -124,7 +124,7 @@ func TestTerraformClientPact(t *testing.T) {
 
 		t.Run("DeletePacticipant", func(t *testing.T) {
 			newPacticipant := broker.Pacticipant{
-				Name:          "pactflow-terraform-client",
+				Name:          "terraform-client",
 				RepositoryURL: "https://github.com/pactflow/new-terraform-provider-pact",
 			}
 
