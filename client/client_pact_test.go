@@ -22,7 +22,7 @@ func TestTerraformClientPact(t *testing.T) {
 	log.SetLogLevel("ERROR")
 
 	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
-		Consumer: "terraform-client",
+		Consumer: "terraform-client-delete-me",
 		Provider: "pactflow-application-saas",
 		Host:     "127.0.0.1",
 	})
