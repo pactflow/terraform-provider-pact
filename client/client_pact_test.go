@@ -22,7 +22,7 @@ func TestTerraformClientPact(t *testing.T) {
 	log.SetLogLevel("ERROR")
 
 	mockProvider, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
-		Consumer: "terraform-client",
+		Consumer: "pactflow-terraform-client",
 		Provider: "pactflow-application-saas",
 		Host:     "127.0.0.1",
 	})
@@ -221,7 +221,7 @@ func TestTerraformClientPact(t *testing.T) {
 				Given("a team with uuid 99643109-adb0-4e68-b25f-7b14d6bcae16 exists").
 				UponReceiving("a request to get a team").
 				WithRequest("GET", "/admin/teams/99643109-adb0-4e68-b25f-7b14d6bcae16", func(b *consumer.V2RequestBuilder) {
-					b.Header("Authorization", Like("Bearer 1234"))
+					b.Header("Authorization", Like("Bearer 12345"))
 
 				}).
 				WillRespondWith(200, func(b *consumer.V2ResponseBuilder) {
