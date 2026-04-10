@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2015, 2025
+// SPDX-License-Identifier: MPL-2.0
+
 package getter
 
 import (
@@ -40,7 +43,7 @@ func detectSSH(src string) (*url.URL, error) {
 	if qidx < len(path) {
 		q, err := url.ParseQuery(path[qidx+1:])
 		if err != nil {
-			return nil, fmt.Errorf("error parsing GitHub SSH URL: %s", err)
+			return nil, fmt.Errorf("error parsing GitHub SSH URL: %w", err)
 		}
 		u.RawQuery = q.Encode()
 	}
