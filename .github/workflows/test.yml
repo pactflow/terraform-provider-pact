@@ -5,7 +5,7 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        go-version: [1.20.x]
+        go-version: [1.25.x]
     #     os: [ubuntu-latest, macos-latest, windows-latest]
     # runs-on: ${{ matrix.os }}
     steps:
@@ -21,7 +21,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
         with:
-          terraform_version: 0.14.5
+          terraform_version: 1.12.x
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test

@@ -1,3 +1,6 @@
+// Copyright IBM Corp. 2015, 2025
+// SPDX-License-Identifier: MPL-2.0
+
 package getter
 
 import (
@@ -15,7 +18,7 @@ func (d *GCSDetector) Detect(src, _ string) (string, bool, error) {
 		return "", false, nil
 	}
 
-	if strings.Contains(src, "googleapis.com/") {
+	if strings.Contains(src, ".googleapis.com/") {
 		return d.detectHTTP(src)
 	}
 
@@ -36,7 +39,7 @@ func (d *GCSDetector) detectHTTP(src string) (string, bool, error) {
 	url, err := url.Parse(fmt.Sprintf("https://www.googleapis.com/storage/%s/%s/%s",
 		version, bucket, object))
 	if err != nil {
-		return "", false, fmt.Errorf("error parsing GCS URL: %s", err)
+		return "", false, fmt.Errorf("error parsing GCS URL: %w", err)
 	}
 
 	return "gcs::" + url.String(), true, nil
