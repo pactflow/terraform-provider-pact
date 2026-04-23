@@ -5,7 +5,7 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
-### v0.10.0 (23 April 2026)
+### v0.11.0 (23 April 2026)
   * [96ff646](https://github.com/pactflow/terraform/commit/96ff646) - fix: update .goreleaser.yml for goreleaser v2 compatibility (#104) (Copilot, Thu Apr 23 16:36:15 2026 +1000)
   * [b8af575](https://github.com/pactflow/terraform/commit/b8af575) - fix(PACT-5510): revert changes made to test data (#84) (Tuan Pham, Mon Jan 19 07:03:12 2026 +0700)
   * [98c3d99](https://github.com/pactflow/terraform/commit/98c3d99) - fix(deps): update module github.com/stretchr/testify to v1.11.0 (pactflow-renovate-bot[bot], Sun Aug 24 17:36:06 2025 +0000)
@@ -13,29 +13,6 @@ Do this to generate your change history
   * [512abee](https://github.com/pactflow/terraform/commit/512abee) - fix(deps): update module github.com/mitchellh/mapstructure to v1.5.0 (pactflow-renovate-bot[bot], Tue Jul 8 05:52:58 2025 +0000)
   * [67ab7cf](https://github.com/pactflow/terraform/commit/67ab7cf) - Add .github/renovate.json (pactflow-renovate-bot[bot], Thu Jul 3 08:55:42 2025 +0000)
   * [b92a7a6](https://github.com/pactflow/terraform/commit/b92a7a6) - test: fixing existing consumer pact tests (#39) (Sauparna Gupta, Tue Jun 25 15:19:13 2024 +0530)
-  * [80b7d49](https://github.com/pactflow/terraform/commit/80b7d49) - feat: update response for create team endpoint (#34) (Matt Fellows, Mon Nov 27 16:32:56 2023 +1100)
-  * [50f29a7](https://github.com/pactflow/terraform/commit/50f29a7) - Add .whitesource configuration file (#27) (mend-for-github-com[bot], Mon Nov 27 14:50:34 2023 +1100)
-
-### v0.10.0 (23 April 2026)
-  * [96ff646](https://github.com/pactflow/terraform/commit/96ff646) - fix: update .goreleaser.yml for goreleaser v2 compatibility (#104) (Copilot, Thu Apr 23 16:36:15 2026 +1000)
-  * [b8af575](https://github.com/pactflow/terraform/commit/b8af575) - fix(PACT-5510): revert changes made to test data (#84) (Tuan Pham, Mon Jan 19 07:03:12 2026 +0700)
-  * [98c3d99](https://github.com/pactflow/terraform/commit/98c3d99) - fix(deps): update module github.com/stretchr/testify to v1.11.0 (pactflow-renovate-bot[bot], Sun Aug 24 17:36:06 2025 +0000)
-  * [73360b7](https://github.com/pactflow/terraform/commit/73360b7) - fix(deps): update module github.com/stretchr/testify to v1.10.0 (pactflow-renovate-bot[bot], Tue Jul 8 09:35:49 2025 +0000)
-  * [512abee](https://github.com/pactflow/terraform/commit/512abee) - fix(deps): update module github.com/mitchellh/mapstructure to v1.5.0 (pactflow-renovate-bot[bot], Tue Jul 8 05:52:58 2025 +0000)
-  * [67ab7cf](https://github.com/pactflow/terraform/commit/67ab7cf) - Add .github/renovate.json (pactflow-renovate-bot[bot], Thu Jul 3 08:55:42 2025 +0000)
-  * [b92a7a6](https://github.com/pactflow/terraform/commit/b92a7a6) - test: fixing existing consumer pact tests (#39) (Sauparna Gupta, Tue Jun 25 15:19:13 2024 +0530)
-  * [80b7d49](https://github.com/pactflow/terraform/commit/80b7d49) - feat: update response for create team endpoint (#34) (Matt Fellows, Mon Nov 27 16:32:56 2023 +1100)
-  * [50f29a7](https://github.com/pactflow/terraform/commit/50f29a7) - Add .whitesource configuration file (#27) (mend-for-github-com[bot], Mon Nov 27 14:50:34 2023 +1100)
-
-### v0.10.0 (23 April 2026)
-  * [b8af575](https://github.com/pactflow/terraform/commit/b8af575) - fix(PACT-5510): revert changes made to test data (#84) (Tuan Pham, Mon Jan 19 07:03:12 2026 +0700)
-  * [98c3d99](https://github.com/pactflow/terraform/commit/98c3d99) - fix(deps): update module github.com/stretchr/testify to v1.11.0 (pactflow-renovate-bot[bot], Sun Aug 24 17:36:06 2025 +0000)
-  * [73360b7](https://github.com/pactflow/terraform/commit/73360b7) - fix(deps): update module github.com/stretchr/testify to v1.10.0 (pactflow-renovate-bot[bot], Tue Jul 8 09:35:49 2025 +0000)
-  * [512abee](https://github.com/pactflow/terraform/commit/512abee) - fix(deps): update module github.com/mitchellh/mapstructure to v1.5.0 (pactflow-renovate-bot[bot], Tue Jul 8 05:52:58 2025 +0000)
-  * [67ab7cf](https://github.com/pactflow/terraform/commit/67ab7cf) - Add .github/renovate.json (pactflow-renovate-bot[bot], Thu Jul 3 08:55:42 2025 +0000)
-  * [b92a7a6](https://github.com/pactflow/terraform/commit/b92a7a6) - test: fixing existing consumer pact tests (#39) (Sauparna Gupta, Tue Jun 25 15:19:13 2024 +0530)
-  * [80b7d49](https://github.com/pactflow/terraform/commit/80b7d49) - feat: update response for create team endpoint (#34) (Matt Fellows, Mon Nov 27 16:32:56 2023 +1100)
-  * [50f29a7](https://github.com/pactflow/terraform/commit/50f29a7) - Add .whitesource configuration file (#27) (mend-for-github-com[bot], Mon Nov 27 14:50:34 2023 +1100)
 
 ### v0.10.0 (27 November 2023)
   * [80b7d49](https://github.com/pactflow/terraform/commit/80b7d49) - feat: update response for create team endpoint (#34) (Matt Fellows, Mon Nov 27 16:32:56 2023 +1100)
