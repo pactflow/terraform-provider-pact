@@ -14,7 +14,7 @@ function log {
 }
 
 function get_version() {
-  tag=$(git tag -n1 | grep "chore(release)" | tail -n 1 | cut -d ' ' -f1)
+  tag=$(git tag --sort=-version:refname -l "v*" | head -n 1)
   echo "${tag}"
 }
 
