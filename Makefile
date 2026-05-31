@@ -90,7 +90,7 @@ publish:
 	@echo "--- 🤝 Transforming Broken Keys in Pact File"
 	"$(PWD)/scripts/transform-broken-keys.sh"
 	@echo "--- 🤝 Publishing Pact"
-	"${PACT_CLI}" publish ${PWD}/client/pacts --consumer-app-version ${GITHUB_SHA} --tag ${GITHUB_BRANCH}
+	"${PACT_CLI}" publish ${PWD}/client/pacts --consumer-app-version ${GITHUB_SHA} --branch ${GITHUB_BRANCH}
 
 can-i-deploy:
 	@echo "--- 🤝 Can I Deploy?"
