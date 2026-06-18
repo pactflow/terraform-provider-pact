@@ -7,5 +7,5 @@ on:
 
 jobs:
   call-workflow:
-    uses: pactflow/.github/.github/workflows/smartbear-issue-label-added.yml@5cab2ffe4451a4050cac41aecdfa1a1f52863783 # main
+    uses: pactflow/.github/.github/workflows/smartbear-issue-label-added.yml@5c4363b8814c0149f87b9f9ded292f1f869302ff # main
     secrets: inherit
