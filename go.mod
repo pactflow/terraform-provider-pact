@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/pact-foundation/pact-go/v2 v2.5.1
+	github.com/pact-foundation/pact-go/v2 v2.7.0
 	github.com/stretchr/testify v1.11.1
 )
 

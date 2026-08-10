@@ -419,6 +419,8 @@ github.com/pact-foundation/pact-go/v2 v2.4.3 h1:JpkGP+qk77bZk//GrkOPqj9v6VG3K9D1
 github.com/pact-foundation/pact-go/v2 v2.4.3/go.mod h1:tQlnfB4h9huomS3S8xj3z75qUoL9W2zBCUnSGARw27w=
 github.com/pact-foundation/pact-go/v2 v2.5.1 h1:ygrc0KXmF1RM/5cYoOqQXTWPus+110FZLdU+39InWG0=
 github.com/pact-foundation/pact-go/v2 v2.5.1/go.mod h1:luXsS0lGNgcBh8FEfRiem5bLRh2vtHrYlazQxL7WXm0=
+github.com/pact-foundation/pact-go/v2 v2.7.0 h1:2WSM+TpjsSqHD4YbSRIoMZRg5pA3SOWZVBFomUyOKws=
+github.com/pact-foundation/pact-go/v2 v2.7.0/go.mod h1:luXsS0lGNgcBh8FEfRiem5bLRh2vtHrYlazQxL7WXm0=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
