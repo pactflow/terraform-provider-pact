@@ -4,6 +4,7 @@ go 1.25.8
 
 require (
 	github.com/hashicorp/terraform-plugin-sdk v1.17.2
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pact-foundation/pact-go/v2 v2.7.0
