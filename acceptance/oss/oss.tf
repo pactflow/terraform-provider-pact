@@ -25,6 +25,17 @@ resource "pact_pacticipant" "GraphQLAPI" {
   repository_url = "github.com/foo/api"
 }
 
+data "pact_pacticipants" "all" {
+  depends_on = [pact_pacticipant.AdminUI, pact_pacticipant.GraphQLAPI]
+
+  lifecycle {
+    postcondition {
+      condition     = alltrue([for name in ["AdminUI", "GraphQLAPI"] : contains([for p in self.pacticipants : p.name], name)])
+      error_message = "pact_pacticipants data source did not list the pacticipants created above"
+    }
+  }
+}
+
 resource "pact_webhook" "ui_changed" {
   description = "Trigger an API build when the UI changes"
   webhook_provider = {
