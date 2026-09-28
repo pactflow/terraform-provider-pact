@@ -22,7 +22,7 @@ const (
 	webhookReadUpdateDeleteTemplate     = "/webhooks/%s"
 	webhookCreateTemplate               = "/webhooks"
 	pacticipantReadUpdateDeleteTemplate = "/pacticipants/%s"
-	pacticipantCreateTemplate           = "/pacticipants"
+	pacticipantCollectionTemplate       = "/pacticipants"
 	teamReadUpdateDeleteTemplate        = "/admin/teams/%s"
 	teamCreateTemplate                  = "/admin/teams"
 	teamAssignmentTemplate              = "/admin/teams/%s/users"
@@ -123,9 +123,15 @@ func (c *Client) ReadPacticipant(name string) (*broker.Pacticipant, error) {
 	return res.(*broker.Pacticipant), err
 }
 
+// ListPacticipants gets all pacticipants
+func (c *Client) ListPacticipants() (*broker.PacticipantsResponse, error) {
+	res, err := c.doCrud("GET", pacticipantCollectionTemplate, nil, new(broker.PacticipantsResponse))
+	return res.(*broker.PacticipantsResponse), err
+}
+
 // CreatePacticipant creates a new Pacticipant
 func (c *Client) CreatePacticipant(p broker.Pacticipant) (*broker.Pacticipant, error) {
-	res, err := c.doCrud("POST", pacticipantCreateTemplate, p, new(broker.Pacticipant))
+	res, err := c.doCrud("POST", pacticipantCollectionTemplate, p, new(broker.Pacticipant))
 	return res.(*broker.Pacticipant), err
 }
 

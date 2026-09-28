@@ -25,6 +25,14 @@ resource "pact_pacticipant" "GraphQLAPI" {
   repository_url = "github.com/foo/api"
 }
 
+data "pact_pacticipants" "all" {
+  depends_on = [pact_pacticipant.AdminUI, pact_pacticipant.GraphQLAPI]
+}
+
+output "pacticipant_names" {
+  value = [for p in data.pact_pacticipants.all.pacticipants : p.name]
+}
+
 resource "pact_webhook" "ui_changed" {
   description = "Trigger an API build when the UI changes"
   webhook_provider = {
