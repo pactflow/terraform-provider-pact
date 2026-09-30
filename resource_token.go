@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/pactflow/terraform/broker"
 	"github.com/pactflow/terraform/client"
 )
@@ -17,12 +17,6 @@ const (
 var allowedTokenTypes = map[string]string{
 	readOnlyTokenType:  "Read only token (developer)",
 	readWriteTokenType: "Read/write token (CI)",
-}
-
-var tokenType = &schema.Schema{
-	Type:     schema.TypeMap,
-	Optional: true,
-	Elem:     &schema.Resource{},
 }
 
 // Used to convert from TF configuration to a broker.APIToken

@@ -1,29 +1,26 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/pactflow/terraform/broker"
 	"github.com/pactflow/terraform/client"
 )
 
-var secretType = &schema.Schema{
-	Type:     schema.TypeMap,
-	Optional: true,
-	Elem:     &schema.Resource{},
-}
-
 func secret() *schema.Resource {
 	return &schema.Resource{
-		Create:   secretCreate,
-		Update:   secretUpdate,
-		Read:     secretRead,
-		Delete:   secretDelete,
-		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		CreateContext: secretCreate,
+		UpdateContext: secretUpdate,
+		ReadContext:   secretRead,
+		DeleteContext: secretDelete,
+		Importer:      &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:         schema.TypeString,
@@ -37,10 +34,26 @@ func secret() *schema.Resource {
 				Description: "A longer description for the secret",
 			},
 			"value": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Sensitive:   true,
-				Description: "The actual secret",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ExactlyOneOf: []string{"value", "value_wo"},
+				Description:  "The actual secret. The value is stored in the Terraform state; prefer `value_wo` with Terraform 1.11+",
+			},
+			"value_wo": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				WriteOnly:    true,
+				ExactlyOneOf: []string{"value", "value_wo"},
+				RequiredWith: []string{"value_wo_version"},
+				Description:  "Write-only variant of `value`: the secret is sent to the broker but never stored in the Terraform plan or state. Requires Terraform 1.11+. Must be used with `value_wo_version`",
+			},
+			"value_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"value_wo"},
+				Description:  "Version of `value_wo`. Terraform cannot detect changes to write-only values, so change (e.g. increment) this number to push a new `value_wo` to the broker",
 			},
 			"uuid": {
 				Type:        schema.TypeString,
@@ -64,18 +77,23 @@ func validateName(val interface{}, key string) (warns []string, errs []error) {
 	return
 }
 
-func parseSecret(d *schema.ResourceData, meta interface{}) (broker.Secret, error) {
-	log.Printf("[DEBUG] create or update secret with data %+v \n", d)
-	name := d.Get("name").(string)
-	description := d.Get("description").(string)
-	value := d.Get("value").(string)
-	team := d.Get("team").(string)
-
+// parseSecret builds a broker.Secret from the resource configuration.
+// The secret value comes from `value`, or, when that is not set, from the
+// write-only `value_wo` attribute (only available in the raw config).
+func parseSecret(d *schema.ResourceData) (broker.Secret, diag.Diagnostics) {
 	secret := broker.Secret{
-		Name:        name,
-		Description: description,
-		Value:       value,
-		TeamUUID:    team,
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Value:       d.Get("value").(string),
+		TeamUUID:    d.Get("team").(string),
+	}
+
+	if secret.Value == "" {
+		value, diags := rawConfigString(d, cty.GetAttrPath("value_wo"))
+		if diags.HasError() {
+			return secret, diags
+		}
+		secret.Value = value
 	}
 
 	// Existing secret?
@@ -86,85 +104,87 @@ func parseSecret(d *schema.ResourceData, meta interface{}) (broker.Secret, error
 	return secret, nil
 }
 
-func secretCreate(d *schema.ResourceData, meta interface{}) error {
+func secretCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*client.Client)
-	secret, _ := parseSecret(d, meta)
-	log.Println("[DEBUG] creating secret", secret)
+	secret, diags := parseSecret(d)
+	if diags.HasError() {
+		return diags
+	}
+	log.Println("[DEBUG] creating secret", secret.Name)
 
 	res, err := client.CreateSecret(secret)
-
-	if err == nil {
-		items := strings.Split(res.Links["self"].Href, "/")
-		id := items[len(items)-1]
-		d.SetId(id)
-
-		return setSecretState(d, secret)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	return err
+	items := strings.Split(res.Links["self"].Href, "/")
+	id := items[len(items)-1]
+	d.SetId(id)
+	secret.UUID = id
+
+	return diag.FromErr(setSecretState(d, secret))
 }
 
-func secretUpdate(d *schema.ResourceData, meta interface{}) error {
+func secretUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*client.Client)
-	secret, _ := parseSecret(d, meta)
-
-	log.Println("[DEBUG] updatding secret", secret)
-
-	_, err := client.UpdateSecret(secret)
-
-	if err == nil {
-		return setSecretState(d, secret)
+	secret, diags := parseSecret(d)
+	if diags.HasError() {
+		return diags
 	}
 
-	return err
+	log.Println("[DEBUG] updating secret", secret.UUID)
+
+	if _, err := client.UpdateSecret(secret); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return diag.FromErr(setSecretState(d, secret))
 }
 
-func secretRead(d *schema.ResourceData, meta interface{}) error {
+func secretRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	httpClient := meta.(*client.Client)
 
 	secret, err := httpClient.ReadSecret(d.Id())
 	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	// The UUID is not part of the response body (json:"-"), it is the resource ID
+	s := secret.Secret
+	s.UUID = d.Id()
+
+	return diag.FromErr(setSecretState(d, s))
+}
+
+func secretDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*client.Client)
+
+	log.Println("[DEBUG] deleting secret", d.Id())
+
+	if err := client.DeleteSecret(broker.Secret{UUID: d.Id()}); err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.SetId("")
+	return nil
+}
+
+// setSecretState stores the non-sensitive secret attributes in the state.
+//
+// The broker never returns the secret value, so `value` is intentionally not
+// touched here: Terraform keeps the configured value (or the value from the
+// previous state), and `value_wo` is write-only and never persisted.
+func setSecretState(d *schema.ResourceData, secret broker.Secret) error {
+	log.Printf("[DEBUG] setting secret state for %s\n", secret.UUID)
+
+	if err := d.Set("name", secret.Name); err != nil {
 		return err
 	}
-
-	return setSecretState(d, secret.Secret)
-}
-
-func secretDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.Client)
-	secret, _ := parseSecret(d, meta)
-
-	log.Println("[DEBUG] deleting secret", secret)
-
-	err := client.DeleteSecret(secret)
-
-	if err == nil {
-		d.SetId("")
+	if err := d.Set("uuid", secret.UUID); err != nil {
+		return err
 	}
-
-	return err
-}
-
-func setSecretState(d *schema.ResourceData, secret broker.Secret) error {
-	log.Printf("[DEBUG] setting secret state: %+v \n", secret)
-
-	d.Set("name", secret.Name)
-	d.Set("uuid", secret.UUID)
-	d.Set("description", secret.Description)
-	d.Set("team", secret.TeamUUID)
-
-	if secret.Value != "" {
-		// First time, set the value
-		d.Set("value", secret.Value)
-	} else {
-		// Broker does not return the value, to prevent it always thinking the value is ""
-		// and requires an update, set to original
-		if original, ok := d.GetOk("value"); ok {
-			d.Set("value", original.(string))
-		} else {
-			log.Println("[DEBUG] could not find original value for 'value'")
-		}
+	if err := d.Set("description", secret.Description); err != nil {
+		return err
 	}
-
-	return nil
+	return d.Set("team", secret.TeamUUID)
 }

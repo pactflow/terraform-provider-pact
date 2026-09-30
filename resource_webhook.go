@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,7 +11,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pactflow/terraform/broker"
 	"github.com/pactflow/terraform/client"
@@ -25,20 +28,16 @@ var allowedEvents = []string{
 	"contract_requiring_verification_published",
 }
 
+// NOTE: SDK v2 does not support TypeMap with a *schema.Resource Elem. The map
+// only ever carries a single "name" key, so model it as a map of strings.
 var pacticipantType = &schema.Schema{
-	Type:     schema.TypeMap,
-	Optional: true,
-	Computed: true,
-	ForceNew: true,
-	Elem: &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-				Description: "A short description of the webhook",
-			},
-		},
+	Type:        schema.TypeMap,
+	Optional:    true,
+	Computed:    true,
+	ForceNew:    true,
+	Description: "The pacticipant this webhook applies to, e.g. { name = \"my-app\" }",
+	Elem: &schema.Schema{
+		Type: schema.TypeString,
 	},
 }
 
@@ -70,21 +69,68 @@ var requestType = &schema.Schema{
 				Description:  "The HTTP method to use with the request",
 			},
 			"username": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "An optional (basic auth) username to send with the request",
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"request.0.username_wo"},
+				Description:   "An optional (basic auth) username to send with the request",
+			},
+			"username_wo": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				WriteOnly:     true,
+				ConflictsWith: []string{"request.0.username"},
+				RequiredWith:  []string{"request.0.username_wo_version"},
+				Description:   "Write-only variant of `username`: sent to the broker but never stored in the Terraform plan or state. Requires Terraform 1.11+. Must be used with `username_wo_version`",
+			},
+			"username_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"request.0.username_wo"},
+				Description:  "Version of `username_wo`. Terraform cannot detect changes to write-only values, so change (e.g. increment) this number to push a new `username_wo` to the broker",
 			},
 			"password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				Description: "An optional (basic auth) password to send with the request",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				ConflictsWith: []string{"request.0.password_wo"},
+				Description:   "An optional (basic auth) password to send with the request. The value is stored in the Terraform state; prefer `password_wo` with Terraform 1.11+",
+			},
+			"password_wo": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Sensitive:     true,
+				WriteOnly:     true,
+				ConflictsWith: []string{"request.0.password"},
+				RequiredWith:  []string{"request.0.password_wo_version"},
+				Description:   "Write-only variant of `password`: sent to the broker but never stored in the Terraform plan or state. Requires Terraform 1.11+. Must be used with `password_wo_version`",
+			},
+			"password_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"request.0.password_wo"},
+				Description:  "Version of `password_wo`. Terraform cannot detect changes to write-only values, so change (e.g. increment) this number to push a new `password_wo` to the broker",
 			},
 			"headers": {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Request headers to send with the request",
+			},
+			"headers_wo": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				WriteOnly:    true,
+				RequiredWith: []string{"request.0.headers_wo_version"},
+				ValidateFunc: validateHeadersJSON,
+				Description:  "Write-only request headers, as a JSON object of strings (e.g. `jsonencode({ Authorization = \"Bearer ...\" })`). They are merged with `headers`, sent to the broker but never stored in the Terraform plan or state. Requires Terraform 1.11+. Must be used with `headers_wo_version`",
+			},
+			"headers_wo_version": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"request.0.headers_wo"},
+				Description:  "Version of `headers_wo`. Terraform cannot detect changes to write-only values, so change (e.g. increment) this number to push new `headers_wo` to the broker",
 			},
 			"body": {
 				Type:             schema.TypeString,
@@ -128,13 +174,32 @@ func validateMethod(val interface{}, key string) (warns []string, errs []error) 
 	return
 }
 
+func validateHeadersJSON(val interface{}, key string) (warns []string, errs []error) {
+	if _, err := parseHeadersJSON(val.(string)); err != nil {
+		errs = append(errs, fmt.Errorf("%q %v", key, err))
+	}
+	return
+}
+
+// parseHeadersJSON parses a JSON object of strings (e.g. the output of jsonencode) into headers.
+func parseHeadersJSON(s string) (map[string]string, error) {
+	headers := map[string]string{}
+	if s == "" {
+		return headers, nil
+	}
+	if err := json.Unmarshal([]byte(s), &headers); err != nil {
+		return nil, fmt.Errorf("must be a JSON object of strings: %v", err)
+	}
+	return headers, nil
+}
+
 func webhook() *schema.Resource {
 	return &schema.Resource{
-		Create:   webhookCreate,
-		Update:   webhookUpdate,
-		Read:     webhookRead,
-		Delete:   webhookDelete,
-		Importer: &schema.ResourceImporter{State: schema.ImportStatePassthrough},
+		CreateContext: webhookCreate,
+		UpdateContext: webhookUpdate,
+		ReadContext:   webhookRead,
+		DeleteContext: webhookDelete,
+		Importer:      &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Type:     schema.TypeString,
@@ -231,14 +296,28 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 			request.Method = method.(string)
 		}
 
-		// Username
+		// Username (either the regular attribute or the write-only one)
 		if username, ok := requestMap["username"]; ok {
 			request.Username = username.(string)
 		}
+		if request.Username == "" {
+			username, diags := rawConfigString(d, cty.GetAttrPath("request").IndexInt(0).GetAttr("username_wo"))
+			if diags.HasError() {
+				return *webhook, fmt.Errorf("unable to read request.username_wo: %v", diags[0].Summary)
+			}
+			request.Username = username
+		}
 
-		// Username
+		// Password (either the regular attribute or the write-only one)
 		if password, ok := requestMap["password"]; ok {
 			request.Password = password.(string)
+		}
+		if request.Password == "" {
+			password, diags := rawConfigString(d, cty.GetAttrPath("request").IndexInt(0).GetAttr("password_wo"))
+			if diags.HasError() {
+				return *webhook, fmt.Errorf("unable to read request.password_wo: %v", diags[0].Summary)
+			}
+			request.Password = password
 		}
 
 		// URL
@@ -251,7 +330,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 			request.Headers = make(map[string]string)
 			if headers, ok := headers.(map[string]interface{}); ok {
 				for k, v := range headers {
-					fmt.Println("[DEBUG] Key", k, "Value", v, "Type", reflect.TypeOf(v))
+					log.Println("[DEBUG] header", k, "type", reflect.TypeOf(v))
 					request.Headers[k] = v.(string)
 				}
 			} else {
@@ -262,6 +341,22 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 		} else {
 			log.Printf("[ERROR] 'headers' is a required field")
 			return *webhook, fmt.Errorf("headers is a mandatory field")
+		}
+
+		// Write-only headers, merged with the regular ones
+		rawHeaders, diags := rawConfigString(d, cty.GetAttrPath("request").IndexInt(0).GetAttr("headers_wo"))
+		if diags.HasError() {
+			return *webhook, fmt.Errorf("unable to read request.headers_wo: %v", diags[0].Summary)
+		}
+		woHeaders, err := parseHeadersJSON(rawHeaders)
+		if err != nil {
+			return *webhook, fmt.Errorf("request.headers_wo %v", err)
+		}
+		for k, v := range woHeaders {
+			if _, exists := request.Headers[k]; exists {
+				return *webhook, fmt.Errorf("header %q is set in both request.headers and request.headers_wo", k)
+			}
+			request.Headers[k] = v
 		}
 
 		// Body
@@ -278,7 +373,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 			}
 		}
 
-		log.Printf("[DEBUG] have fully serialised request %+v \n", request)
+		log.Printf("[DEBUG] have fully serialised request %+v \n", redactRequest(*request))
 
 		webhook.Request = *request
 	} else {
@@ -295,7 +390,7 @@ func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, err
 }
 
 func setWebhookState(d *schema.ResourceData, webhook broker.Webhook) error {
-	log.Printf("[DEBUG] setting webhook state: %+v \n", webhook)
+	log.Printf("[DEBUG] setting webhook state: %+v \n", redactWebhook(webhook))
 	if err := d.Set("description", webhook.Description); err != nil {
 		log.Println("[ERROR] error setting key 'description'", err)
 		return err
@@ -361,22 +456,40 @@ func flattenRequest(d *schema.ResourceData, r broker.Request) []interface{} {
 	m := make(map[string]interface{})
 	m["url"] = r.URL
 	m["method"] = r.Method
-	m["username"] = r.Username
 
-	if r.Password != "" && !strings.HasPrefix(r.Password, "*****") {
-		// First time, set the value
-		log.Println("[DEBUG] setting webhook password")
-		m["password"] = r.Password
+	// Never persist values that may come from the write-only `username_wo`
+	// attribute: keep whatever `username` value Terraform already has.
+	if version, ok := d.GetOk("request.0.username_wo_version"); ok {
+		m["username_wo_version"] = version.(int)
+		m["username"] = d.Get("request.0.username").(string)
 	} else {
-		// Broker obscures the value to "******", set the value to what it was previously
-		// to prevent it always thinking the value is ""
-		if original, ok := d.GetOk("request.0.password"); ok {
-			m["password"] = original.(string)
-		} else {
-			log.Println("[DEBUG] could not find original value for 'password'")
+		m["username"] = r.Username
+	}
+
+	// The broker obscures the password ("*****"), and it may have been provided
+	// via the write-only `password_wo` attribute, which must never be persisted.
+	// Keep whatever `password` value Terraform already has (config or prior state).
+	if original, ok := d.GetOk("request.0.password"); ok {
+		m["password"] = original.(string)
+	}
+	if version, ok := d.GetOk("request.0.password_wo_version"); ok {
+		m["password_wo_version"] = version.(int)
+	}
+
+	// When write-only headers are in use, only the headers Terraform already
+	// knows about (`headers`) are stored; the others come from `headers_wo`.
+	headers := r.Headers
+	if version, ok := d.GetOk("request.0.headers_wo_version"); ok {
+		m["headers_wo_version"] = version.(int)
+		known := d.Get("request.0.headers").(map[string]interface{})
+		headers = make(map[string]string, len(known))
+		for k, v := range r.Headers {
+			if _, ok := known[k]; ok {
+				headers[k] = v
+			}
 		}
 	}
-	m["headers"] = mapStringStringToMapStringInterface(r.Headers) // TODO
+	m["headers"] = mapStringStringToMapStringInterface(headers)
 
 	// We want to store the body as a string in the state file
 	// Try to parse body into JSON, fallback to a string if not
@@ -402,77 +515,91 @@ func mapStringStringToMapStringInterface(in map[string]string) map[string]interf
 	return out
 }
 
-func webhookCreate(d *schema.ResourceData, meta interface{}) error {
+func webhookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	httpClient := meta.(*client.Client)
 	webhook, err := parseWebhook(d, meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	res, err := httpClient.CreateWebhook(webhook)
-	log.Printf("[DEBUG] response from creating webhook %+v\n", res)
-
-	if err == nil {
-		items := strings.Split(res.Links["self"].Href, "/")
-		id := items[len(items)-1]
-		d.SetId(id)
-
-		return setWebhookState(d, webhook)
-	}
-
-	log.Println("[ERROR] webhook creation failed", err)
-	d.SetId("")
-	return err
-}
-
-func webhookUpdate(d *schema.ResourceData, meta interface{}) error {
-	httpClient := meta.(*client.Client)
-	webhook, err := parseWebhook(d, meta)
-	if err != nil {
-		return err
-	}
-
-	res, err := httpClient.UpdateWebhook(webhook)
-	log.Printf("[DEBUG] response from updating webhook %+v\n", res)
-
 	if err != nil {
 		log.Println("[ERROR] webhook creation failed", err)
 		d.SetId("")
+		return diag.FromErr(err)
 	}
-	d.Set("webhook", res)
+	log.Printf("[DEBUG] response from creating webhook %+v\n", redactWebhook(res.Webhook))
 
-	return nil
+	items := strings.Split(res.Links["self"].Href, "/")
+	id := items[len(items)-1]
+	d.SetId(id)
+
+	return diag.FromErr(setWebhookState(d, webhook))
 }
 
-func webhookRead(d *schema.ResourceData, meta interface{}) error {
+func webhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	httpClient := meta.(*client.Client)
+	webhook, err := parseWebhook(d, meta)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	res, err := httpClient.UpdateWebhook(webhook)
+	if err != nil {
+		log.Println("[ERROR] webhook update failed", err)
+		return diag.FromErr(err)
+	}
+	log.Printf("[DEBUG] response from updating webhook %+v\n", redactWebhook(res.Webhook))
+
+	return diag.FromErr(setWebhookState(d, webhook))
+}
+
+func webhookRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	httpClient := meta.(*client.Client)
 	res, err := httpClient.ReadWebhook(d.Id())
-	log.Printf("[DEBUG] response from reading webhook %+v\n", res)
 
 	if err != nil {
 		log.Println("[ERROR] webhook read failed", err)
 		d.SetId("")
 		return nil
 	}
-	return setWebhookState(d, *res)
+	log.Printf("[DEBUG] response from reading webhook %+v\n", redactWebhook(*res))
+
+	return diag.FromErr(setWebhookState(d, *res))
 }
 
-func webhookDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] deleting webhook with data %+v\n", d)
+func webhookDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	httpClient := meta.(*client.Client)
-	webhook, err := parseWebhook(d, meta)
-	if err != nil {
-		return err
+
+	log.Println("[DEBUG] deleting webhook", d.Id())
+
+	if err := httpClient.DeleteWebhook(broker.Webhook{ID: d.Id()}); err != nil {
+		return diag.FromErr(err)
 	}
 
-	log.Println("[DEBUG] deleting webhook", webhook)
+	d.SetId("")
+	return nil
+}
 
-	err = httpClient.DeleteWebhook(webhook)
-	if err == nil {
-		d.SetId("")
+// redactRequest returns a copy of the request that is safe to log.
+func redactRequest(r broker.Request) broker.Request {
+	if r.Password != "" {
+		r.Password = "*****"
 	}
+	if len(r.Headers) > 0 {
+		headers := make(map[string]string, len(r.Headers))
+		for k := range r.Headers {
+			headers[k] = "*****"
+		}
+		r.Headers = headers
+	}
+	return r
+}
 
-	return err
+// redactWebhook returns a copy of the webhook that is safe to log.
+func redactWebhook(w broker.Webhook) broker.Webhook {
+	w.Request = redactRequest(w.Request)
+	return w
 }
 
 func tryParseJSONObject(s string) interface{} {
