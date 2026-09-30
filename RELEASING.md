@@ -13,7 +13,9 @@ Releases are automated via [Release Please](https://github.com/googleapis/releas
 2. Release Please automatically opens (or updates) a **Release PR** titled `chore: release vX.Y.Z`.
    This PR bumps `version/version.go` and updates `CHANGELOG.md`.
 
-3. When the Release PR is merged, Release Please creates a `vX.Y.Z` tag.
+3. When the Release PR is merged, Release Please creates a `vX.Y.Z` tag and a **draft** GitHub
+   Release. It stays a draft until the assets are uploaded, because the Terraform Registry
+   only ingests a version when its release is published.
 
 4. The Release Please workflow then calls [`release.yml`](.github/workflows/release.yml), and
    GoReleaser publishes signed multi-platform binaries to the GitHub Release, which the
