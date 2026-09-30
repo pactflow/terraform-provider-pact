@@ -1,5 +1,8 @@
-# This GitHub action can publish assets for release when a tag is created.
-# Currently its setup to run on any tag that matches the pattern "v*" (ie. v0.1.0).
+# This GitHub action publishes assets for a release tag. It runs when:
+#  - called by the Release Please workflow after it creates a release (tags created
+#    with GITHUB_TOKEN do not trigger other workflows, so the tag push alone won't)
+#  - a "v*" tag is pushed manually (ie. v0.1.0)
+#  - dispatched manually with an existing tag, to (re)publish assets for it
 #
 # This uses an action (paultyng/ghaction-import-gpg) that assumes you set your
 # private key in the `GPG_PRIVATE_KEY` secret and passphrase in the `PASSPHRASE`
@@ -14,6 +17,20 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to publish (e.g. v0.11.0)
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish (e.g. v0.11.0)
+        required: true
+        type: string
+permissions:
+  contents: write
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -21,9 +38,9 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      -
-        name: Unshallow
-        run: git fetch --prune --unshallow
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
       -
         name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7

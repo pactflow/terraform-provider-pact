@@ -15,13 +15,24 @@ Releases are automated via [Release Please](https://github.com/googleapis/releas
 
 3. When the Release PR is merged, Release Please creates a `vX.Y.Z` tag.
 
-4. The [`release.yml`](.github/workflows/release.yml) workflow fires on that tag and GoReleaser
-   publishes signed multi-platform binaries to the GitHub Release.
+4. The Release Please workflow then calls [`release.yml`](.github/workflows/release.yml), and
+   GoReleaser publishes signed multi-platform binaries to the GitHub Release, which the
+   Terraform Registry picks up. (The tag push alone does not trigger `release.yml`, because
+   tags created with `GITHUB_TOKEN` don't start other workflows.)
 
 ## Do NOT manually push `v*` tags
 
 The only way a release should be created is by merging the Release PR.
 Manual tags bypass the CHANGELOG update and version file bump.
+
+## Re-publishing assets for an existing release
+
+If a release was tagged but its assets were never published, run the `release` workflow
+manually against the tag:
+
+```bash
+gh workflow run release.yml --ref master -f tag=vX.Y.Z
+```
 
 ## Checking the current version
 
