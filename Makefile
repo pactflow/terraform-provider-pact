@@ -126,6 +126,8 @@ binary-acceptance-test:
 acceptance-test: binary-acceptance-test oss-acceptance-test pactflow-acceptance-test
 	@echo "--- ✅ Acceptance tests complete"
 
+# DEPRECATED: Use Release Please instead. Merge a PR with conventional commits to trigger
+# an automated Release PR. See RELEASING.md for the new process.
 release:
 	@echo "--- 🚀 Releasing it"
 	"$(CURDIR)/scripts/release.sh"
