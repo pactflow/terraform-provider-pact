@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -97,9 +98,7 @@ var requestType = &schema.Schema{
 }
 
 func stringContains(s []string, searchterm string) bool {
-	sort.Strings(s)
-	i := sort.SearchStrings(s, searchterm)
-	return i < len(s) && s[i] == searchterm
+	return slices.Contains(s, searchterm)
 }
 
 func validateEvents(val interface{}, key string) (warns []string, errs []error) {
