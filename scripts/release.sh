@@ -1,4 +1,8 @@
 #!/bin/bash
+# DEPRECATED: This script is no longer the canonical release process.
+# Releases are now handled automatically by Release Please.
+# See RELEASING.md for the current process.
+# This file is kept for reference only.
 
 set -e
 trap cleanup TERM

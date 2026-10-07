@@ -5,6 +5,33 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+## [0.11.1](https://github.com/pactflow/terraform-provider-pact/compare/v0.11.0...v0.11.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* **ci:** publish release assets when Release Please creates a release ([cd6b0fa](https://github.com/pactflow/terraform-provider-pact/commit/cd6b0fa22cc4a8d4f8b06643e4a2b0a0911fe113))
+
+## [0.11.0](https://github.com/pactflow/terraform-provider-pact/compare/v0.10.1...v0.11.0) (2026-09-30)
+
+
+### Features
+
+* add pact_pacticipants data source ([#153](https://github.com/pactflow/terraform-provider-pact/issues/153)) ([7f4f527](https://github.com/pactflow/terraform-provider-pact/commit/7f4f5270d12d5de2bad910e7bfcbc240096b530d))
+
+
+### Bug Fixes
+
+* **ci:** align pact-go CLI version with the pact-go module ([990347d](https://github.com/pactflow/terraform-provider-pact/commit/990347d02ca9b784b2f51dce42abb80a0e091481))
+* **deps:** update module github.com/hashicorp/terraform-plugin-sdk to v2 ([c98ad51](https://github.com/pactflow/terraform-provider-pact/commit/c98ad5197bd2ee1f0515dcd8eac5bbcb00b1658a))
+* **deps:** update module github.com/hashicorp/terraform-plugin-sdk to v2 ([33eaecb](https://github.com/pactflow/terraform-provider-pact/commit/33eaecb845d72219c0dd804ce9348f36b3b49d58))
+* **deps:** update module github.com/hashicorp/terraform-plugin-sdk to v2 ([74ebe30](https://github.com/pactflow/terraform-provider-pact/commit/74ebe30511a0807a9e32c846de0351dc425d6f93))
+* **deps:** update module github.com/pact-foundation/pact-go/v2 to v2.5.1 ([0de8c4a](https://github.com/pactflow/terraform-provider-pact/commit/0de8c4a0bda846171fe74005da97b9a1b56c8121))
+* **deps:** update module github.com/pact-foundation/pact-go/v2 to v2.7.0 ([1a03ec1](https://github.com/pactflow/terraform-provider-pact/commit/1a03ec10c9d788de1009a7bf27eb8fa48d1434fa))
+* **deps:** update module github.com/pact-foundation/pact-go/v2 to v2.7.1 ([5dc8feb](https://github.com/pactflow/terraform-provider-pact/commit/5dc8febc47f226c1770a2e8716ff9035765435c7))
+* **deps:** update module github.com/pact-foundation/pact-go/v2 to v2.8.0 ([2b53606](https://github.com/pactflow/terraform-provider-pact/commit/2b5360680c89cfbffaa190ee8f48b1c5229f3a63))
+* **deps:** update module github.com/stretchr/testify to v1.12.1 ([99e5f7a](https://github.com/pactflow/terraform-provider-pact/commit/99e5f7a4c898da98d4421378b7af3732d9df59b2))
+
 ### v0.10.1 (23 April 2026)
   * [96ff646](https://github.com/pactflow/terraform/commit/96ff646) - fix: update .goreleaser.yml for goreleaser v2 compatibility (#104) (Copilot, Thu Apr 23 16:36:15 2026 +1000)
   * [b8af575](https://github.com/pactflow/terraform/commit/b8af575) - fix(PACT-5510): revert changes made to test data (#84) (Tuan Pham, Mon Jan 19 07:03:12 2026 +0700)

@@ -53,6 +53,10 @@ signs:
 release:
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
+  # Release Please creates the release as a draft; upload to it and publish it once
+  # all assets are attached. The Terraform Registry ingests on the "released" event,
+  # so the release must not be published before its assets exist.
+  use_existing_draft: true
 # .goreleaser.yml
 changelog:
   # Changelog generation implementation to use.

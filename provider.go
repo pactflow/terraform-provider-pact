@@ -23,6 +23,9 @@ func Provider() *schema.Provider {
 			"pact_authentication": authentication(),
 			"pact_environment":    environment(),
 		},
+		DataSourcesMap: map[string]*schema.Resource{
+			"pact_pacticipants": pacticipants(),
+		},
 		ConfigureFunc: configureProvider,
 		Schema: map[string]*schema.Schema{
 			"access_token": {

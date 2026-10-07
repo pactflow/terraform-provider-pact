@@ -4,6 +4,7 @@ package installer
 
 import (
 	"compress/gzip"
+	"crypto/md5"
 	"fmt"
 	"io"
 	"log"
@@ -19,12 +20,10 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	"gopkg.in/yaml.v3"
 
-	"crypto/md5"
-
 	"github.com/spf13/afero"
 )
 
-// NativeLibPath returns the absolute path to the go package used to link to the native rust library
+// NativeLibPath returns the absolute path to the go package used to link to the native rust library.
 func NativeLibPath() string {
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
@@ -35,7 +34,7 @@ func NativeLibPath() string {
 }
 
 // Installer is used to check the Pact Go installation is setup correctly, and can automatically install
-// packages if required
+// packages if required.
 type Installer struct {
 	downloader downloader
 	hasher     hasher
@@ -49,7 +48,7 @@ type Installer struct {
 
 type installerConfig func(*Installer) error
 
-// NewInstaller creates a new initialised Installer
+// NewInstaller creates a new initialised Installer.
 func NewInstaller(opts ...installerConfig) (*Installer, error) {
 	i := &Installer{downloader: &defaultDownloader{}, fs: afero.NewOsFs(), hasher: &defaultHasher{}, config: &configuration{}}
 
@@ -83,42 +82,45 @@ func NewInstaller(opts ...installerConfig) (*Installer, error) {
 	return i, nil
 }
 
-// SetLibDir overrides the default library dir
+// SetLibDir overrides the default library dir.
 func (i *Installer) SetLibDir(dir string) {
 	i.libDir = dir
 }
 
-// Force installs over the top
+// Force installs over the top.
 func (i *Installer) Force(force bool) {
 	i.force = force
 }
 
 // CheckInstallation checks installation of all of the required libraries
-// and downloads if they aren't present
+// and downloads if they aren't present.
 func (i *Installer) CheckInstallation() error {
-
 	// Check if files exist
 	// --> Check if existing installed files
 	if !i.force {
-		if err := i.CheckPackageInstall(); err == nil {
+		err := i.CheckPackageInstall()
+		if err == nil {
 			return nil
 		}
 	}
 
 	// Download dependencies
-	if err := i.downloadDependencies(); err != nil {
+	err := i.downloadDependencies()
+	if err != nil {
 		return err
 	}
 
 	// Install dependencies
-	if err := i.installDependencies(); err != nil {
+	err = i.installDependencies()
+	if err != nil {
 		return err
 	}
 
 	// Double check files landed correctly (can't execute 'version' call here,
 	// because of dependency on the native libs we're trying to download!)
-	if err := i.CheckPackageInstall(); err != nil {
-		return fmt.Errorf("unable to verify downloaded/installed dependencies: %s", err)
+	err = i.CheckPackageInstall()
+	if err != nil {
+		return fmt.Errorf("unable to verify downloaded/installed dependencies: %w", err)
 	}
 
 	return nil
@@ -137,13 +139,13 @@ func (i *Installer) getLibDir() string {
 	return "/usr/local/lib"
 }
 
-// CheckPackageInstall discovers any existing packages, and checks installation of a given binary using semver-compatible checks
+// CheckPackageInstall discovers any existing packages, and checks installation of a given binary using semver-compatible checks.
 func (i *Installer) CheckPackageInstall() error {
 	for pkg, info := range packages {
-
 		dst, _ := i.getLibDstForPackage(pkg)
 
-		if _, err := i.fs.Stat(dst); err != nil {
+		_, err := i.fs.Stat(dst)
+		if err != nil {
 			log.Println("[INFO] package", info.libName, "not found")
 			return err
 		} else {
@@ -152,7 +154,8 @@ func (i *Installer) CheckPackageInstall() error {
 
 		lib, ok := i.config.readConfig().Libraries[pkg]
 		if ok {
-			if err := checkVersion(info.libName, lib.Version, info.semverRange); err != nil {
+			err := checkVersion(info.libName, lib.Version, info.semverRange)
+			if err != nil {
 				return err
 			}
 			log.Println("[INFO] package", info.libName, "is correctly installed")
@@ -169,7 +172,8 @@ func (i *Installer) CheckPackageInstall() error {
 
 			if ok {
 				log.Println("[INFO] checking version", lib.Version(), "for lib", info.libName, "within semver range", info.semverRange)
-				if err := checkVersion(info.libName, lib.Version(), info.semverRange); err != nil {
+				err := checkVersion(info.libName, lib.Version(), info.semverRange)
+				if err != nil {
 					return err
 				}
 			} else {
@@ -187,34 +191,30 @@ func (i *Installer) CheckPackageInstall() error {
 	return nil
 }
 
-// Download all dependencies, and update the pact-go configuration file
+// Download all dependencies, and update the pact-go configuration file.
 func (i *Installer) downloadDependencies() error {
 	for pkg, pkgInfo := range packages {
 		src, err := i.getDownloadURLForPackage(pkg)
-
 		if err != nil {
 			return err
 		}
 
 		dst, err := i.getLibDstForPackage(pkg)
-
 		if err != nil {
 			return err
 		}
 
 		err = i.downloader.download(src, dst)
-
 		if err != nil {
 			return err
 		}
 
-		err = os.Chmod(dst, 0755)
+		err = os.Chmod(dst, 0o755)
 		if err != nil {
 			log.Println("[WARN] unable to set permissions on file", dst, "due to error:", err)
 		}
 
 		err = i.updateConfiguration(dst, pkg, pkgInfo)
-
 		if err != nil {
 			return err
 		}
@@ -229,13 +229,11 @@ func (i *Installer) installDependencies() error {
 			log.Println("[INFO] setting install_name on library", info.libName, "for macos")
 
 			dst, err := i.getLibDstForPackage(pkg)
-
 			if err != nil {
 				return err
 			}
 
 			err = setMacOSInstallName(dst)
-
 			if err != nil {
 				return err
 			}
@@ -245,7 +243,7 @@ func (i *Installer) installDependencies() error {
 	return nil
 }
 
-// returns src
+// returns src.
 func (i *Installer) getDownloadURLForPackage(pkg string) (string, error) {
 	pkgInfo, ok := packages[pkg]
 	if !ok {
@@ -256,9 +254,7 @@ func (i *Installer) getDownloadURLForPackage(pkg string) (string, error) {
 		return fmt.Sprintf(downloadTemplate, pkg, pkgInfo.version, osToLibName[i.os], i.os, i.arch+"-musl", osToExtension[i.os]), nil
 	} else {
 		return fmt.Sprintf(downloadTemplate, pkg, pkgInfo.version, osToLibName[i.os], i.os, i.arch, osToExtension[i.os]), nil
-
 	}
-
 }
 
 func (i *Installer) getLibDstForPackage(pkg string) (string, error) {
@@ -270,7 +266,7 @@ func (i *Installer) getLibDstForPackage(pkg string) (string, error) {
 	return path.Join(i.getLibDir(), osToLibName[i.os]) + "." + osToExtension[i.os], nil
 }
 
-// Write the metadata to reduce drift
+// Write the metadata to reduce drift.
 func (i *Installer) updateConfiguration(dst string, pkg string, info packageInfo) error {
 	// Get hash of file
 	fmt.Println(i.hasher)
@@ -297,9 +293,8 @@ var setMacOSInstallName = func(file string) error {
 	cmd := exec.Command("install_name_tool", "-id", file, file)
 	log.Println("[DEBUG] running command:", cmd)
 	stdoutStderr, err := cmd.CombinedOutput()
-
 	if err != nil {
-		return fmt.Errorf("error setting install name on pact lib: %s", err)
+		return fmt.Errorf("error setting install name on pact lib: %w", err)
 	}
 
 	log.Println("[DEBUG] output from command", string(stdoutStderr))
@@ -328,7 +323,7 @@ func checkVersion(lib, version, versionRange string) error {
 	return fmt.Errorf("version %s of %s does not match constraint %s", version, lib, versionRange)
 }
 
-// checkMusl checks if the OS uses musl library instead of glibc
+// checkMusl checks if the OS uses musl library instead of glibc.
 func checkMusl() bool {
 	lddPath, err := exec.LookPath("ldd")
 	if err != nil {
@@ -337,7 +332,6 @@ func checkMusl() bool {
 
 	cmd := exec.Command(lddPath, "/bin/echo")
 	out, err := cmd.CombinedOutput()
-
 	if err != nil {
 		return false
 	}
@@ -388,14 +382,14 @@ const (
 var packages = map[string]packageInfo{
 	FFIPackage: {
 		libName: "libpact_ffi",
-		version: "0.5.6",
+		version: "0.5.8",
 		// Pin to the shipped FFI minor. The bindings in this release reference
 		// symbols specific to this libpact_ffi minor, and past minors have both
 		// added and removed symbols, so a wider range lets a mismatched-but-in-range
 		// library already on disk pass CheckPackageInstall and skip reinstalling,
 		// which then fails at link/load time with undefined FFI symbols. Bump this
 		// in lockstep with version above.
-		semverRange: ">= 0.5.6, < 0.6.0",
+		semverRange: ">= 0.5.8, < 0.6.0",
 	},
 }
 
@@ -415,7 +409,8 @@ func (d *defaultDownloader) download(src string, dst string) error {
 	log.Println("[INFO] downloading library from", src, "to", dst)
 
 	baseDir := path.Dir(dst)
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
+	err := os.MkdirAll(baseDir, 0o755)
+	if err != nil {
 		return fmt.Errorf("failed to create %s; %w", baseDir, err)
 	}
 
@@ -504,7 +499,7 @@ func (configuration) writeConfig(c pactConfig) error {
 	log.Println("[DEBUG] writing config", c)
 	pactConfigPath := getConfigPath()
 
-	err := os.MkdirAll(filepath.Dir(pactConfigPath), 0755)
+	err := os.MkdirAll(filepath.Dir(pactConfigPath), 0o755)
 	if err != nil {
 		log.Println("[DEBUG] error creating pact config directory")
 		return err
@@ -517,7 +512,7 @@ func (configuration) writeConfig(c pactConfig) error {
 	}
 	log.Println("[DEBUG] writing yaml config to file", string(bytes))
 
-	return os.WriteFile(pactConfigPath, bytes, 0644)
+	return os.WriteFile(pactConfigPath, bytes, 0o644)
 }
 
 type hasher interface {
@@ -538,7 +533,8 @@ func (d *defaultHasher) hash(src string) (string, error) {
 	}()
 
 	h := md5.New()
-	if _, err := io.Copy(h, f); err != nil {
+	_, err = io.Copy(h, f)
+	if err != nil {
 		return "", err
 	}
 
