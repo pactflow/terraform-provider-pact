@@ -2,9 +2,10 @@ TEST?=./...
 
 .DEFAULT_GOAL := ci
 GITHUB_RUN_ID?=1
+GITHUB_RUN_ATTEMPT?=1
 PACT_CLI="docker run --rm -v ${PWD}:${PWD} -e PACT_BROKER_BASE_URL -e PACT_BROKER_TOKEN pactfoundation/pact-cli:latest"
 
-export TF_VAR_build_number=$(GITHUB_RUN_ID)
+export TF_VAR_build_number=$(GITHUB_RUN_ID)$(GITHUB_RUN_ATTEMPT)
 export TF_VAR_api_token=$(ACCEPTANCE_PACT_BROKER_TOKEN)
 export TF_VAR_broker_base_url=$(ACCEPTANCE_PACT_BROKER_BASE_URL)
 
