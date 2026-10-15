@@ -3,7 +3,9 @@ package main
 import (
 	"sort"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func arrayInterfaceToArrayString(raw []interface{}) []string {
@@ -67,4 +69,51 @@ func ExpandStringList(configured []interface{}) []string {
 		}
 	}
 	return vs
+}
+
+// rawConfigString returns the string value found at path in the raw resource
+// configuration. This is the only way to read write-only attributes, which are
+// never present in the plan or state (and hence not available via d.Get).
+//
+// An empty string is returned if the raw config is not available (e.g. during
+// Read or Delete) or if the value at path is null or unknown.
+func rawConfigString(d *schema.ResourceData, path cty.Path) (string, diag.Diagnostics) {
+	val := d.GetRawConfig()
+
+	for _, step := range path {
+		if val.IsNull() || !val.IsKnown() {
+			return "", nil
+		}
+
+		switch s := step.(type) {
+		case cty.GetAttrStep:
+			if !val.Type().IsObjectType() || !val.Type().HasAttribute(s.Name) {
+				return "", diag.Errorf("unable to read attribute %q from the configuration", s.Name)
+			}
+			val = val.GetAttr(s.Name)
+		case cty.IndexStep:
+			if !val.CanIterateElements() {
+				return "", diag.Errorf("unable to index into non-collection configuration value")
+			}
+			if val.LengthInt() == 0 {
+				return "", nil
+			}
+			if hasIndex := val.HasIndex(s.Key); !hasIndex.IsKnown() || hasIndex.False() {
+				return "", nil
+			}
+			val = val.Index(s.Key)
+		default:
+			return "", diag.Errorf("unsupported configuration path step %T", step)
+		}
+	}
+
+	if val.IsNull() || !val.IsKnown() {
+		return "", nil
+	}
+
+	if !val.Type().Equals(cty.String) {
+		return "", diag.Errorf("expected a string in the configuration, got %s", val.Type().FriendlyName())
+	}
+
+	return val.AsString(), nil
 }

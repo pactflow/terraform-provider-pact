@@ -45,6 +45,36 @@ EOF
 }
 ```
 
+### Write-only credentials (Terraform 1.11+)
+
+Use `password_wo`, `username_wo` and/or `headers_wo` to send credentials without ever storing them in the Terraform plan or state. Because Terraform cannot detect changes to write-only values, bump the matching `*_wo_version` whenever a value changes:
+
+```hcl
+resource "pact_webhook" "product_events" {
+  description = "Trigger Product API verification build on contract changes for Admin UI"
+  request {
+    url                 = "https://foo.com/some/endpoint"
+    method              = "POST"
+    username            = "test"
+    password_wo         = var.webhook_password # can also be an ephemeral value
+    password_wo_version = 1
+    headers = {
+      "Content-Type" = "application/json"
+    }
+    # merged with `headers`, but never stored in the plan or state
+    headers_wo = jsonencode({
+      "Authorization" = "Bearer ${var.webhook_token}"
+    })
+    headers_wo_version = 1
+    body = jsonencode({ pact = "$${pactbroker.pactUrl}" })
+  }
+
+  events = ["contract_published"]
+}
+```
+
+Write-only headers are not tracked by Terraform: drift on those headers (e.g. a header added outside Terraform) is not detected while `headers_wo` is in use.
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -79,9 +109,15 @@ A pacticipant may be used as the consumer, provider, none or both in the webhook
 
 - `url` (Required, string) A valid URL for the Webhook. This URL will be invoked on the configured events.
 - `method` (Required, string) One of `POST`, `GET`, `PUT`, `PATCH`, or `DELETE`. Note that by default _only_ `POST` is supported. Other methods need to be explicitly opted in (this configuration is not currently supported by the provider)
-- `username` (Optional, string) Basic auth username to send along with the request.
-- `password` (Optional, string) Basic auth password to send along with the request.
+- `username` (Optional, string) Basic auth username to send along with the request. Conflicts with `username_wo`.
+- `username_wo` (Optional, string, write-only) Basic auth username to send along with the request, as a write-only argument (see `password_wo`). Requires Terraform 1.11+. Conflicts with `username`, must be used together with `username_wo_version`.
+- `username_wo_version` (Optional, number) An arbitrary version number for `username_wo`. Change it (e.g. increment it) to update the username in the broker. Required when `username_wo` is set.
+- `password` (Optional, string) Basic auth password to send along with the request. Stored (marked as sensitive) in the Terraform state. Conflicts with `password_wo`.
+- `password_wo` (Optional, string, write-only) Basic auth password to send along with the request, as a [write-only argument](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments): it is never persisted in the Terraform plan or state, and can reference ephemeral values. Requires Terraform 1.11+. Conflicts with `password`, must be used together with `password_wo_version`.
+- `password_wo_version` (Optional, number) An arbitrary version number for `password_wo`. Change it (e.g. increment it) to update the password in the broker. Required when `password_wo` is set.
 - `headers` (Required, block) HTTP Headers as key/value pairs to send with the request.
+- `headers_wo` (Optional, string, write-only) Additional HTTP headers to send with the request, as a JSON object of strings (use `jsonencode`). They are merged with `headers` (a header can't be set in both) and are never persisted in the Terraform plan or state. Requires Terraform 1.11+. Must be used together with `headers_wo_version`.
+- `headers_wo_version` (Optional, number) An arbitrary version number for `headers_wo`. Change it (e.g. increment it) to update the write-only headers in the broker. Required when `headers_wo` is set.
 - `body` (Required, string) A string body to be sent. JSON body validation will be checked and will produce a warning if invalid (it will _not_ fail validation).
 
 ## Outputs

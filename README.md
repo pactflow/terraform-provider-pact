@@ -157,7 +157,7 @@ All resources (except for Roles) support [importing](https://www.terraform.io/do
 
 ### Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) 0.10+
+- [Terraform](https://www.terraform.io/downloads.html) 0.12+ (1.11+ to use write-only arguments such as `pact_secret.value_wo` or `pact_webhook.request.password_wo`)
 - [Go](https://golang.org/doc/install) (See [build version](.github/workflows/test.yml))
 
 ### Building locally
