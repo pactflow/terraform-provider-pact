@@ -20,7 +20,7 @@ type Webhook struct {
 	ID          string         `json:"-"`
 	TeamUUID    string         `json:"teamUuid,omitempty"`
 	Description string         `json:"description,omitempty"`
-	Enabled     bool           `json:"enabled,omitempty"`
+	Enabled     bool           `json:"enabled"`
 	CreatedAt   string         `json:"createdAt,omitempty"`
 	Provider    *Pacticipant   `json:"provider,omitempty"`
 	Consumer    *Pacticipant   `json:"consumer,omitempty"`
