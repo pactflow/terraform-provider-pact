@@ -5,6 +5,13 @@ Do this to generate your change history
     git log --pretty=format:'  * [%h](https://github.com/pact-foundation/pact-go/commit/%h) - %s (%an, %ad)' vX.Y.Z..HEAD | egrep -v "wip(:|\()" | grep -v "docs(" | grep -v "chore(" | grep -v Merge | grep -v "test("
 
 
+## [0.11.3](https://github.com/pactflow/terraform-provider-pact/compare/v0.11.2...v0.11.3) (2026-10-31)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/hashicorp/terraform-plugin-sdk to v2 ([03d7d2e](https://github.com/pactflow/terraform-provider-pact/commit/03d7d2ebb2a6f8108f758d4347fb81581cad6d65))
+
 ## [0.11.2](https://github.com/pactflow/terraform-provider-pact/compare/v0.11.1...v0.11.2) (2026-10-08)
 
 
