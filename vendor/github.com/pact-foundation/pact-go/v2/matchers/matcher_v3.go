@@ -28,31 +28,33 @@ func Integer(example int) Matcher {
 // Null is a matcher that only accepts nulls.
 type Null struct{}
 
-func (n Null) GetValue() interface{} {
+// GetValue returns the raw generated value for the matcher, always nil.
+func (n Null) GetValue() any {
 	return nil
 }
 
-func (n Null) isMatcher() {}
-
+// MarshalJSON encodes n as a Pact V3 null matcher.
 func (n Null) MarshalJSON() ([]byte, error) {
-	type marshaler Null
-
+	//nolint:wrapcheck // encoding/json wraps a MarshalJSON failure in a
+	// *json.MarshalerError recording the type and the original error, so an extra
+	// prefix here would be doubled up in the message the caller finally sees.
 	return json.Marshal(struct {
 		Specification models.SpecificationVersion `json:"pact:specification"`
 		Type          string                      `json:"pact:matcher:type"`
-		marshaler
-	}{models.V3, "null", marshaler(n)})
+	}{models.V3, "null"})
 }
+
+func (n Null) isMatcher() {}
 
 // equality resets matching cascades back to equality
 // see https://github.com/pact-foundation/pact-specification/tree/version-3#add-an-equality-matcher
 type equality struct {
 	Specification models.SpecificationVersion `json:"pact:specification"`
 	Type          string                      `json:"pact:matcher:type"`
-	Contents      interface{}                 `json:"value"`
+	Contents      any                         `json:"value"`
 }
 
-func (e equality) GetValue() interface{} {
+func (e equality) GetValue() any {
 	return e.Contents
 }
 
@@ -60,7 +62,7 @@ func (e equality) isMatcher() {}
 
 // Equality resets matching cascades back to equality
 // see https://github.com/pact-foundation/pact-specification/tree/version-3#add-an-equality-matcher
-func Equality(content interface{}) Matcher {
+func Equality(content any) Matcher {
 	return equality{
 		Specification: models.V3,
 		Contents:      content,
@@ -76,12 +78,13 @@ type includes struct {
 	Contents      string                      `json:"value"`
 }
 
-func (i includes) GetValue() interface{} {
+func (i includes) GetValue() any {
 	return i.Contents
 }
 
 func (i includes) isMatcher() {}
 
+// Includes checks if the given string is contained by the actual value.
 func Includes(content string) Matcher {
 	return includes{
 		Specification: models.V3,
@@ -98,13 +101,13 @@ type fromProviderState struct {
 	Value         string                      `json:"value"`
 }
 
-func (s fromProviderState) GetValue() interface{} {
+func (s fromProviderState) GetValue() any {
 	return s.Value
 }
 
 func (s fromProviderState) isMatcher() {}
 
-// Marks a item as to be injected from the provider state
+// FromProviderState marks an item as to be injected from the provider state.
 //
 // "expression" is used to lookup the dynamic value from the provider state context
 // during verification
@@ -112,7 +115,7 @@ func (s fromProviderState) isMatcher() {}
 func FromProviderState(expression, example string) Matcher {
 	return fromProviderState{
 		Specification: models.V3,
-		Type:          "type",
+		Type:          matcherKindType,
 		Generator:     "ProviderState",
 		Expression:    expression,
 		Value:         example,
@@ -122,20 +125,21 @@ func FromProviderState(expression, example string) Matcher {
 type eachKeyLike struct {
 	Specification models.SpecificationVersion `json:"pact:specification"`
 	Type          string                      `json:"pact:matcher:type"`
-	Contents      interface{}                 `json:"value"`
+	Contents      any                         `json:"value"`
 }
 
-func (e eachKeyLike) GetValue() interface{} {
+func (e eachKeyLike) GetValue() any {
 	return e.Contents
 }
 
 func (e eachKeyLike) isMatcher() {}
 
-// Object where the key itself is ignored, but the value template must match.
+// EachKeyLike matches an object where the key itself is ignored, but the
+// value template must match.
 //
 // key - Example key to use (which will be ignored)
 // template - Example value template to base the comparison on.
-func EachKeyLike(key string, template interface{}) Matcher {
+func EachKeyLike(key string, template any) Matcher {
 	return eachKeyLike{
 		Specification: models.V3,
 		Type:          "values",
@@ -146,10 +150,10 @@ func EachKeyLike(key string, template interface{}) Matcher {
 type arrayContaining struct {
 	Specification models.SpecificationVersion `json:"pact:specification"`
 	Type          string                      `json:"pact:matcher:type"`
-	Variants      []interface{}               `json:"variants"`
+	Variants      []any                       `json:"variants"`
 }
 
-func (a arrayContaining) GetValue() interface{} {
+func (a arrayContaining) GetValue() any {
 	return a.Variants
 }
 
@@ -158,7 +162,7 @@ func (a arrayContaining) isMatcher() {}
 // ArrayContaining allows heterogenous items to be matched within a list.
 // Unlike EachLike which must be an array with elements of the same shape,
 // ArrayContaining allows objects of different types and shapes.
-func ArrayContaining(variants []interface{}) Matcher {
+func ArrayContaining(variants []any) Matcher {
 	return arrayContaining{
 		Specification: models.V3,
 		Type:          "arrayContains",
@@ -169,12 +173,12 @@ func ArrayContaining(variants []interface{}) Matcher {
 type minMaxLike struct {
 	Specification models.SpecificationVersion `json:"pact:specification"`
 	Type          string                      `json:"pact:matcher:type"`
-	Contents      interface{}                 `json:"value"`
+	Contents      any                         `json:"value"`
 	Min           int                         `json:"min,omitempty"`
 	Max           int                         `json:"max,omitempty"` // NOTE: only used for V3
 }
 
-func (m minMaxLike) GetValue() interface{} {
+func (m minMaxLike) GetValue() any {
 	return m.Contents
 }
 
@@ -182,38 +186,38 @@ func (m minMaxLike) isMatcher() {}
 
 // ArrayMinMaxLike is like EachLike except has a bounds on the max and the min
 // https://github.com/pact-foundation/pact-specification/tree/version-3#add-a-minmax-type-matcher
-func ArrayMinMaxLike(content interface{}, min int, max int) Matcher {
-	if min < 1 {
+func ArrayMinMaxLike(content any, minCount int, maxCount int) Matcher {
+	if minCount < 1 {
 		log.Println("[WARN] min value to an array matcher can't be less than one")
-		min = 1
+		minCount = 1
 	}
-	examples := make([]interface{}, max)
-	for i := 0; i < max; i++ {
+	examples := make([]any, maxCount)
+	for i := range maxCount {
 		examples[i] = content
 	}
 	return minMaxLike{
 		Specification: models.V3,
-		Type:          "type",
+		Type:          matcherKindType,
 		Contents:      examples,
-		Min:           min,
-		Max:           max,
+		Min:           minCount,
+		Max:           maxCount,
 	}
 }
 
 // ArrayMaxLike is like EachLike except has a bounds on the max
 // https://github.com/pact-foundation/pact-specification/tree/version-3#add-a-minmax-type-matcher
-func ArrayMaxLike(content interface{}, max int) Matcher {
-	examples := make([]interface{}, max)
-	for i := 0; i < max; i++ {
+func ArrayMaxLike(content any, maxCount int) Matcher {
+	examples := make([]any, maxCount)
+	for i := range maxCount {
 		examples[i] = content
 	}
 
 	return minMaxLike{
 		Specification: models.V3,
-		Type:          "type",
+		Type:          matcherKindType,
 		Contents:      examples,
 		Min:           1,
-		Max:           max,
+		Max:           maxCount,
 	}
 }
 
@@ -225,7 +229,7 @@ type stringGenerator struct {
 	Generator     string                      `json:"pact:generator:type"`
 }
 
-func (s stringGenerator) GetValue() interface{} {
+func (s stringGenerator) GetValue() any {
 	return s.Contents
 }
 

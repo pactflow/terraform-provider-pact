@@ -1,4 +1,4 @@
-// package consumer contains the main Pact DSL used in the Consumer
+// Package consumer contains the main Pact DSL used in the Consumer
 // collaboration test cases, and Provider contract test verification.
 package consumer
 
@@ -28,6 +28,10 @@ import (
 	"github.com/pact-foundation/pact-go/v2/models"
 	"github.com/pact-foundation/pact-go/v2/utils"
 )
+
+// defaultClientTimeout is how long the mock server client waits for the
+// native library when MockHTTPProviderConfig.ClientTimeout is left unset.
+const defaultClientTimeout = 10 * time.Second
 
 // MockHTTPProviderConfig provides the configuration options for an HTTP mock server
 // consumer test.
@@ -91,46 +95,11 @@ type MockServerConfig struct {
 	TLSConfig *tls.Config
 }
 
-// configure validates the configuration for the consumer test.
-func (p *httpMockProvider) configure() error {
-	log.Println("[DEBUG] pact setup")
-	dir, _ := os.Getwd()
-
-	if p.config.Host == "" {
-		p.config.Host = "127.0.0.1"
-	}
-
-	if p.config.LogDir == "" {
-		p.config.LogDir = filepath.Join(dir, "logs")
-	}
-
-	if p.config.PactDir == "" {
-		p.config.PactDir = filepath.Join(dir, "pacts")
-	}
-
-	if p.config.ClientTimeout == 0 {
-		p.config.ClientTimeout = 10 * time.Second
-	}
-
-	p.mockserver = native.NewHTTPPact(p.config.Consumer, p.config.Provider)
-	p.mockserver.WithMetadata("pact-go", "version", strings.TrimPrefix(command.Version, "v"))
-	switch p.specificationVersion {
-	case models.V2:
-		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V2)
-	case models.V3:
-		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V3)
-	case models.V4:
-		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V4)
-	}
-	native.Init(string(logging.LogLevel()))
-
-	return nil
-}
-
 // ExecuteTest runs the current test case against a Mock Service.
 // Will cleanup interactions between tests within a suite
 // and write the pact file if successful.
 func (p *httpMockProvider) ExecuteTest(t *testing.T, integrationTest func(MockServerConfig) error) error {
+	t.Helper()
 	log.Println("[DEBUG] pact verify")
 
 	var err error
@@ -141,12 +110,15 @@ func (p *httpMockProvider) ExecuteTest(t *testing.T, integrationTest func(MockSe
 	}
 
 	if err != nil {
-		return fmt.Errorf("error: unable to find free port, mock server will fail to start")
+		return errors.New("error: unable to find free port, mock server will fail to start")
 	}
 
 	p.config.Port, err = p.mockserver.Start(fmt.Sprintf("%s:%d", p.config.Host, p.config.Port), p.config.TLS)
 	defer p.reset()
 	if err != nil {
+		//nolint:wrapcheck // MockServer.Start returns the internal/native sentinels
+		// (ErrNoInteractions, ErrInvalidMockServerConfig, ...) whose text mirrors the
+		// pact_ffi return code; ExecuteTest hands it straight to the user's test output.
 		return err
 	}
 
@@ -177,20 +149,52 @@ func (p *httpMockProvider) ExecuteTest(t *testing.T, integrationTest func(MockSe
 	return p.writePact()
 }
 
+// configure applies the defaults for any unset consumer test configuration.
+func (p *httpMockProvider) configure() {
+	log.Println("[DEBUG] pact setup")
+	dir, _ := os.Getwd()
+
+	if p.config.Host == "" {
+		p.config.Host = "127.0.0.1"
+	}
+
+	if p.config.LogDir == "" {
+		p.config.LogDir = filepath.Join(dir, "logs")
+	}
+
+	if p.config.PactDir == "" {
+		p.config.PactDir = filepath.Join(dir, "pacts")
+	}
+
+	if p.config.ClientTimeout == 0 {
+		p.config.ClientTimeout = defaultClientTimeout
+	}
+
+	p.mockserver = native.NewHTTPPact(p.config.Consumer, p.config.Provider)
+	p.mockserver.WithMetadata("pact-go", "version", strings.TrimPrefix(command.Version, "v"))
+	switch p.specificationVersion {
+	case models.V2:
+		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V2)
+	case models.V3:
+		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V3)
+	case models.V4:
+		p.mockserver.WithSpecificationVersion(native.SPECIFICATION_VERSION_V4)
+	}
+	native.Init(string(logging.LogLevel()))
+}
+
 // Clear state between tests.
 func (p *httpMockProvider) reset() {
 	p.mockserver.CleanupMockServer(p.config.Port)
 	p.mockserver.CleanupPlugins()
 	p.config.Port = 0
-	err := p.configure()
-	if err != nil {
-		log.Println("[ERROR] failed to configure the mock server")
-	}
+	p.configure()
 }
 
 // TODO: improve / pretty print this to make it really easy to understand the problems
 // See existing Pact/Ruby code examples.
 func (p *httpMockProvider) displayMismatches(t *testing.T, mismatches []native.MismatchedRequest) {
+	t.Helper()
 	if len(mismatches) > 0 {
 		if len(callerInfo()) > 0 {
 			fmt.Printf("\n\n%s:\n", callerInfo()[len(callerInfo())-1])
@@ -308,6 +312,9 @@ func isTest(name, prefix string) bool {
 func (p *httpMockProvider) writePact() error {
 	log.Println("[DEBUG] write pact file")
 	if p.config.Port != 0 {
+		//nolint:wrapcheck // WritePactFile returns the internal/native sentinels
+		// (ErrUnableToWritePactFile, ErrMockServerNotfound, ...) whose text mirrors the
+		// pact_ffi return code.
 		return p.mockserver.WritePactFile(p.config.Port, p.config.PactDir)
 	}
 	return errors.New("pact server not yet started")

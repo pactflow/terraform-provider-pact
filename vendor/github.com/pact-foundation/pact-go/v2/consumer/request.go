@@ -8,6 +8,9 @@ type Request struct {
 	Path    matchers.Matcher    `json:"path"`
 	Query   matchers.MapMatcher `json:"query,omitempty"`
 	Headers matchers.MapMatcher `json:"headers,omitempty"`
-	Body    interface{}         `json:"body,omitempty"`
+	Body    any                 `json:"body,omitempty"`
 }
+
+// Method is an HTTP request method (e.g. "GET", "POST") used when
+// building the expected request of an interaction.
 type Method string
