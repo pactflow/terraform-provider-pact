@@ -160,7 +160,7 @@ func webhook() *schema.Resource {
 func parseWebhook(d *schema.ResourceData, meta interface{}) (broker.Webhook, error) {
 	request := new(broker.Request)
 	webhook := &broker.Webhook{
-		Enabled: true,
+		Enabled: d.Get("enabled").(bool),
 		Events:  []broker.WebhookEvent{},
 	}
 
