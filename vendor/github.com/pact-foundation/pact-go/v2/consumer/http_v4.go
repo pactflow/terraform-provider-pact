@@ -24,12 +24,9 @@ func NewV4Pact(config MockHTTPProviderConfig) (*V4HTTPMockProvider, error) {
 			specificationVersion: models.V4,
 		},
 	}
-	err := provider.configure()
-	if err != nil {
-		return nil, err
-	}
+	provider.configure()
 
-	return provider, err
+	return provider, nil
 }
 
 // AddInteraction to the pact.
@@ -48,6 +45,9 @@ func (p *V4HTTPMockProvider) AddInteraction() *V4UnconfiguredInteraction {
 	return i
 }
 
+// V4UnconfiguredInteraction is a V4 interaction with none of its provider
+// states, description or request configured yet, started from
+// V4HTTPMockProvider.AddInteraction.
 type V4UnconfiguredInteraction struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
@@ -71,13 +71,20 @@ func (i *V4UnconfiguredInteraction) GivenWithParameter(state models.ProviderStat
 	return i
 }
 
+// V4InteractionWithRequest is a V4 interaction with its request
+// configured, ready to set the expected response status via
+// WillRespondWith.
 type V4InteractionWithRequest struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
 }
 
+// V4RequestBuilderFunc configures the expected request of a V4
+// interaction, as passed to V4UnconfiguredInteraction.WithRequest.
 type V4RequestBuilderFunc func(*V4RequestBuilder)
 
+// V4RequestBuilder configures the query, headers and body of the request
+// a V4 interaction expects.
 type V4RequestBuilder struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
@@ -100,7 +107,8 @@ func (i *V4UnconfiguredInteraction) AddExternalReference(group, name, value stri
 	return i
 }
 
-// WithRequest provides a builder for the expected request.
+// WithCompleteRequest sets the entire expected request from a pre-built
+// Request, as an alternative to the builder-style WithRequest.
 func (i *V4UnconfiguredInteraction) WithCompleteRequest(request Request) *V4InteractionWithCompleteRequest {
 	i.interaction.WithCompleteRequest(request)
 
@@ -110,12 +118,17 @@ func (i *V4UnconfiguredInteraction) WithCompleteRequest(request Request) *V4Inte
 	}
 }
 
+// V4InteractionWithCompleteRequest is a V4 interaction whose request was
+// set via WithCompleteRequest, ready to set the expected response via
+// WithCompleteResponse.
 type V4InteractionWithCompleteRequest struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
 }
 
-// WithRequest provides a builder for the expected request.
+// WithCompleteResponse sets the entire expected response from a
+// pre-built Response, as an alternative to the builder-style
+// WillRespondWith.
 func (i *V4InteractionWithCompleteRequest) WithCompleteResponse(response Response) *V4InteractionWithResponse {
 	i.interaction.WithCompleteResponse(response)
 
@@ -169,7 +182,7 @@ func (i *V4RequestBuilder) Headers(headers matchers.HeadersMatcher) *V4RequestBu
 }
 
 // JSONBody adds a JSON body to the expected request.
-func (i *V4RequestBuilder) JSONBody(body interface{}) *V4RequestBuilder {
+func (i *V4RequestBuilder) JSONBody(body any) *V4RequestBuilder {
 	// TODO: Don't like panic, but not sure if there is a better builder experience?
 	err := validateMatchers(i.interaction.specificationVersion, body)
 	if err != nil {
@@ -180,7 +193,7 @@ func (i *V4RequestBuilder) JSONBody(body interface{}) *V4RequestBuilder {
 		// Check if someone tried to add an object as a string representation
 		// as per original allowed implementation, e.g.
 		// { "foo": "bar", "baz": like("bat") }
-		if utils.IsJSONFormattedObject(string(s)) {
+		if utils.IsJSONFormattedObject(s) {
 			log.Println("[WARN] request body appears to be a JSON formatted object, " +
 				"no matching will occur. Support for structured strings has been" +
 				"deprecated as of 0.13.0. Please use the JSON() method instead")
@@ -223,7 +236,7 @@ func (i *V4RequestBuilder) Body(contentType string, body []byte) *V4RequestBuild
 }
 
 // BodyMatch uses struct tags to automatically determine matchers from the given struct.
-func (i *V4RequestBuilder) BodyMatch(body interface{}) *V4RequestBuilder {
+func (i *V4RequestBuilder) BodyMatch(body any) *V4RequestBuilder {
 	i.interaction.interaction.WithJSONRequestBody(matchers.MatchV2(body))
 
 	return i
@@ -246,13 +259,19 @@ func (i *V4InteractionWithRequest) WillRespondWith(status int, builders ...V4Res
 	}
 }
 
+// V4ResponseBuilderFunc configures the expected response of a V4
+// interaction, as passed to V4InteractionWithRequest.WillRespondWith.
 type V4ResponseBuilderFunc func(*V4ResponseBuilder)
 
+// V4ResponseBuilder configures the headers and body of the response a V4
+// interaction returns.
 type V4ResponseBuilder struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
 }
 
+// V4InteractionWithResponse is a fully configured V4 interaction, ready
+// to run via ExecuteTest.
 type V4InteractionWithResponse struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
@@ -273,7 +292,7 @@ func (i *V4ResponseBuilder) Headers(headers matchers.HeadersMatcher) *V4Response
 }
 
 // JSONBody adds a JSON body to the expected response.
-func (i *V4ResponseBuilder) JSONBody(body interface{}) *V4ResponseBuilder {
+func (i *V4ResponseBuilder) JSONBody(body any) *V4ResponseBuilder {
 	// TODO: Don't like panic, how to build a better builder here - nil return + log?
 	err := validateMatchers(i.interaction.specificationVersion, body)
 	if err != nil {
@@ -284,7 +303,7 @@ func (i *V4ResponseBuilder) JSONBody(body interface{}) *V4ResponseBuilder {
 		// Check if someone tried to add an object as a string representation
 		// as per original allowed implementation, e.g.
 		// { "foo": "bar", "baz": like("bat") }
-		if utils.IsJSONFormattedObject(string(s)) {
+		if utils.IsJSONFormattedObject(s) {
 			log.Println("[WARN] response body appears to be a JSON formatted object, " +
 				"no matching will occur. Support for structured strings has been" +
 				"deprecated as of 0.13.0. Please use the JSON() method instead")
@@ -317,7 +336,7 @@ func (i *V4ResponseBuilder) Body(contentType string, body []byte) *V4ResponseBui
 }
 
 // BodyMatch uses struct tags to automatically determine matchers from the given struct.
-func (i *V4ResponseBuilder) BodyMatch(body interface{}) *V4ResponseBuilder {
+func (i *V4ResponseBuilder) BodyMatch(body any) *V4ResponseBuilder {
 	i.interaction.interaction.WithJSONResponseBody(matchers.MatchV2(body))
 
 	return i
@@ -325,6 +344,7 @@ func (i *V4ResponseBuilder) BodyMatch(body interface{}) *V4ResponseBuilder {
 
 // ExecuteTest runs the current test case against a Mock Service.
 func (m *V4InteractionWithResponse) ExecuteTest(t *testing.T, integrationTest func(MockServerConfig) error) error {
+	t.Helper()
 	return m.provider.ExecuteTest(t, integrationTest)
 }
 
@@ -332,11 +352,14 @@ func (m *V4InteractionWithResponse) ExecuteTest(t *testing.T, integrationTest fu
 // Plugin //
 ////////////
 
+// PluginConfig identifies a pact_ffi plugin to load via UsingPlugin.
 type PluginConfig struct {
 	Plugin  string
 	Version string
 }
 
+// V4InteractionWithPlugin is a V4 interaction with a plugin loaded via
+// UsingPlugin, ready to configure its request via WithRequest.
 type V4InteractionWithPlugin struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
@@ -367,13 +390,22 @@ func (i *V4InteractionWithPlugin) UsingPlugin(config PluginConfig) *V4Interactio
 	return i
 }
 
+// V4InteractionWithPluginRequest is a plugin-backed V4 interaction with
+// its request configured, ready to set the expected response status via
+// WillRespondWith.
 type V4InteractionWithPluginRequest struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
 }
 
+// PluginRequestBuilderFunc configures the expected request of a
+// plugin-backed V4 interaction, as passed to
+// V4InteractionWithPlugin.WithRequest.
 type PluginRequestBuilderFunc func(*V4InteractionWithPluginRequestBuilder)
 
+// V4InteractionWithPluginRequestBuilder configures the query, headers,
+// body and plugin contents of the request a plugin-backed V4 interaction
+// expects.
 type V4InteractionWithPluginRequestBuilder struct {
 	interaction *Interaction
 }
@@ -410,7 +442,8 @@ func (i *V4InteractionWithPlugin) WithRequestPathMatcher(method Method, path mat
 	}
 }
 
-// WillResponseWithContent provides a builder for the expected response.
+// WillRespondWith sets the expected status and provides a response
+// builder.
 func (i *V4InteractionWithPluginRequest) WillRespondWith(status int, builders ...PluginResponseBuilderFunc) *V4InteractionWithPluginResponse {
 	i.interaction.interaction.WithStatus(status)
 
@@ -427,13 +460,20 @@ func (i *V4InteractionWithPluginRequest) WillRespondWith(status int, builders ..
 	}
 }
 
+// PluginResponseBuilderFunc configures the expected response of a
+// plugin-backed V4 interaction, as passed to
+// V4InteractionWithPluginRequest.WillRespondWith.
 type PluginResponseBuilderFunc func(*V4InteractionWithPluginResponseBuilder)
 
+// V4InteractionWithPluginResponseBuilder configures the headers, body and
+// plugin contents of the response a plugin-backed V4 interaction returns.
 type V4InteractionWithPluginResponseBuilder struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
 }
 
+// V4InteractionWithPluginResponse is a fully configured plugin-backed V4
+// interaction, ready to run via ExecuteTest.
 type V4InteractionWithPluginResponse struct {
 	interaction *Interaction
 	provider    *V4HTTPMockProvider
@@ -441,6 +481,7 @@ type V4InteractionWithPluginResponse struct {
 
 // ExecuteTest runs the current test case against a Mock Service.
 func (m *V4InteractionWithPluginResponse) ExecuteTest(t *testing.T, integrationTest func(MockServerConfig) error) error {
+	t.Helper()
 	return m.provider.ExecuteTest(t, integrationTest)
 }
 
@@ -477,7 +518,7 @@ func (i *V4InteractionWithPluginRequestBuilder) PluginContents(contentType strin
 }
 
 // JSONBody adds a JSON body to the expected request.
-func (i *V4InteractionWithPluginRequestBuilder) JSONBody(body interface{}) *V4InteractionWithPluginRequestBuilder {
+func (i *V4InteractionWithPluginRequestBuilder) JSONBody(body any) *V4InteractionWithPluginRequestBuilder {
 	// TODO: Don't like panic, but not sure if there is a better builder experience?
 	err := validateMatchers(i.interaction.specificationVersion, body)
 	if err != nil {
@@ -488,7 +529,7 @@ func (i *V4InteractionWithPluginRequestBuilder) JSONBody(body interface{}) *V4In
 		// Check if someone tried to add an object as a string representation
 		// as per original allowed implementation, e.g.
 		// { "foo": "bar", "baz": like("bat") }
-		if utils.IsJSONFormattedObject(string(s)) {
+		if utils.IsJSONFormattedObject(s) {
 			log.Println("[WARN] request body appears to be a JSON formatted object, " +
 				"no matching will occur. Support for structured strings has been" +
 				"deprecated as of 0.13.0. Please use the JSON() method instead")
@@ -531,7 +572,7 @@ func (i *V4InteractionWithPluginRequestBuilder) Body(contentType string, body []
 }
 
 // BodyMatch uses struct tags to automatically determine matchers from the given struct.
-func (i *V4InteractionWithPluginRequestBuilder) BodyMatch(body interface{}) *V4InteractionWithPluginRequestBuilder {
+func (i *V4InteractionWithPluginRequestBuilder) BodyMatch(body any) *V4InteractionWithPluginRequestBuilder {
 	i.interaction.interaction.WithJSONRequestBody(matchers.MatchV2(body))
 
 	return i
@@ -563,7 +604,7 @@ func (i *V4InteractionWithPluginResponseBuilder) PluginContents(contentType stri
 }
 
 // JSONBody adds a JSON body to the expected response.
-func (i *V4InteractionWithPluginResponseBuilder) JSONBody(body interface{}) *V4InteractionWithPluginResponseBuilder {
+func (i *V4InteractionWithPluginResponseBuilder) JSONBody(body any) *V4InteractionWithPluginResponseBuilder {
 	// TODO: Don't like panic, how to build a better builder here - nil return + log?
 	err := validateMatchers(i.interaction.specificationVersion, body)
 	if err != nil {
@@ -574,7 +615,7 @@ func (i *V4InteractionWithPluginResponseBuilder) JSONBody(body interface{}) *V4I
 		// Check if someone tried to add an object as a string representation
 		// as per original allowed implementation, e.g.
 		// { "foo": "bar", "baz": like("bat") }
-		if utils.IsJSONFormattedObject(string(s)) {
+		if utils.IsJSONFormattedObject(s) {
 			log.Println("[WARN] response body appears to be a JSON formatted object, " +
 				"no matching will occur. Support for structured strings has been" +
 				"deprecated as of 0.13.0. Please use the JSON() method instead")
@@ -607,7 +648,7 @@ func (i *V4InteractionWithPluginResponseBuilder) Body(contentType string, body [
 }
 
 // BodyMatch uses struct tags to automatically determine matchers from the given struct.
-func (i *V4InteractionWithPluginResponseBuilder) BodyMatch(body interface{}) *V4InteractionWithPluginResponseBuilder {
+func (i *V4InteractionWithPluginResponseBuilder) BodyMatch(body any) *V4InteractionWithPluginResponseBuilder {
 	i.interaction.interaction.WithJSONResponseBody(matchers.MatchV2(body))
 
 	return i
