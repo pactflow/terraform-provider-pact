@@ -23,12 +23,9 @@ func NewV3Pact(config MockHTTPProviderConfig) (*V3HTTPMockProvider, error) {
 			specificationVersion: models.V3,
 		},
 	}
-	err := provider.configure()
-	if err != nil {
-		return nil, err
-	}
+	provider.configure()
 
-	return provider, err
+	return provider, nil
 }
 
 // AddInteraction to the pact.
@@ -47,6 +44,9 @@ func (p *V3HTTPMockProvider) AddInteraction() *V3UnconfiguredInteraction {
 	return i
 }
 
+// V3UnconfiguredInteraction is a V3 interaction with none of its provider
+// states, description or request configured yet, started from
+// V3HTTPMockProvider.AddInteraction.
 type V3UnconfiguredInteraction struct {
 	interaction *Interaction
 	provider    *V3HTTPMockProvider
@@ -70,13 +70,20 @@ func (i *V3UnconfiguredInteraction) GivenWithParameter(state models.ProviderStat
 	return i
 }
 
+// V3InteractionWithRequest is a V3 interaction with its request
+// configured, ready to set the expected response status via
+// WillRespondWith.
 type V3InteractionWithRequest struct {
 	interaction *Interaction
 	provider    *V3HTTPMockProvider
 }
 
+// V3RequestBuilderFunc configures the expected request of a V3
+// interaction, as passed to V3UnconfiguredInteraction.WithRequest.
 type V3RequestBuilderFunc func(*V3RequestBuilder)
 
+// V3RequestBuilder configures the query, headers and body of the request
+// a V3 interaction expects.
 type V3RequestBuilder struct {
 	interaction *Interaction
 	provider    *V3HTTPMockProvider
@@ -90,7 +97,8 @@ func (i *V3UnconfiguredInteraction) UponReceiving(description string) *V3Unconfi
 	return i
 }
 
-// WithRequest provides a builder for the expected request.
+// WithCompleteRequest sets the entire expected request from a pre-built
+// Request, as an alternative to the builder-style WithRequest.
 func (i *V3UnconfiguredInteraction) WithCompleteRequest(request Request) *V3InteractionWithCompleteRequest {
 	i.interaction.WithCompleteRequest(request)
 
@@ -100,12 +108,17 @@ func (i *V3UnconfiguredInteraction) WithCompleteRequest(request Request) *V3Inte
 	}
 }
 
+// V3InteractionWithCompleteRequest is a V3 interaction whose request was
+// set via WithCompleteRequest, ready to set the expected response via
+// WithCompleteResponse.
 type V3InteractionWithCompleteRequest struct {
 	interaction *Interaction
 	provider    *V3HTTPMockProvider
 }
 
-// WithRequest provides a builder for the expected request.
+// WithCompleteResponse sets the entire expected response from a
+// pre-built Response, as an alternative to the builder-style
+// WillRespondWith.
 func (i *V3InteractionWithCompleteRequest) WithCompleteResponse(response Response) *V3InteractionWithResponse {
 	i.interaction.WithCompleteResponse(response)
 
@@ -159,7 +172,7 @@ func (i *V3RequestBuilder) Headers(headers matchers.HeadersMatcher) *V3RequestBu
 }
 
 // JSONBody adds a JSON body to the expected request.
-func (i *V3RequestBuilder) JSONBody(body interface{}) *V3RequestBuilder {
+func (i *V3RequestBuilder) JSONBody(body any) *V3RequestBuilder {
 	// TODO: Don't like panic, but not sure if there is a better builder experience?
 	err := validateMatchers(i.interaction.specificationVersion, body)
 	if err != nil {
@@ -170,7 +183,7 @@ func (i *V3RequestBuilder) JSONBody(body interface{}) *V3RequestBuilder {
 		// Check if someone tried to add an object as a string representation
 		// as per original allowed implementation, e.g.
 		// { "foo": "bar", "baz": like("bat") }
-		if utils.IsJSONFormattedObject(string(s)) {
+		if utils.IsJSONFormattedObject(s) {
 			log.Println("[WARN] request body appears to be a JSON formatted object, " +
 				"no matching will occur. Support for structured strings has been" +
 				"deprecated as of 0.13.0. Please use the JSON() method instead")
@@ -213,7 +226,7 @@ func (i *V3RequestBuilder) Body(contentType string, body []byte) *V3RequestBuild
 }
 
 // BodyMatch uses struct tags to automatically determine matchers from the given struct.
-func (i *V3RequestBuilder) BodyMatch(body interface{}) *V3RequestBuilder {
+func (i *V3RequestBuilder) BodyMatch(body any) *V3RequestBuilder {
 	i.interaction.interaction.WithJSONRequestBody(matchers.MatchV2(body))
 
 	return i
@@ -236,13 +249,19 @@ func (i *V3InteractionWithRequest) WillRespondWith(status int, builders ...V3Res
 	}
 }
 
+// V3ResponseBuilderFunc configures the expected response of a V3
+// interaction, as passed to V3InteractionWithRequest.WillRespondWith.
 type V3ResponseBuilderFunc func(*V3ResponseBuilder)
 
+// V3ResponseBuilder configures the headers and body of the response a V3
+// interaction returns.
 type V3ResponseBuilder struct {
 	interaction *Interaction
 	provider    *V3HTTPMockProvider
 }
 
+// V3InteractionWithResponse is a fully configured V3 interaction, ready
+// to run via ExecuteTest.
 type V3InteractionWithResponse struct {
 	interaction *Interaction
 	provider    *V3HTTPMockProvider
@@ -263,7 +282,7 @@ func (i *V3ResponseBuilder) Headers(headers matchers.HeadersMatcher) *V3Response
 }
 
 // JSONBody adds a JSON body to the expected response.
-func (i *V3ResponseBuilder) JSONBody(body interface{}) *V3ResponseBuilder {
+func (i *V3ResponseBuilder) JSONBody(body any) *V3ResponseBuilder {
 	// TODO: Don't like panic, how to build a better builder here - nil return + log?
 	err := validateMatchers(i.interaction.specificationVersion, body)
 	if err != nil {
@@ -274,7 +293,7 @@ func (i *V3ResponseBuilder) JSONBody(body interface{}) *V3ResponseBuilder {
 		// Check if someone tried to add an object as a string representation
 		// as per original allowed implementation, e.g.
 		// { "foo": "bar", "baz": like("bat") }
-		if utils.IsJSONFormattedObject(string(s)) {
+		if utils.IsJSONFormattedObject(s) {
 			log.Println("[WARN] response body appears to be a JSON formatted object, " +
 				"no matching will occur. Support for structured strings has been" +
 				"deprecated as of 0.13.0. Please use the JSON() method instead")
@@ -307,7 +326,7 @@ func (i *V3ResponseBuilder) Body(contentType string, body []byte) *V3ResponseBui
 }
 
 // BodyMatch uses struct tags to automatically determine matchers from the given struct.
-func (i *V3ResponseBuilder) BodyMatch(body interface{}) *V3ResponseBuilder {
+func (i *V3ResponseBuilder) BodyMatch(body any) *V3ResponseBuilder {
 	i.interaction.interaction.WithJSONResponseBody(matchers.MatchV2(body))
 
 	return i
@@ -315,5 +334,6 @@ func (i *V3ResponseBuilder) BodyMatch(body interface{}) *V3ResponseBuilder {
 
 // ExecuteTest runs the current test case against a Mock Service.
 func (m *V3InteractionWithResponse) ExecuteTest(t *testing.T, integrationTest func(MockServerConfig) error) error {
+	t.Helper()
 	return m.provider.ExecuteTest(t, integrationTest)
 }

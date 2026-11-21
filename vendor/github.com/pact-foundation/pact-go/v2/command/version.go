@@ -15,14 +15,14 @@ import (
 //     or when pact-go is imported as a module dependency, resolve it from
 //     the Go module's build info at runtime, so no source change is needed.
 //
-// There is no version to bump for a release - see RELEASING.md.
+// There is no version to bump for a release - see docs/contributing/releasing.md.
 var (
 	Version    = "dev"
 	versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number of Pact Go",
 		Long:  `All software has versions. This is Pact Go's`,
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Printf("Pact Go CLI %s", Version)
 		},
 	}
